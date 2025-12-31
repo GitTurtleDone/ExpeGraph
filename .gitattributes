@@ -1,0 +1,14 @@
+# Text files - use LF line endings
+# Markdown documentation
+*.md text eol=lf
+# Plain text files
+*.txt text eol=lf
+# JSON configuration files
+*.json text eol=lf
+# C# source files
+*.cs text eol=lf
+# SQL scripts
+*.sql text eol=lf
+# YAML configuration
+*.yml text eol=lf
+*.yaml text eol=lf

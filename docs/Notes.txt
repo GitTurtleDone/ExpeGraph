@@ -1,0 +1,6 @@
+250408
+- Create database schema in MySQL Workbench 
+- Forward engineer the database schema
+- dotnet new webapi -n DotnetBE
+250424
+- Add pomelo entity framework: dotnet add package Pomelo.EntityFrameworkCore.MySql

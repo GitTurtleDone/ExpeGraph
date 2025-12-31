@@ -1,4 +1,4 @@
-This software handles operations related to physical experiments, namely, take data and presents them in publicatin-ready graphs.
+This software handles operations related to physical experiments, namely, take data and presents them in publication-ready graphs.
 Requirements
 This software should include 3 modules:
 

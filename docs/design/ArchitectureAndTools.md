@@ -5,6 +5,8 @@ The following architecture and tools are adopted as the first iteration:
 **Module 2:** .NET to connect with databases, with PostgreSQL as the database.
 
 **Module 3:** Python for data analysis and visualization.
+- **Plotly** — interactive graphs rendered in the React frontend (zoom, pan, range selection, drag-and-drop annotations). `react-plotly.js` is used on the frontend side.
+- **Matplotlib** — publication export only. When the user is satisfied with the graph, the backend renders it with Matplotlib and saves `.tiff`, `.eps`, or `.ps`. No interactivity required from Matplotlib.
 
 **Interface:** React
 
@@ -25,7 +27,8 @@ flowchart TB
     end
 
     subgraph M3[Module 3 · Python Analysis]
-        PY[pandas + Matplotlib]
+        PY[pandas + Plotly]
+        MPL[Matplotlib\npublication export]
     end
 
     subgraph Store[Storage]
@@ -44,6 +47,8 @@ flowchart TB
     UI  -->|REST JSON| API
     PY  -->|SELECT queries| PG
     PY  -->|read raw files| FS
-    PY  -->|write graph| FS
-    UI  -->|display graph| FS
+    PY  -->|Plotly JSON spec| UI
+    UI  -->|Export request| MPL
+    MPL -->|.tiff/.eps/.ps| FS
+    UI  -->|display export| FS
 ```

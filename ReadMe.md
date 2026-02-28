@@ -21,5 +21,5 @@ The 3rd module retrieves the data from the database, compare data taken from dif
 - PyVisa is used to control the equipment.
 - The format of the data files are .csv and .txt.
 - The database is PostgreSQL.
-- Matplotlib is planed to be used as the graphical engine, it can be changed when other packages are found to be more appropricate. Graphs should be saved in either .tiff, .eps, or .ps formats.
+- **Plotly** is used for interactive graphs in the frontend (zoom, pan, annotations, drag-and-drop). **Matplotlib** is used exclusively for final publication export. Graphs are saved in .tiff, .eps, or .ps formats.
 - There should be chatbots to assist experimentators to perform tasks in the 3 modules.

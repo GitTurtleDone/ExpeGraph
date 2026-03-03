@@ -112,6 +112,24 @@ Rules:
 
 ---
 
+## Project / Module Directories
+
+All top-level directories use **lowercase `snake_case`** regardless of the language inside.
+Internal code conventions (C# `PascalCase`, React `PascalCase` components) are independent of directory naming.
+
+| Directory | Tech inside |
+|-----------|------------|
+| `experiment/` | Python — PyVISA acquisition |
+| `data_management/` | C# — .NET Web API |
+| `graphing/` | Python — Plotly / Matplotlib |
+| `frontend/` | TypeScript — React UI |
+| `database/` | SQL — schema scripts |
+| `docs/` | Markdown — documentation |
+
+**Do not** use `PascalCase` or `camelCase` for directory names at any level.
+
+---
+
 ## Git Branches
 
 | Branch | Purpose |

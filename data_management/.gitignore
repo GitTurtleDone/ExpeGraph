@@ -1,0 +1,15 @@
+# ── .NET build output ────────────────────────────────────────
+bin/
+obj/
+
+# ── IDE ──────────────────────────────────────────────────────
+*.user
+.vs/
+
+# ── Secrets (never committed) ────────────────────────────────
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log

@@ -1,0 +1,19 @@
+# ── uv / Python ──────────────────────────────────────────────
+.venv/
+__pycache__/
+*.py[cod]
+.python-version
+
+# ── Secrets ──────────────────────────────────────────────────
+.env
+.env.local
+
+# ── Generated output (graphs, exports) ───────────────────────
+output/
+*.png
+*.tiff
+*.eps
+*.pdf
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log

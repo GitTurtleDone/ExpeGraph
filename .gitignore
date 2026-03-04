@@ -1,1 +1,15 @@
+## ============================================================
+## ExpeGraph root .gitignore
+## Module-specific rules live in each module's own .gitignore
+## ============================================================
+
+# ── Private notes (never committed) ─────────────────────────
 Notes/
+
+# ── Global secrets ───────────────────────────────────────────
+.env
+.env.local
+
+# ── OS ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

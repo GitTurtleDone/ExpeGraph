@@ -272,6 +272,7 @@ CREATE TABLE measurements (
     measurement_type    VARCHAR(50)     NOT NULL,
     measured_at         TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
     temperature_k       REAL,
+    humidity_percent    REAL,
     notes               TEXT,
     data_file_path      TEXT            NOT NULL,
     CONSTRAINT measurements_target_check CHECK (

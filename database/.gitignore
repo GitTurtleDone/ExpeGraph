@@ -1,0 +1,4 @@
+# ── Database dumps and backups (contain sensitive data) ──────
+*.backup
+*.dump
+*.sql.bak

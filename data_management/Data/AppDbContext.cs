@@ -54,7 +54,8 @@ public class AppDbContext : DbContext
             entity.HasOne(s => s.Batch)
                 .WithMany(b => b.Samples)
                 .HasForeignKey(s => s.BatchId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
             entity.Property(s => s.CreatedAt)
                 .HasColumnName("created_at")
                 .HasDefaultValueSql("NOW()");   

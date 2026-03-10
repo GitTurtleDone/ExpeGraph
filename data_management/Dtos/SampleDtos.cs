@@ -6,7 +6,7 @@ public record SampleResponse(
     string? Description,
     string? Treatment,
     Dictionary<string, object>? Properties,
-    int BatchId,
+    int? BatchId,
     DateTime CreatedAt);
 
 public record CreateSampleRequest(
@@ -14,11 +14,11 @@ public record CreateSampleRequest(
     string? Description,
     string? Treatment,
     Dictionary<string, object>? Properties,
-    int BatchId);
+    int? BatchId);
 
 public record UpdateSampleRequest(
     string SampleName,
     string? Description,
     string? Treatment,
     Dictionary<string, object>? Properties,
-    int BatchId);
+    int? BatchId);

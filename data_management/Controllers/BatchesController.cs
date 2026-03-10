@@ -59,7 +59,7 @@ public class BatchesController : ControllerBase
         }
         catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("23503") == true)
         {
-            return BadRequest("The specified project_id or lab_id does not exist");
+            return BadRequest($"Project with id {req.ProjectId} or lab with id {req.LabId} does not exist");
         }
 
         return CreatedAtAction(nameof(GetById), new { id = batch.BatchId },
@@ -87,7 +87,7 @@ public class BatchesController : ControllerBase
         }
         catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("23503") == true)
         {
-            return BadRequest("The specified project_id or lab_id does not exist");
+            return BadRequest($"Project with id {req.ProjectId} or lab with id {req.LabId} does not exist");
         }
         
 

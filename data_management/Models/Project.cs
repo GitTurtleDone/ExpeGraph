@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace DataManagement.Models;
 
 public class Project
@@ -11,4 +9,5 @@ public class Project
 	public DateOnly? StartDate { get; set;}
 	public DateOnly? EndDate { get; set;}
 	public DateTime CreatedAt { get; set;}	
+	public ICollection<UserProject>? UserProjects { get; set; }
 }

@@ -10,5 +10,6 @@ public class User
     public bool IsActive { get; set;}
     public DateTime CreatedAt { get; set;}
     public DateTime LastLoginAt { get; set;}
-    
+    public ICollection<UserProject>? UserProjects { get; set; }
+    public ICollection<UserLab>? UserLabs { get; set; }
 }

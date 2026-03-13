@@ -1,9 +1,18 @@
 namespace DataManagement.Dtos;
-public class LabResponse
-{
-    public int LabId { get; set;}
-    public string LabName { get; set;} = string.Empty;
-    public string? Description { get; set;}
-    public int LabLeaderId { get; set;}
-    public DateTime CreatedAt { get; set;}
-}
+public record LabResponse(
+
+    int LabId,
+    string LabName,
+    string? Description,
+    int LabLeaderId,
+    DateTime CreatedAt);
+
+public record CreatLabRequest(
+    string LabName,
+    string? Description,
+    int LabLeaderId);
+
+public record UpdateLabRequest(
+    string LabName,
+    string? Description,
+    int LabLeaderId);

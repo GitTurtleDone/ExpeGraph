@@ -9,7 +9,7 @@ public record UserLabResponse(
 public record CreateUserLabRequest(
     int UserId,
     int LabId,
-    string Role);
+    string Role = "member");
 
 public record UpdateUserLabRequest(
     string Role);

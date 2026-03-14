@@ -1,0 +1,3 @@
+BEGIN;
+ALTER TABLE projects ALTER COLUMN project_name TYPE TEXT;
+COMMIT;

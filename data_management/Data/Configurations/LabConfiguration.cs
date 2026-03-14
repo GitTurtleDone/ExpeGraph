@@ -17,6 +17,12 @@ public class LabConfiguration : IEntityTypeConfiguration<Lab>
             .HasMaxLength(100);
         entity.HasIndex(l => l.LabName).IsUnique();
         entity.Property(l => l.Description).HasColumnName("description");
+        entity.Property(l => l.LabLeaderId)
+            .HasColumnName("lab_leader_id");
+        entity.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(l => l.LabLeaderId)
+            .OnDelete(DeleteBehavior.SetNull);
         entity.Property(l => l.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired()

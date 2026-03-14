@@ -4,15 +4,15 @@ public record LabResponse(
     int LabId,
     string LabName,
     string? Description,
-    int LabLeaderId,
+    int? LabLeaderId,
     DateTime CreatedAt);
 
-public record CreatLabRequest(
+public record CreateLabRequest(
     string LabName,
     string? Description,
-    int LabLeaderId);
+    int? LabLeaderId);
 
 public record UpdateLabRequest(
     string LabName,
     string? Description,
-    int LabLeaderId);
+    int? LabLeaderId);

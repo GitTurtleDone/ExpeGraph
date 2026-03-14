@@ -8,12 +8,12 @@ public class UserLabConfiguration : IEntityTypeConfiguration<UserLab>
 {
     public void Configure(EntityTypeBuilder<UserLab> entity)
     {
-        entity.ToTable("user_labs");
+        entity.ToTable("users_labs");
         entity.HasKey(ul => new {ul.UserId, ul.LabId});
         entity.Property(ul => ul.UserId).HasColumnName("user_id");
         entity.Property(ul => ul.LabId).HasColumnName("lab_id");
         entity.Property(ul => ul.Role)
-            .HasColumnName("Role")
+            .HasColumnName("role")
             .IsRequired()
             .HasMaxLength(20)
             .HasDefaultValue("member");
@@ -23,5 +23,7 @@ public class UserLabConfiguration : IEntityTypeConfiguration<UserLab>
             .HasColumnName("joined_at")
             .IsRequired()
             .HasDefaultValueSql("NOW()");
+        entity.HasOne(ul => ul.User).WithMany(l => l.UserLabs);
+        entity.HasOne(ul => ul.Lab).WithMany(u => u.UserLabs);
     }
 }

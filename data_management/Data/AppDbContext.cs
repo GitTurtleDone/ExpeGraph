@@ -1,3 +1,4 @@
+using DataManagement.Controllers;
 using DataManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
@@ -14,7 +15,8 @@ public class AppDbContext : DbContext
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<User> Users => Set<User>();
     public DbSet<UserProject> UserProjects => Set<UserProject>();
-
+    public DbSet<Lab> Labs => Set<Lab>();
+    public DbSet<UserLab> UserLabs => Set<UserLab>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("expegraph");

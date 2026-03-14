@@ -96,7 +96,22 @@ dotnet restore
 dotnet build
 ```
 
-> Uses `Npgsql.EntityFrameworkCore.PostgreSQL` for PostgreSQL.
+> **Adding NuGet packages** (general pattern):
+> ```bash
+> dotnet add package <PackageName>
+> ```
+> This updates the `.csproj` file and runs `dotnet restore` automatically.
+
+### Packages used
+| Package | Purpose |
+|---------|---------|
+| `Npgsql.EntityFrameworkCore.PostgreSQL` | PostgreSQL EF Core provider |
+| `BCrypt.Net-Next` | Password hashing |
+
+Install:
+```bash
+dotnet add package BCrypt.Net-Next
+```
 
 ---
 

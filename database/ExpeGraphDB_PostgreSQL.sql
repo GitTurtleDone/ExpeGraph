@@ -265,6 +265,7 @@ CREATE INDEX idx_resistors_tlm_id ON resistors(tlm_id);
 CREATE TABLE measurements (
     measurement_id      SERIAL          PRIMARY KEY,
     -- Exactly one of device_id or sample_id must be set.
+    -- because some measurements do not require fabrication of devices
     device_id           INT             REFERENCES devices(device_id) ON DELETE CASCADE,
     sample_id           INT             REFERENCES samples(sample_id) ON DELETE CASCADE,
     equipment_id        INT             REFERENCES equipment(equipment_id) ON DELETE SET NULL,

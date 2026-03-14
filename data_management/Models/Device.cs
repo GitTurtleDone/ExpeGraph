@@ -6,5 +6,5 @@ public class Device
     public string DeviceType { get; set;} = string.Empty;
     public int SampleId { get; set; }
     public Sample? Sample { get; set; }
-
+    public ICollection<DeviceParameter>? DeviceParameters { get; set; }
 }

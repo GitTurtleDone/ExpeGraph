@@ -23,7 +23,11 @@ public class UserLabConfiguration : IEntityTypeConfiguration<UserLab>
             .HasColumnName("joined_at")
             .IsRequired()
             .HasDefaultValueSql("NOW()");
-        entity.HasOne(ul => ul.User).WithMany(l => l.UserLabs);
-        entity.HasOne(ul => ul.Lab).WithMany(u => u.UserLabs);
+        entity.HasOne(ul => ul.User).WithMany(u => u.UserLabs)
+            .HasForeignKey(ul => ul.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(ul => ul.Lab).WithMany(l => l.UserLabs)
+            .HasForeignKey(ul => ul.LabId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

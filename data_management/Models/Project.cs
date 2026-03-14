@@ -10,4 +10,5 @@ public class Project
 	public DateOnly? EndDate { get; set;}
 	public DateTime CreatedAt { get; set;}	
 	public ICollection<UserProject>? UserProjects { get; set; }
+	public ICollection<LabProject>? LabProjects { get; set; }
 }

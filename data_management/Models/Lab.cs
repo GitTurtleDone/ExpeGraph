@@ -7,4 +7,6 @@ public class Lab
     public int? LabLeaderId { get; set; }
     public DateTime CreatedAt { get; set;}
     public ICollection<UserLab>? UserLabs { get; set; }
+    public ICollection<LabProject>? LabProjects { get; set; }
+    public ICollection<LabEquipment>? LabEquipments { get; set; }
 }

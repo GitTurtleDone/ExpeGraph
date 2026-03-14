@@ -17,6 +17,18 @@ public class AppDbContext : DbContext
     public DbSet<UserProject> UserProjects => Set<UserProject>();
     public DbSet<Lab> Labs => Set<Lab>();
     public DbSet<UserLab> UserLabs => Set<UserLab>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<Equipment> Equipment => Set<Equipment>();
+    public DbSet<Tlm> Tlms => Set<Tlm>();
+    public DbSet<LabProject> LabProjects => Set<LabProject>();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<LabEquipment> LabEquipments => Set<LabEquipment>();
+    public DbSet<DeviceParameter> DeviceParameters => Set<DeviceParameter>();
+    public DbSet<Diode> Diodes => Set<Diode>();
+    public DbSet<Transistor> Transistors => Set<Transistor>();
+    public DbSet<Resistor> Resistors => Set<Resistor>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("expegraph");

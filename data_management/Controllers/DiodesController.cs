@@ -18,7 +18,7 @@ public class DiodesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult> GetAll() =>
         Ok(await _db.Diodes.Select(d => new DiodeResponse(
-            d.DiodeId, d.DiodeName, d.GeometryType, d.AnodeWidthUm, d.AnodeLengthUm, d.ChamferRadiusUm,
+            d.DiodeId, d.GeometryType, d.AnodeWidthUm, d.AnodeLengthUm, d.ChamferRadiusUm,
             d.AnodeRadiusUm, d.GeometryProperties, d.BarrierHeightEv, d.IdealityFactor, d.RecRatio,
             d.BuiltInPotentialV, d.CarrierConcentration, d.MaxCurrentA, d.VoltageAtMaxCurrentV, d.BreakdownVoltageV))
         .ToListAsync());
@@ -29,7 +29,7 @@ public class DiodesController : ControllerBase
         var d = await _db.Diodes.FindAsync(deviceId);
         return d is null
             ? NotFound($"Diode with device id {deviceId} not found.")
-            : Ok(new DiodeResponse(d.DiodeId, d.DiodeName, d.GeometryType, d.AnodeWidthUm, d.AnodeLengthUm,
+            : Ok(new DiodeResponse(d.DiodeId, d.GeometryType, d.AnodeWidthUm, d.AnodeLengthUm,
                 d.ChamferRadiusUm, d.AnodeRadiusUm, d.GeometryProperties, d.BarrierHeightEv, d.IdealityFactor,
                 d.RecRatio, d.BuiltInPotentialV, d.CarrierConcentration, d.MaxCurrentA, d.VoltageAtMaxCurrentV, d.BreakdownVoltageV));
     }
@@ -41,7 +41,7 @@ public class DiodesController : ControllerBase
             return BadRequest($"GeometryType must be one of: {string.Join(", ", AllowedGeometryTypes)}.");
         var d = new Diode
         {
-            DiodeId = req.DiodeId, DiodeName = req.DiodeName, GeometryType = req.GeometryType,
+            DiodeId = req.DiodeId, GeometryType = req.GeometryType,
             AnodeWidthUm = req.AnodeWidthUm, AnodeLengthUm = req.AnodeLengthUm, ChamferRadiusUm = req.ChamferRadiusUm,
             AnodeRadiusUm = req.AnodeRadiusUm, GeometryProperties = req.GeometryProperties,
             BarrierHeightEv = req.BarrierHeightEv, IdealityFactor = req.IdealityFactor, RecRatio = req.RecRatio,
@@ -59,7 +59,7 @@ public class DiodesController : ControllerBase
             return Conflict($"A diode already exists for device id {req.DiodeId}.");
         }
         return CreatedAtAction(nameof(GetById), new { deviceId = d.DiodeId },
-            new DiodeResponse(d.DiodeId, d.DiodeName, d.GeometryType, d.AnodeWidthUm, d.AnodeLengthUm,
+            new DiodeResponse(d.DiodeId, d.GeometryType, d.AnodeWidthUm, d.AnodeLengthUm,
                 d.ChamferRadiusUm, d.AnodeRadiusUm, d.GeometryProperties, d.BarrierHeightEv, d.IdealityFactor,
                 d.RecRatio, d.BuiltInPotentialV, d.CarrierConcentration, d.MaxCurrentA, d.VoltageAtMaxCurrentV, d.BreakdownVoltageV));
     }
@@ -71,14 +71,14 @@ public class DiodesController : ControllerBase
             return BadRequest($"GeometryType must be one of: {string.Join(", ", AllowedGeometryTypes)}.");
         var d = await _db.Diodes.FindAsync(deviceId);
         if (d is null) return NotFound($"Diode with device id {deviceId} not found.");
-        d.DiodeName = req.DiodeName; d.GeometryType = req.GeometryType;
+        d.GeometryType = req.GeometryType;
         d.AnodeWidthUm = req.AnodeWidthUm; d.AnodeLengthUm = req.AnodeLengthUm; d.ChamferRadiusUm = req.ChamferRadiusUm;
         d.AnodeRadiusUm = req.AnodeRadiusUm; d.GeometryProperties = req.GeometryProperties;
         d.BarrierHeightEv = req.BarrierHeightEv; d.IdealityFactor = req.IdealityFactor; d.RecRatio = req.RecRatio;
         d.BuiltInPotentialV = req.BuiltInPotentialV; d.CarrierConcentration = req.CarrierConcentration;
         d.MaxCurrentA = req.MaxCurrentA; d.VoltageAtMaxCurrentV = req.VoltageAtMaxCurrentV; d.BreakdownVoltageV = req.BreakdownVoltageV;
         await _db.SaveChangesAsync();
-        return Ok(new DiodeResponse(d.DiodeId, d.DiodeName, d.GeometryType, d.AnodeWidthUm, d.AnodeLengthUm,
+        return Ok(new DiodeResponse(d.DiodeId, d.GeometryType, d.AnodeWidthUm, d.AnodeLengthUm,
             d.ChamferRadiusUm, d.AnodeRadiusUm, d.GeometryProperties, d.BarrierHeightEv, d.IdealityFactor,
             d.RecRatio, d.BuiltInPotentialV, d.CarrierConcentration, d.MaxCurrentA, d.VoltageAtMaxCurrentV, d.BreakdownVoltageV));
     }

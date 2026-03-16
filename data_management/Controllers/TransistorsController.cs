@@ -18,7 +18,7 @@ public class TransistorsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult> GetAll() =>
         Ok(await _db.Transistors.Select(t => new TransistorResponse(
-            t.TransistorId, t.TransistorName, t.GeometryType, t.GateWidthUm, t.GateLengthUm,
+            t.TransistorId, t.GeometryType, t.GateWidthUm, t.GateLengthUm,
             t.GateInnerRadiusUm, t.GateOuterRadiusUm, t.CoverageSectorDegree, t.GeometryProperties,
             t.MobilityCm2Vs, t.OnOffRatio, t.ThresholdVoltageV, t.SubthresholdSwingMvDec, t.SgGapUm, t.DgGapUm))
         .ToListAsync());
@@ -29,7 +29,7 @@ public class TransistorsController : ControllerBase
         var t = await _db.Transistors.FindAsync(deviceId);
         return t is null
             ? NotFound($"Transistor with device id {deviceId} not found.")
-            : Ok(new TransistorResponse(t.TransistorId, t.TransistorName, t.GeometryType, t.GateWidthUm, t.GateLengthUm,
+            : Ok(new TransistorResponse(t.TransistorId, t.GeometryType, t.GateWidthUm, t.GateLengthUm,
                 t.GateInnerRadiusUm, t.GateOuterRadiusUm, t.CoverageSectorDegree, t.GeometryProperties,
                 t.MobilityCm2Vs, t.OnOffRatio, t.ThresholdVoltageV, t.SubthresholdSwingMvDec, t.SgGapUm, t.DgGapUm));
     }
@@ -41,7 +41,7 @@ public class TransistorsController : ControllerBase
             return BadRequest($"GeometryType must be one of: {string.Join(", ", AllowedGeometryTypes)}.");
         var t = new Transistor
         {
-            TransistorId = req.TransistorId, TransistorName = req.TransistorName, GeometryType = req.GeometryType,
+            TransistorId = req.TransistorId, GeometryType = req.GeometryType,
             GateWidthUm = req.GateWidthUm, GateLengthUm = req.GateLengthUm, GateInnerRadiusUm = req.GateInnerRadiusUm,
             GateOuterRadiusUm = req.GateOuterRadiusUm, CoverageSectorDegree = req.CoverageSectorDegree,
             GeometryProperties = req.GeometryProperties, MobilityCm2Vs = req.MobilityCm2Vs, OnOffRatio = req.OnOffRatio,
@@ -59,7 +59,7 @@ public class TransistorsController : ControllerBase
             return Conflict($"A transistor already exists for device id {req.TransistorId}.");
         }
         return CreatedAtAction(nameof(GetById), new { deviceId = t.TransistorId },
-            new TransistorResponse(t.TransistorId, t.TransistorName, t.GeometryType, t.GateWidthUm, t.GateLengthUm,
+            new TransistorResponse(t.TransistorId, t.GeometryType, t.GateWidthUm, t.GateLengthUm,
                 t.GateInnerRadiusUm, t.GateOuterRadiusUm, t.CoverageSectorDegree, t.GeometryProperties,
                 t.MobilityCm2Vs, t.OnOffRatio, t.ThresholdVoltageV, t.SubthresholdSwingMvDec, t.SgGapUm, t.DgGapUm));
     }
@@ -71,7 +71,7 @@ public class TransistorsController : ControllerBase
             return BadRequest($"GeometryType must be one of: {string.Join(", ", AllowedGeometryTypes)}.");
         var t = await _db.Transistors.FindAsync(deviceId);
         if (t is null) return NotFound($"Transistor with device id {deviceId} not found.");
-        t.TransistorName = req.TransistorName; t.GeometryType = req.GeometryType;
+        t.GeometryType = req.GeometryType;
         t.GateWidthUm = req.GateWidthUm; t.GateLengthUm = req.GateLengthUm;
         t.GateInnerRadiusUm = req.GateInnerRadiusUm; t.GateOuterRadiusUm = req.GateOuterRadiusUm;
         t.CoverageSectorDegree = req.CoverageSectorDegree; t.GeometryProperties = req.GeometryProperties;
@@ -79,7 +79,7 @@ public class TransistorsController : ControllerBase
         t.ThresholdVoltageV = req.ThresholdVoltageV; t.SubthresholdSwingMvDec = req.SubthresholdSwingMvDec;
         t.SgGapUm = req.SgGapUm; t.DgGapUm = req.DgGapUm;
         await _db.SaveChangesAsync();
-        return Ok(new TransistorResponse(t.TransistorId, t.TransistorName, t.GeometryType, t.GateWidthUm, t.GateLengthUm,
+        return Ok(new TransistorResponse(t.TransistorId, t.GeometryType, t.GateWidthUm, t.GateLengthUm,
             t.GateInnerRadiusUm, t.GateOuterRadiusUm, t.CoverageSectorDegree, t.GeometryProperties,
             t.MobilityCm2Vs, t.OnOffRatio, t.ThresholdVoltageV, t.SubthresholdSwingMvDec, t.SgGapUm, t.DgGapUm));
     }

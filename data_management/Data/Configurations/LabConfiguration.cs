@@ -19,6 +19,7 @@ public class LabConfiguration : IEntityTypeConfiguration<Lab>
         entity.Property(l => l.Description).HasColumnName("description");
         entity.Property(l => l.LabLeaderId)
             .HasColumnName("lab_leader_id");
+        entity.HasIndex(l => l.LabLeaderId).IsUnique();
         entity.HasOne<User>()
             .WithMany()
             .HasForeignKey(l => l.LabLeaderId)

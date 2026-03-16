@@ -3,7 +3,6 @@ namespace DataManagement.Models;
 public class Diode
 {
     public int DiodeId { get; set; }
-    public string DiodeName { get; set; } = string.Empty;
     public string GeometryType { get; set; } = string.Empty;
     // Rectangular
     public float? AnodeWidthUm { get; set; }

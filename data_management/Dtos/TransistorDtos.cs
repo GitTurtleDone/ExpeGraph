@@ -2,7 +2,6 @@ namespace DataManagement.Dtos;
 
 public record TransistorResponse(
     int TransistorId,
-    string TransistorName,
     string GeometryType,
     float? GateWidthUm,
     float? GateLengthUm,
@@ -19,7 +18,6 @@ public record TransistorResponse(
 
 public record CreateTransistorRequest(
     int TransistorId,
-    string TransistorName,
     string GeometryType,
     float? GateWidthUm = null,
     float? GateLengthUm = null,
@@ -35,7 +33,6 @@ public record CreateTransistorRequest(
     float? DgGapUm = null);
 
 public record UpdateTransistorRequest(
-    string TransistorName,
     string GeometryType,
     float? GateWidthUm,
     float? GateLengthUm,

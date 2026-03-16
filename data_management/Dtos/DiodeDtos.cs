@@ -2,7 +2,6 @@ namespace DataManagement.Dtos;
 
 public record DiodeResponse(
     int DiodeId,
-    string DiodeName,
     string GeometryType,
     float? AnodeWidthUm,
     float? AnodeLengthUm,
@@ -20,7 +19,6 @@ public record DiodeResponse(
 
 public record CreateDiodeRequest(
     int DiodeId,
-    string DiodeName,
     string GeometryType,
     float? AnodeWidthUm = null,
     float? AnodeLengthUm = null,
@@ -37,7 +35,6 @@ public record CreateDiodeRequest(
     float? BreakdownVoltageV = null);
 
 public record UpdateDiodeRequest(
-    string DiodeName,
     string GeometryType,
     float? AnodeWidthUm,
     float? AnodeLengthUm,

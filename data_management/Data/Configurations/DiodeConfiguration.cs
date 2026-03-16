@@ -11,10 +11,6 @@ public class DiodeConfiguration : IEntityTypeConfiguration<Diode>
         entity.ToTable("diodes");
         entity.HasKey(d => d.DiodeId);
         entity.Property(d => d.DiodeId).HasColumnName("diode_id").ValueGeneratedNever();
-        entity.Property(d => d.DiodeName)
-            .HasColumnName("diode_name")
-            .IsRequired()
-            .HasMaxLength(50);
         entity.Property(d => d.GeometryType)
             .HasColumnName("geometry_type")
             .IsRequired()

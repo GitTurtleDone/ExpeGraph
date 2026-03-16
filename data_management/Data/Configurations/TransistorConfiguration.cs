@@ -11,10 +11,6 @@ public class TransistorConfiguration : IEntityTypeConfiguration<Transistor>
         entity.ToTable("transistors");
         entity.HasKey(t => t.TransistorId);
         entity.Property(t => t.TransistorId).HasColumnName("transistor_id").ValueGeneratedNever();
-        entity.Property(t => t.TransistorName)
-            .HasColumnName("transistor_name")
-            .IsRequired()
-            .HasMaxLength(50);
         entity.Property(t => t.GeometryType)
             .HasColumnName("geometry_type")
             .IsRequired()

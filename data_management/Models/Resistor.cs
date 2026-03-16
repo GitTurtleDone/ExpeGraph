@@ -3,7 +3,6 @@ namespace DataManagement.Models;
 public class Resistor
 {
     public int ResistorId { get; set; }
-    public string ResistorName { get; set; } = string.Empty;
     public string GeometryType { get; set; } = string.Empty;
     // Rectangular
     public float? WidthUm { get; set; }

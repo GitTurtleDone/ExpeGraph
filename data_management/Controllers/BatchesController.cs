@@ -61,6 +61,10 @@ public class BatchesController : ControllerBase
         {
             return BadRequest($"Project with id {req.ProjectId} or lab with id {req.LabId} does not exist");
         }
+        catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("23505") == true)
+        {
+            return Conflict($"Batch with name {req.BatchName}  already exists");
+        }
 
         return CreatedAtAction(nameof(GetById), new { id = batch.BatchId },
             new BatchResponse(

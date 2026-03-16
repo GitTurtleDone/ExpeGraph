@@ -3,7 +3,6 @@ namespace DataManagement.Models;
 public class Transistor
 {
     public int TransistorId { get; set; }
-    public string TransistorName { get; set; } = string.Empty;
     public string GeometryType { get; set; } = string.Empty;
     // Rectangular
     public float? GateWidthUm { get; set; }

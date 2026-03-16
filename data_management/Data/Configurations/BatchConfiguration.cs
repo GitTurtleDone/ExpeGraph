@@ -27,5 +27,13 @@ public class BatchConfiguration : IEntityTypeConfiguration<Batch>
         entity.Property(b => b.CreatedAt)
                 .HasColumnName("created_at")
                 .HasDefaultValueSql("NOW()");
+        entity.HasOne<Project>()
+            .WithMany()
+            .HasForeignKey(b => b.ProjectId)
+            .OnDelete(DeleteBehavior.SetNull);
+        entity.HasOne<Lab>()
+            .WithMany()
+            .HasForeignKey(b => b.LabId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

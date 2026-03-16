@@ -8,7 +8,10 @@ public class MeasurementConfiguration : IEntityTypeConfiguration<Measurement>
 {
     public void Configure(EntityTypeBuilder<Measurement> entity)
     {
-        entity.ToTable("measurements");
+        entity.ToTable("measurements", t => t.HasCheckConstraint(
+            "measurements_target_check",
+            "(device_id IS NOT NULL AND sample_id IS NULL) OR (device_id IS NULL AND sample_id IS NOT NULL)"
+        ));
         entity.HasKey(m => m.MeasurementId);
         entity.Property(m => m.MeasurementId).HasColumnName("measurement_id");
         entity.Property(m => m.DeviceId).HasColumnName("device_id");
@@ -29,5 +32,20 @@ public class MeasurementConfiguration : IEntityTypeConfiguration<Measurement>
         entity.Property(m => m.DataFilePath)
             .HasColumnName("data_file_path")
             .IsRequired();
+        entity.HasOne<Device>()
+            .WithMany()
+            .HasForeignKey(m => m.DeviceId)
+            .OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<Sample>()
+            .WithMany()
+            .HasForeignKey(m => m.SampleId)
+            .OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.SetNull);
+        entity.HasIndex(m => m.DeviceId);
+        entity.HasIndex(m => m.SampleId);
+        entity.HasIndex(m => m.MeasuredAt);
     }
 }

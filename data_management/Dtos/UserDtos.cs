@@ -8,7 +8,7 @@ public record UserResponse(
     string? LastName,
     bool IsActive,
     DateTime CreatedAt,
-    DateTime LastLoginAt);
+    DateTime? LastLoginAt);
 
 public record CreateUserRequest(
     string Username,

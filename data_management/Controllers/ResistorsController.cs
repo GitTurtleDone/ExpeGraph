@@ -18,7 +18,7 @@ public class ResistorsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult> GetAll() =>
         Ok(await _db.Resistors.Select(r => new ResistorResponse(
-            r.ResistorId, r.ResistorName, r.GeometryType, r.WidthUm, r.GapUm,
+            r.ResistorId, r.GeometryType, r.WidthUm, r.GapUm,
             r.InnerRadiusUm, r.OuterRadiusUm, r.GeometryProperties, r.ResistanceOhm, r.TlmId))
         .ToListAsync());
 
@@ -28,7 +28,7 @@ public class ResistorsController : ControllerBase
         var r = await _db.Resistors.FindAsync(deviceId);
         return r is null
             ? NotFound($"Resistor with device id {deviceId} not found.")
-            : Ok(new ResistorResponse(r.ResistorId, r.ResistorName, r.GeometryType, r.WidthUm, r.GapUm,
+            : Ok(new ResistorResponse(r.ResistorId, r.GeometryType, r.WidthUm, r.GapUm,
                 r.InnerRadiusUm, r.OuterRadiusUm, r.GeometryProperties, r.ResistanceOhm, r.TlmId));
     }
 
@@ -39,7 +39,7 @@ public class ResistorsController : ControllerBase
             return BadRequest($"GeometryType must be one of: {string.Join(", ", AllowedGeometryTypes)}.");
         var r = new Resistor
         {
-            ResistorId = req.ResistorId, ResistorName = req.ResistorName, GeometryType = req.GeometryType,
+            ResistorId = req.ResistorId, GeometryType = req.GeometryType,
             WidthUm = req.WidthUm, GapUm = req.GapUm, InnerRadiusUm = req.InnerRadiusUm,
             OuterRadiusUm = req.OuterRadiusUm, GeometryProperties = req.GeometryProperties,
             ResistanceOhm = req.ResistanceOhm, TlmId = req.TlmId
@@ -55,7 +55,7 @@ public class ResistorsController : ControllerBase
             return Conflict($"A resistor already exists for device id {req.ResistorId}.");
         }
         return CreatedAtAction(nameof(GetById), new { deviceId = r.ResistorId },
-            new ResistorResponse(r.ResistorId, r.ResistorName, r.GeometryType, r.WidthUm, r.GapUm,
+            new ResistorResponse(r.ResistorId, r.GeometryType, r.WidthUm, r.GapUm,
                 r.InnerRadiusUm, r.OuterRadiusUm, r.GeometryProperties, r.ResistanceOhm, r.TlmId));
     }
 
@@ -66,7 +66,7 @@ public class ResistorsController : ControllerBase
             return BadRequest($"GeometryType must be one of: {string.Join(", ", AllowedGeometryTypes)}.");
         var r = await _db.Resistors.FindAsync(deviceId);
         if (r is null) return NotFound($"Resistor with device id {deviceId} not found.");
-        r.ResistorName = req.ResistorName; r.GeometryType = req.GeometryType;
+        r.GeometryType = req.GeometryType;
         r.WidthUm = req.WidthUm; r.GapUm = req.GapUm;
         r.InnerRadiusUm = req.InnerRadiusUm; r.OuterRadiusUm = req.OuterRadiusUm;
         r.GeometryProperties = req.GeometryProperties; r.ResistanceOhm = req.ResistanceOhm;
@@ -76,7 +76,7 @@ public class ResistorsController : ControllerBase
         {
             return NotFound($"TLM with id {req.TlmId} does not exist.");
         }
-        return Ok(new ResistorResponse(r.ResistorId, r.ResistorName, r.GeometryType, r.WidthUm, r.GapUm,
+        return Ok(new ResistorResponse(r.ResistorId, r.GeometryType, r.WidthUm, r.GapUm,
             r.InnerRadiusUm, r.OuterRadiusUm, r.GeometryProperties, r.ResistanceOhm, r.TlmId));
     }
 

@@ -1,84 +1,94 @@
-import { NavLink, Outlet } from 'react-router-dom'
-import './AppShell.css'
+import { NavLink, Outlet } from "react-router-dom";
+import {
+  Drawer,
+  List,
+  ListItemButton,
+  Box,
+  ListSubheader,
+} from "@mui/material";
+import "./AppShell.css";
 
-type NavItem = { label: string; path: string; icon: string; end?: boolean }
-type NavGroup = { section: string | null; items: NavItem[] }
+type NavItem = { label: string; path: string; icon: string; end?: boolean };
+type NavGroup = { section: string | null; items: NavItem[] };
+
+const DRAWER_WIDTH = 220
 
 const NAV: NavGroup[] = [
   {
     section: null,
-    items: [{ label: 'Dashboard', path: '/', icon: '⊞', end: true }],
+    items: [{ label: "Dashboard", path: "/", icon: "⊞", end: true }],
   },
   {
-    section: 'Experiment',
+    section: "Experiment",
     items: [
-      { label: 'Acquire', path: '/acquire', icon: '▶' },
-      { label: 'Equipment', path: '/equipment', icon: '⚙' },
+      { label: "Acquire", path: "/acquire", icon: "▶" },
+      { label: "Equipment", path: "/equipment", icon: "⚙" },
     ],
   },
   {
-    section: 'Data',
+    section: "Data",
     items: [
-      { label: 'Batches', path: '/batches', icon: '▦' },
-      { label: 'Samples', path: '/samples', icon: '◈' },
-      { label: 'Files', path: '/files', icon: '◻' },
+      { label: "Batches", path: "/batches", icon: "▦" },
+      { label: "Samples", path: "/samples", icon: "◈" },
+      { label: "Files", path: "/files", icon: "◻" },
     ],
   },
   {
-    section: 'Analysis',
+    section: "Analysis",
     items: [
-      { label: 'Graphs', path: '/graphs', icon: '∿' },
-      { label: 'Export', path: '/export', icon: '↗' },
+      { label: "Graphs", path: "/graphs", icon: "∿" },
+      { label: "Export", path: "/export", icon: "↗" },
     ],
   },
   {
-    section: 'Settings',
+    section: "Settings",
     items: [
-      { label: 'Database', path: '/settings/database', icon: '⬡' },
-      { label: 'Users', path: '/settings/users', icon: '◎' },
+      { label: "Database", path: "/settings/database", icon: "⬡" },
+      { label: "Users", path: "/settings/users", icon: "◎" },
     ],
   },
-]
+];
 
 export default function AppShell() {
   return (
     <div className="shell">
-      <aside className="sidebar">
+      <Drawer variant="permanent" sx={{ width: DRAWER_WIDTH, '& .MuiDrawer-paper': { width: DRAWER_WIDTH } }}>
         <div className="sidebar-logo">ExpeGraph</div>
-        <nav className="sidebar-nav">
+        <List>
           {NAV.map((group, i) => (
             <div key={i} className="nav-group">
-              {group.section && (
-                <span className="nav-section">{group.section}</span>
-              )}
+              {group.section && <ListSubheader>{group.section}</ListSubheader>}
               {group.items.map((item) => (
                 <NavLink
                   key={item.path}
                   to={item.path}
                   end={item.end}
-                  className={({ isActive }) =>
-                    'nav-item' + (isActive ? ' nav-item--active' : '')
-                  }
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  <span className="nav-icon">{item.icon}</span>
-                  {item.label}
+                  {({ isActive }) => (
+                    <ListItemButton selected={isActive}>
+                      <span className="nav-icon">{item.icon}</span>
+                      {item.label}
+                    </ListItemButton>
+                  )}
                 </NavLink>
               ))}
             </div>
           ))}
-        </nav>
+        </List>
         <button className="chat-button">🤖 Chat</button>
-      </aside>
+      </Drawer>
 
-      <div className="main">
+      <Box component="main" className="main">
         <header className="topbar">
           <span className="topbar-title" />
           <div className="topbar-user">User ▾</div>
         </header>
-        <main className="content">
+        <Box className="content">
           <Outlet />
-        </main>
-      </div>
+        </Box>
+        <footer className="footer">© 2026 ExpeGraph by Giang. T. Dang.</footer>
+      </Box>
     </div>
-  )
+  );
 }

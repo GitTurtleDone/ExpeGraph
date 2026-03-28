@@ -192,6 +192,12 @@ npm install
 npm install react-router-dom @tanstack/react-query plotly.js react-plotly.js
 npm install -D @types/react-plotly.js
 
+# Add MUI for styles in the frontend
+cd frontend
+npm install @mui/material @emotion/react @emotion/styled @mui/x-data-grid
+
+
+
 # Start development server (http://localhost:5173)
 npm run dev
 ```

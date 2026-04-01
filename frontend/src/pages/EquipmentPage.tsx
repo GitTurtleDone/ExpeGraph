@@ -1,5 +1,5 @@
 import React from "react";
-import { Stack, OutlinedInput, Typography} from "@mui/material"
+import { Stack, OutlinedInput, Typography, Button} from "@mui/material"
 function EquipmentPage(){
     type tableItem = {
         label: string;
@@ -19,17 +19,22 @@ function EquipmentPage(){
     ]
     return (
         <div>
-            <h1>Equipment</h1>
-            
+            <Typography variant="h2" sx={{mb:4}}>Equipment</Typography>
+            <Stack spacing={1.5} width="50%" mb={4}>
+              {equipmentLayout.map(({ label, type }) => (
+                <Stack key={label} direction="row" alignItems="center" spacing={2}>
+                  <Typography sx={{ width: 160, flexShrink: 0 }}>{label}</Typography>
+                  <OutlinedInput type={type} id={label} size="small" fullWidth />
+                </Stack>
+              ))}
+            </Stack>
 
-              <Stack spacing={1.5}>
-                {equipmentLayout.map(({ label, type }) => (
-                  <Stack key={label} direction="row" alignItems="center" spacing={2}>
-                    <Typography sx={{ width: 160, flexShrink: 0 }}>{label}</Typography>
-                    <OutlinedInput type={type} id={label} size="small" fullWidth />
-                  </Stack>
-                ))}
-              </Stack>
+            <Stack direction="row" gap={10}>
+              <Button variant="contained" color="primary">Save</Button>
+              <Button variant="contained" >Update</Button>
+              <Button variant="contained">Connect to Equipment</Button>
+            </Stack>
+
 
               
             

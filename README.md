@@ -23,3 +23,7 @@ The 3rd module retrieves the data from the database, compare data taken from dif
 - The database is **PostgreSQL**.
 - **Plotly** is used for interactive graphs in the frontend (zoom, pan, annotations, drag-and-drop). **Matplotlib** is used exclusively for final publication export. Graphs are saved in .tiff, .eps, or .ps formats.
 - There should be chatbots to assist experimentators to perform tasks in the 3 modules.
+
+The architecture of the application can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/design/ArchitectureAndTools.md).
+
+The database schema can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/design/DatabaseSchema.md).

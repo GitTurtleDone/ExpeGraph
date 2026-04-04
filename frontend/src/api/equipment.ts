@@ -35,3 +35,9 @@ export async function deleteEquipment(id: number) {
 	})
     if (!res.ok) throw new Error('Failed to delete equipment')
 }
+
+export async function getEquipmentByName(name: string): Promise<Equipment> {
+	const res = await fetch(`${BASE}/Equipment/${encodeURIComponent(name)}`)
+	if (!res.ok) throw new Error(`Equipment with name "${name}" does not exist`)
+	return res.json()
+}

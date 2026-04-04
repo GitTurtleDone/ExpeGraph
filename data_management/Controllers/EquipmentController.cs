@@ -20,12 +20,22 @@ public class EquipmentController : ControllerBase
             e.PurchaseYear, e.CalibrationDue, e.Location, e.ConnectingStr, e.Notes))
         .ToListAsync());
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult> GetById(int id)
     {
         var eq = await _db.Equipment.FindAsync(id);
         return eq is null
             ? NotFound($"Equipment with id {id} not found.")
+            : Ok(new EquipmentResponse(eq.EquipmentId, eq.EquipmentName, eq.Manufacturer, eq.Model,
+                eq.SerialNumber, eq.PurchaseYear, eq.CalibrationDue, eq.Location, eq.ConnectingStr, eq.Notes));
+    }
+
+    [HttpGet("{equipmentName}")]
+    public async Task<ActionResult> GetByName(string equipmentName)
+    {
+        var eq = await _db.Equipment.Where(e => e.EquipmentName == equipmentName).FirstOrDefaultAsync();
+        return eq is null
+            ? NotFound($"Equipment with name {equipmentName} not found.")
             : Ok(new EquipmentResponse(eq.EquipmentId, eq.EquipmentName, eq.Manufacturer, eq.Model,
                 eq.SerialNumber, eq.PurchaseYear, eq.CalibrationDue, eq.Location, eq.ConnectingStr, eq.Notes));
     }

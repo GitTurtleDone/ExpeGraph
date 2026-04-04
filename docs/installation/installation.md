@@ -19,16 +19,19 @@ ExpeGraph/
 All commands run inside **WSL2**.
 
 ### Docker Desktop
+
 Install on **Windows** (not inside WSL2). Then in Docker Desktop settings enable:
 `Settings → Resources → WSL Integration → Enable for your distro`
 
 Verify inside WSL2:
+
 ```bash
 docker --version
 docker compose version
 ```
 
 ### .NET SDK 8.0
+
 ```bash
 wget https://dot.net/v1/dotnet-install.sh
 chmod +x dotnet-install.sh
@@ -38,23 +41,28 @@ chmod +x dotnet-install.sh
 export DOTNET_ROOT=$HOME/.dotnet
 export PATH=$PATH:$HOME/.dotnet
 ```
+
 Verify:
+
 ```bash
 dotnet --version   # should print 8.x.x
 ```
 
 ### uv (Python package manager)
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source ~/.bashrc
 ```
 
 Let uv manage Python 3.12 — no system-level install needed:
+
 ```bash
 uv python install 3.12
 ```
 
 Verify:
+
 ```bash
 uv --version
 uv python list   # should show 3.12.x
@@ -62,6 +70,7 @@ uv python list   # should show 3.12.x
 
 > **Conda users:** Keep conda for other work; use uv independently for ExpeGraph.
 > Deactivate the conda base environment before running uv commands:
+>
 > ```bash
 > conda deactivate
 > # Optional — stop conda activating base on every terminal open:
@@ -69,6 +78,7 @@ uv python list   # should show 3.12.x
 > ```
 
 ### Node.js 22 via nvm
+
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 source ~/.bashrc
@@ -76,7 +86,9 @@ nvm install 22
 nvm use 22
 nvm alias default 22
 ```
+
 Verify:
+
 ```bash
 node --version   # should print v22.x.x
 npm --version
@@ -97,18 +109,22 @@ dotnet build
 ```
 
 > **Adding NuGet packages** (general pattern):
+>
 > ```bash
 > dotnet add package <PackageName>
 > ```
+>
 > This updates the `.csproj` file and runs `dotnet restore` automatically.
 
 ### Packages used
-| Package | Purpose |
-|---------|---------|
+
+| Package                                 | Purpose                     |
+| --------------------------------------- | --------------------------- |
 | `Npgsql.EntityFrameworkCore.PostgreSQL` | PostgreSQL EF Core provider |
-| `BCrypt.Net-Next` | Password hashing |
+| `BCrypt.Net-Next`                       | Password hashing            |
 
 Install:
+
 ```bash
 dotnet add package BCrypt.Net-Next
 ```
@@ -134,6 +150,7 @@ source .venv/bin/activate
 ```
 
 Verify:
+
 ```bash
 python -c "import pyvisa; print(pyvisa.__version__)"
 ```
@@ -153,6 +170,7 @@ source .venv/bin/activate
 ```
 
 Verify:
+
 ```bash
 python -c "import plotly, matplotlib, pandas; print('OK')"
 ```
@@ -174,6 +192,12 @@ npm install
 npm install react-router-dom @tanstack/react-query plotly.js react-plotly.js
 npm install -D @types/react-plotly.js
 
+# Add MUI for styles in the frontend
+cd frontend
+npm install @mui/material @emotion/react @emotion/styled @mui/x-data-grid
+
+
+
 # Start development server (http://localhost:5173)
 npm run dev
 ```
@@ -183,6 +207,7 @@ npm run dev
 ## Phase 5 — Database (PostgreSQL)
 
 ### Option A — via Docker (recommended for development)
+
 ```bash
 cd /path/to/ExpeGraph
 
@@ -200,6 +225,7 @@ docker exec -i expegraph-db psql -U expegraph -d expegraph \
 ```
 
 ### Option B — local PostgreSQL
+
 ```bash
 sudo apt install postgresql postgresql-client
 
@@ -219,7 +245,9 @@ psql -U expegraph -d expegraph -f database/ExpeGraphDB_PostgreSQL.sql
 ```
 
 ### Configure the .NET connection string
+
 Edit `data_management/appsettings.Development.json` (not committed — in .gitignore):
+
 ```json
 {
   "ConnectionStrings": {
@@ -243,12 +271,28 @@ cd frontend && npm run dev
 docker start expegraph-db
 ```
 
-| Service | URL |
-|---------|-----|
-| .NET API | http://localhost:5174 |
-| Swagger UI | http://localhost:5174/swagger |
-| React frontend | http://localhost:5173 |
-| PostgreSQL | localhost:5432 |
+| Service        | URL                           |
+| -------------- | ----------------------------- |
+| .NET API       | http://localhost:5174         |
+| Swagger UI     | http://localhost:5174/swagger |
+| React frontend | http://localhost:5173         |
+| PostgreSQL     | localhost:5432                |
 
 ---
 
+## .NET database migrations setup
+
+```bash
+# Install EF Core tools globally (if not already)
+cd data_management
+dotnet tool install --global dotnet-ef
+# Verify
+dotnet ef --version
+# Add EF Core design package to the project
+dotnet add package Microsoft.EntityFrameworkCore.Design
+# Optional: Drop existing DB (act carefully as appropriate)
+psql -U <username> -d expegraph -c "DROP SCHEMA expegraph CASCADE; CREATE SCHEMA expegraph;"
+# Create initial migration (after making model changes)
+dotnet ef migrations add InitialCreate
+
+```

@@ -164,7 +164,6 @@ erDiagram
 
     diodes {
         int diode_id PK
-        varchar diode_name
         varchar geometry_type
         float anode_width_um
         float anode_length_um
@@ -183,7 +182,6 @@ erDiagram
 
     transistors {
         int transistor_id PK
-        varchar transistor_name
         varchar geometry_type
         float gate_width_um
         float gate_length_um
@@ -209,7 +207,6 @@ erDiagram
 
     resistors {
         int resistor_id PK
-        varchar resistor_name
         varchar geometry_type
         float width_um
         float gap_um

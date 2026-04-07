@@ -27,7 +27,7 @@ function EquipmentPage() {
     manufacturer: "",
     model: "",
     serialNumber: "",
-    purchaseYear: 0,
+    purchaseYear: "" as number | string,
     calibrationDue: "",
     location: "",
     connectingStr: "",
@@ -44,7 +44,7 @@ function EquipmentPage() {
     { label: "Manufacturer", type: "text", field: "manufacturer" },
     { label: "Model", type: "text", field: "model" },
     { label: "Serial Number", type: "text", field: "serialNumber" },
-    { label: "Purchase Year", type: "date", field: "purchaseYear" },
+    { label: "Purchase Year", type: "number", field: "purchaseYear" },
     { label: "Calibration Due", type: "date", field: "calibrationDue" },
     { label: "Location", type: "text", field: "location" },
     { label: "Connecting String", type: "text", field: "connectingStr" },
@@ -72,6 +72,24 @@ function EquipmentPage() {
       queryClient.invalidateQueries({ queryKey: ["equipments"] });
     },
   });
+  const delEquipment = useMutation({
+    mutationFn: deleteEquipment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["equipments"] });
+      setEquipment({
+        equipmentId: 0,
+        equipmentName: "",
+        manufacturer: "",
+        model: "",
+        serialNumber: "",
+        purchaseYear: "",
+        calibrationDue: "",
+        location: "",
+        connectingStr: "",
+        notes: "",
+      });
+    },
+  });
 
   return (
     <div>
@@ -90,7 +108,23 @@ function EquipmentPage() {
             All{" "}
           </Typography>
           <List dense>
-            {allEquipment.data?.map((eq) => (
+            <ListItemButton 
+                key="new" 
+                selected={equipment.equipmentId === 0}
+                onClick={() => setEquipment({
+                    equipmentId: 0,
+                    equipmentName: "",
+                    manufacturer: "",
+                    model: "",
+                    serialNumber: "",
+                    purchaseYear: "",
+                    calibrationDue: "",
+                    location: "",
+                    connectingStr: "",
+                    notes: "",
+                })}
+            >New</ListItemButton>
+            {allEquipment.data?.slice().sort((a, b) => a.equipmentId - b.equipmentId).map((eq) => (
               <ListItemButton
                 key={eq.equipmentId}
                 selected={equipment.equipmentId === eq.equipmentId}
@@ -101,7 +135,7 @@ function EquipmentPage() {
                     manufacturer: eq.manufacturer ?? "",
                     model: eq.model ?? "",
                     serialNumber: eq.serialNumber ?? "",
-                    purchaseYear: eq.purchaseYear ?? 0,
+                    purchaseYear: eq.purchaseYear || "",
                     calibrationDue: eq.calibrationDue ?? "",
                     location: eq.location ?? "",
                     connectingStr: eq.connectingStr ?? "",
@@ -179,8 +213,12 @@ function EquipmentPage() {
             >
               Update
             </Button>
-            <Button variant="contained" color="error">
-              Delete
+            <Button onClick={() => delEquipment.mutate(equipment.equipmentId)}
+              variant="contained"
+              color="error"
+              disabled={delEquipment.isPending}
+            >
+              {delEquipment.isPending ? "Delete..." : "Delete"}
             </Button>
             <Button variant="contained">Connect to Equipment</Button>
           </Stack>

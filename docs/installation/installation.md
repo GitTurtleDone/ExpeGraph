@@ -120,6 +120,16 @@ inst.close()
 "
 ```
 
+To run the window python backends
+
+```powershell
+uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+```powershell
+ip route show default | awk '{print $3}'
+```
+
 ---
 
 ### A4 — Run the FastAPI instrument server

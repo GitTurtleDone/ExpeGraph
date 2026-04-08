@@ -17,6 +17,10 @@ async def lifespan(app: FastAPI):
     yield
     for resource in equipment.values():
         try:
+            resource.write("SYST:LOC")
+        except Exception:
+            pass
+        try:
             resource.close()
         except Exception:
             pass
@@ -38,6 +42,9 @@ app.add_middleware(
 
 class ConnectRequest(BaseModel):
     resource_string: str
+
+class DisconnectRequest(BaseModel):
+    resource_string:str
 
 
 class CommandRequest(BaseModel):
@@ -103,13 +110,17 @@ def send_command(req: CommandRequest) -> CommandResponse:
 
 
 @app.delete("/equipment/disconnect")
-def disconnect_equipment(resource_string: str) -> dict[str, str]:
+def disconnect_equipment(req: DisconnectRequest) -> dict[str, str]:
     """Close the connection to a piece of equipment."""
-    device = equipment.pop(resource_string, None)
+    device = equipment.pop(req.resource_string, None)
     if device is None:
-        raise HTTPException(status_code=404, detail=f"Not connected to {resource_string}")
+        raise HTTPException(status_code=404, detail=f"Not connected to {req.resource_string}")
+    try:
+        device.write("SYST:LOC")
+    except Exception:
+        pass  # not all instruments support SYST:LOC, ignore if it fails
     try:
         device.close()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    return {"status": "disconnected", "resource": resource_string}
+    return {"status": "disconnected", "resource": req.resource_string}

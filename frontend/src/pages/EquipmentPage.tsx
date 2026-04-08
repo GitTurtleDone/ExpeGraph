@@ -18,6 +18,7 @@ import {
   getEquipmentByName,
   deleteEquipment,
   connectEquipment,
+  disconnectEquipment,
 } from "../api/equipment";
 import type { CreateEquipmentRequest, Equipment } from "../types/equipment";
 import { useState } from "react";
@@ -98,6 +99,13 @@ function EquipmentPage() {
 	  },
   })
 
+const disEquipment = useMutation({
+      mutationFn: (strConnecting: string) => disconnectEquipment(strConnecting),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['equipments']})
+      },
+})
+
   return (
     <div>
       <Typography variant="h2" sx={{ mb: 4 }}>
@@ -154,12 +162,23 @@ function EquipmentPage() {
               </ListItemButton>
             ))}
           </List>
-          <Button 
+          <Stack direction='row' pt={5} gap={5}>
+              <Button 
               variant="contained"
               onClick={() => conEquipment.mutate(equipment.connectingStr)}
             >
             Connect Equipment
             </Button>
+            <Button
+              variant='contained'
+              onClick={() => disEquipment.mutate(equipment.connectingStr)}
+            >
+            {disEquipment.isPending ? 'Disconnecting...' : 'Disconnect Equipment'}
+            </Button>
+
+          </Stack>
+          
+
         </Stack>
         <Stack spacing={1.5} width="50%" mb={5}>
           {equipmentLayout.map(({ label, type, field }) => (

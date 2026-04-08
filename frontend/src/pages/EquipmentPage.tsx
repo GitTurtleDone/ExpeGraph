@@ -17,6 +17,7 @@ import {
   updateEquipment,
   getEquipmentByName,
   deleteEquipment,
+  connectEquipment,
 } from "../api/equipment";
 import type { CreateEquipmentRequest, Equipment } from "../types/equipment";
 import { useState } from "react";
@@ -55,7 +56,7 @@ function EquipmentPage() {
     queryKey: ["equipments"],
     queryFn: getAllEquipment,
     staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  })
 
   // Mutate - runs when mutate() is called
   const queryClient = useQueryClient();
@@ -64,14 +65,14 @@ function EquipmentPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipments"] });
     },
-  });
+  })
   const udtEquipment = useMutation({
     mutationFn: ({ id, data }: { id: number; data: CreateEquipmentRequest }) =>
       updateEquipment(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipments"] });
     },
-  });
+  })
   const delEquipment = useMutation({
     mutationFn: deleteEquipment,
     onSuccess: () => {
@@ -87,9 +88,15 @@ function EquipmentPage() {
         location: "",
         connectingStr: "",
         notes: "",
-      });
+      })
     },
-  });
+  })
+  const conEquipment = useMutation({
+	  mutationFn: (strConnecting: string) => connectEquipment(strConnecting),
+	  onSuccess: () => {
+		  queryClient.invalidateQueries({ queryKey: ['equipments']})
+	  },
+  })
 
   return (
     <div>
@@ -147,6 +154,12 @@ function EquipmentPage() {
               </ListItemButton>
             ))}
           </List>
+          <Button 
+              variant="contained"
+              onClick={() => conEquipment.mutate(equipment.connectingStr)}
+            >
+            Connect Equipment
+            </Button>
         </Stack>
         <Stack spacing={1.5} width="50%" mb={5}>
           {equipmentLayout.map(({ label, type, field }) => (
@@ -211,7 +224,7 @@ function EquipmentPage() {
               }
               variant="contained"
             >
-              Update
+              {udtEquipment.isPending ? 'Updating...' : 'Update'}
             </Button>
             <Button onClick={() => delEquipment.mutate(equipment.equipmentId)}
               variant="contained"
@@ -220,11 +233,11 @@ function EquipmentPage() {
             >
               {delEquipment.isPending ? "Delete..." : "Delete"}
             </Button>
-            <Button variant="contained">Connect to Equipment</Button>
+            
           </Stack>
         </Stack>
       </Stack>
     </div>
-  );
+  )
 }
 export default EquipmentPage;

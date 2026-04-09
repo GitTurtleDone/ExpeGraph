@@ -27,3 +27,7 @@ The 3rd module retrieves the data from the database, compare data taken from dif
 The architecture of the application can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/design/ArchitectureAndTools.md).
 
 The database schema can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/design/DatabaseSchema.md).
+
+## Running the app:
+
+To run the app, follow these steps:

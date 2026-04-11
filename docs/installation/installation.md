@@ -46,9 +46,11 @@ ExpeGraph/
 3. Restart Windows after installation
 
 Verify via **NI MAX** (Measurement & Automation Explorer):
+
 ```
 Start Menu → NI MAX → Devices and Interfaces
 ```
+
 The equipment, for example, Keithley 2400 and 6487 should appear here. If not, replug the GPIB-USB adapter and click Refresh.
 
 > **Updating existing NI software:**
@@ -59,11 +61,13 @@ The equipment, for example, Keithley 2400 and 6487 should appear here. If not, r
 ### A2 — Install uv on Windows
 
 Open **Windows PowerShell**:
+
 ```powershell
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 Restart PowerShell, then verify:
+
 ```powershell
 uv --version
 ```
@@ -75,16 +79,21 @@ uv --version
 ```powershell
 cd C:\path\to\ExpeGraph\experiment
 uv sync
+uv add ipykernel # to be able to run jupyter notebook in VS-Code
+uv add numpy PyQt6
+
 ```
 
 `uv sync` reads `pyproject.toml` and installs all dependencies into a Windows `.venv`.
 
 Add FastAPI and uvicorn:
+
 ```powershell
 uv add fastapi uvicorn psutil
 ```
 
 Verify instruments are visible:
+
 ```powershell
 uv run python -c "
 import pyvisa
@@ -94,11 +103,13 @@ print(rm.list_resources())
 ```
 
 Expected output:
+
 ```
 ('GPIB0::24::INSTR', 'GPIB0::22::INSTR')
 ```
 
 Test instrument identity:
+
 ```powershell
 uv run python -c "
 import pyvisa
@@ -107,6 +118,16 @@ inst = rm.open_resource('GPIB0::24::INSTR')
 print(inst.query('*IDN?'))
 inst.close()
 "
+```
+
+To run the window python backends
+
+```powershell
+uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+```powershell
+ip route show default | awk '{print $3}'
 ```
 
 ---
@@ -121,6 +142,7 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 `--host 0.0.0.0` makes the server reachable from WSL2 (not just localhost).
 
 Verify it's running:
+
 ```powershell
 # In a browser or PowerShell
 curl http://localhost:8000/docs
@@ -155,6 +177,7 @@ export PATH=$PATH:$HOME/.dotnet
 ```
 
 Verify:
+
 ```bash
 dotnet --version   # should print 8.x.x
 ```
@@ -170,12 +193,14 @@ uv python install 3.12
 ```
 
 Verify:
+
 ```bash
 uv --version
 uv python list
 ```
 
 > **Conda users:** Deactivate conda base before using uv:
+>
 > ```bash
 > conda deactivate
 > conda config --set auto_activate_base false
@@ -194,6 +219,7 @@ nvm alias default 22
 ```
 
 Verify:
+
 ```bash
 node --version   # v22.x.x
 npm --version
@@ -211,13 +237,14 @@ dotnet build
 
 **Packages used:**
 
-| Package | Purpose |
-|---|---|
+| Package                                 | Purpose                     |
+| --------------------------------------- | --------------------------- |
 | `Npgsql.EntityFrameworkCore.PostgreSQL` | PostgreSQL EF Core provider |
-| `Microsoft.EntityFrameworkCore.Design` | EF migrations tooling |
-| `BCrypt.Net-Next` | Password hashing |
+| `Microsoft.EntityFrameworkCore.Design`  | EF migrations tooling       |
+| `BCrypt.Net-Next`                       | Password hashing            |
 
 Install EF tools globally:
+
 ```bash
 dotnet tool install --global dotnet-ef
 dotnet ef --version
@@ -248,6 +275,7 @@ uv add pandas plotly matplotlib psycopg2-binary kaleido
 ```
 
 Verify:
+
 ```bash
 uv run python -c "import plotly, matplotlib, pandas; print('OK')"
 ```
@@ -264,15 +292,16 @@ npm run dev
 
 **Key packages:**
 
-| Package | Purpose |
-|---|---|
-| `react-router-dom` | Client-side routing |
-| `@tanstack/react-query` | Server state, caching |
-| `plotly.js` + `react-plotly.js` | Interactive graphs |
-| `@mui/material` + `@emotion/react/styled` | UI component library |
-| `@mui/x-data-grid` | Data tables |
+| Package                                   | Purpose               |
+| ----------------------------------------- | --------------------- |
+| `react-router-dom`                        | Client-side routing   |
+| `@tanstack/react-query`                   | Server state, caching |
+| `plotly.js` + `react-plotly.js`           | Interactive graphs    |
+| `@mui/material` + `@emotion/react/styled` | UI component library  |
+| `@mui/x-data-grid`                        | Data tables           |
 
 Install all at once:
+
 ```bash
 npm install react-router-dom @tanstack/react-query plotly.js react-plotly.js
 npm install @mui/material @emotion/react @emotion/styled @mui/x-data-grid
@@ -310,6 +339,7 @@ docker run --name expegraph-db \
 #### Configure .NET connection string
 
 Edit `data_management/appsettings.Development.json`:
+
 ```json
 {
   "ConnectionStrings": {
@@ -337,18 +367,20 @@ dotnet ef database update
 ### C1 — Configure frontend API base URLs
 
 In `frontend/src/api/`:
+
 ```ts
 // For .NET backend (WSL2)
-const DATA_BASE = 'http://localhost:5174'
+const DATA_BASE = "http://localhost:5174";
 
 // For FastAPI instrument server (Windows)
 // Replace 172.x.x.x with your Windows host IP from A5
-const INSTRUMENT_BASE = 'http://172.x.x.x:8000'
+const INSTRUMENT_BASE = "http://172.x.x.x:8000";
 ```
 
 ### C2 — FastAPI CORS (allow WSL2 frontend)
 
 In `experiment/main.py`:
+
 ```python
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -366,6 +398,7 @@ app.add_middleware(
 ### C3 — Embedding Plotly graphs from Python into React
 
 Python generates a Plotly JSON spec and returns it from a FastAPI endpoint:
+
 ```python
 import plotly.graph_objects as go
 import json
@@ -384,27 +417,29 @@ async def get_iv_graph(measurement_id: int):
 ```
 
 React fetches and renders it using `react-plotly.js`:
+
 ```tsx
-import Plot from 'react-plotly.js'
-import { useQuery } from '@tanstack/react-query'
+import Plot from "react-plotly.js";
+import { useQuery } from "@tanstack/react-query";
 
 function IVCurveGraph({ measurementId }: { measurementId: number }) {
   const { data, isLoading } = useQuery({
-    queryKey: ['graph', 'iv', measurementId],
+    queryKey: ["graph", "iv", measurementId],
     queryFn: () =>
-      fetch(`${INSTRUMENT_BASE}/graph/iv-curve/${measurementId}`)
-        .then(r => r.json()),
-  })
+      fetch(`${INSTRUMENT_BASE}/graph/iv-curve/${measurementId}`).then((r) =>
+        r.json(),
+      ),
+  });
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <Plot
       data={data.data}
       layout={data.layout}
-      style={{ width: '100%', height: '500px' }}
+      style={{ width: "100%", height: "500px" }}
     />
-  )
+  );
 }
 ```
 
@@ -413,12 +448,14 @@ function IVCurveGraph({ measurementId }: { measurementId: number }) {
 ## Quick Reference: Starting Everything
 
 ### Windows (Anaconda Prompt or PowerShell with uv)
+
 ```powershell
 cd C:\path\to\ExpeGraph\experiment
 uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### WSL2
+
 ```bash
 # Terminal 1 — PostgreSQL
 sudo service postgresql start
@@ -430,14 +467,14 @@ cd data_management && dotnet run
 cd frontend && npm run dev
 ```
 
-| Service | URL |
-|---|---|
-| React frontend | http://localhost:5173 |
-| .NET API | http://localhost:5174 |
-| Swagger UI | http://localhost:5174/swagger |
-| FastAPI (Windows) | http://\<windows-ip\>:8000 |
-| FastAPI docs | http://\<windows-ip\>:8000/docs |
-| PostgreSQL | localhost:5432 |
+| Service           | URL                             |
+| ----------------- | ------------------------------- |
+| React frontend    | http://localhost:5173           |
+| .NET API          | http://localhost:5174           |
+| Swagger UI        | http://localhost:5174/swagger   |
+| FastAPI (Windows) | http://\<windows-ip\>:8000      |
+| FastAPI docs      | http://\<windows-ip\>:8000/docs |
+| PostgreSQL        | localhost:5432                  |
 
 ---
 

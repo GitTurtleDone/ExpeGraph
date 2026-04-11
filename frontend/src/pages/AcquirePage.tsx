@@ -1,11 +1,59 @@
 import { useState } from "react"
+import { useForm, useFieldArray, Controller } from "react-hook-form"
 import { useQuery } from "@tanstack/react-query"
 import { getAllConnectedEquipment } from "../api/acquire"
 import { getAllEquipment } from "../api/equipment"
-import { Stack, Typography, Select, MenuItem, Tabs, Tab, Box, Button } from "@mui/material"
+import {
+  Stack, Typography, Select, MenuItem, Tabs, Tab, Box,
+  Button, OutlinedInput, IconButton, Paper,
+} from "@mui/material"
+import AddIcon from "@mui/icons-material/Add"
+import RemoveIcon from "@mui/icons-material/Remove"
+
+type VoltageSweepBlock = {
+  vsta: number
+  vsto: number
+  vstep: number
+}
+
+type SetupFormValues = {
+  sweeps: VoltageSweepBlock[]
+  xAxisMode: "Auto" | "Manual"
+  xAxisScale: "Linear" | "Log"
+  yAxisMode: "Auto" | "Manual"
+  yAxisScale: "Linear" | "Log"
+}
+
+const VLabel = ({ pre, sub }: { pre: string; sub: string }) => (
+  <Typography sx={{ width: 60, flexShrink: 0 }}>
+    {pre}<sub>{sub}</sub>
+  </Typography>
+)
+
+const SectionBlock = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <Paper variant="outlined" sx={{ p: 3 }}>
+    <Typography variant="h6" mb={2}>{title}</Typography>
+    {children}
+  </Paper>
+)
 
 export default function AcquirePage() {
   const [tab, setTab] = useState(0)
+
+  const { register, control } = useForm<SetupFormValues>({
+    defaultValues: {
+      sweeps: [{ vsta: 0, vsto: 0, vstep: 0 }],
+      xAxisMode: "Auto",
+      xAxisScale: "Linear",
+      yAxisMode: "Auto",
+      yAxisScale: "Linear",
+    },
+  })
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "sweeps",
+  })
 
   const connectedResources = useQuery({
     queryKey: ['connectedEquipment'],
@@ -36,8 +84,10 @@ export default function AcquirePage() {
       {/* Setup Tab */}
       {tab === 0 && (
         <Stack spacing={3}>
+
+          {/* Equipment selector */}
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Typography sx={{ width: 160, flexShrink: 0 }}>Equipment</Typography>
+            <Typography sx={{ width: 160, flexShrink: 0 }}>Connected Equipment</Typography>
             <Select size="small" displayEmpty sx={{ minWidth: 240 }}>
               <MenuItem value="" disabled>Select equipment</MenuItem>
               {connectedEquipment.map((eq) => (
@@ -47,7 +97,89 @@ export default function AcquirePage() {
               ))}
             </Select>
           </Stack>
-          {/* Measurement and graph display settings go here */}
+
+          {/* Measurement Range */}
+          <SectionBlock title="Measurement Range">
+            <Stack spacing={2}>
+              {fields.map((field, index) => (
+                <Stack key={field.id} direction="row" alignItems="center" spacing={2}>
+                  <Paper variant="outlined" sx={{ p: 1.5, flexGrow: 1 }}>
+                    <Stack direction="row" alignItems="center" spacing={2}>
+                      <VLabel pre="V" sub="start" />
+                      <OutlinedInput
+                        {...register(`sweeps.${index}.vsta`, { valueAsNumber: true })}
+                        size="small"
+                        type="number"
+                        sx={{ width: 120 }}
+                      />
+                      <VLabel pre="V" sub="stop" />
+                      <OutlinedInput
+                        {...register(`sweeps.${index}.vsto`, { valueAsNumber: true })}
+                        size="small"
+                        type="number"
+                        sx={{ width: 120 }}
+                      />
+                      <VLabel pre="V" sub="step" />
+                      <OutlinedInput
+                        {...register(`sweeps.${index}.vstep`, { valueAsNumber: true })}
+                        size="small"
+                        type="number"
+                        sx={{ width: 120 }}
+                      />
+                    </Stack>
+                  </Paper>
+
+                  {index === 0 ? (
+                    <IconButton onClick={() => append({ vsta: 0, vsto: 0, vstep: 0 })}>
+                      <AddIcon />
+                    </IconButton>
+                  ) : (
+                    <IconButton onClick={() => remove(index)}>
+                      <RemoveIcon />
+                    </IconButton>
+                  )}
+                </Stack>
+              ))}
+            </Stack>
+          </SectionBlock>
+
+          {/* Display Setup */}
+          <SectionBlock title="Display Setup">
+            <Stack spacing={2}>
+              {(["X", "Y"] as const).map((axis) => (
+                <Stack key={axis} direction="row" alignItems="center" spacing={3}>
+                  <Typography sx={{ width: 60, flexShrink: 0 }}>{axis} Axis</Typography>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Typography variant="body2" color="text.secondary">Mode</Typography>
+                    <Controller
+                      control={control}
+                      name={axis === "X" ? "xAxisMode" : "yAxisMode"}
+                      render={({ field }) => (
+                        <Select {...field} size="small" sx={{ width: 120 }}>
+                          <MenuItem value="Auto">Auto</MenuItem>
+                          <MenuItem value="Manual">Manual</MenuItem>
+                        </Select>
+                      )}
+                    />
+                  </Stack>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Typography variant="body2" color="text.secondary">Scale</Typography>
+                    <Controller
+                      control={control}
+                      name={axis === "X" ? "xAxisScale" : "yAxisScale"}
+                      render={({ field }) => (
+                        <Select {...field} size="small" sx={{ width: 120 }}>
+                          <MenuItem value="Linear">Linear</MenuItem>
+                          <MenuItem value="Log">Log</MenuItem>
+                        </Select>
+                      )}
+                    />
+                  </Stack>
+                </Stack>
+              ))}
+            </Stack>
+          </SectionBlock>
+
         </Stack>
       )}
 
@@ -57,7 +189,6 @@ export default function AcquirePage() {
           <Box>
             <Button variant="contained" size="large">Run</Button>
           </Box>
-          {/* Graph goes here */}
           <Box sx={{ width: "100%", height: 500, border: "1px dashed grey", borderRadius: 1,
             display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Typography color="text.secondary">Graph will appear here</Typography>

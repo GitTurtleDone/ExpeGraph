@@ -8,3 +8,20 @@ export async function getAllConnectedEquipment():Promise<string[]>{
 	console.log(data)
 	return data
 }
+
+export function runMeasurement(
+	resourceString: str, 
+	sweeps: {vsta: number, vsto: number, vstep: number}[],
+	onPoint: (voltage: number, current: number) => void,
+	onDone: () => void
+) {
+	// SSE uses EventSource -> can't use fetch for streaming
+	// -> Need to POST first then listen
+	fetch(`${WINDOW_BASE}\measurement\run`, {
+		method: 'POST',
+		headers: {'Content-Type':'application/json'},
+		body: JSON.stringify({resourceString, swees})
+	}).then(async(res) => {
+		const reader 
+	})
+}

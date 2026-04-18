@@ -30,4 +30,32 @@ The database schema can be seen [here](https://github.com/GitTurtleDone/ExpeGrap
 
 ## Running the app:
 
-To run the app, follow these steps:
+To run the app, follow these steps: 
+- Presumably, uv has been installed in both WSL2 and Windows. Steps that I have executed to install the packages can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/installation/installation.md)
+- Open an WSL2 terminal
+```bash
+cd /Path/to_the_folder/that_stores_the_project
+git clone <repo>
+sudo service postgresql run
+cd /Path/to_the_folder/that_stores_the_project/ExpeGraph/data_management
+dotnet restore
+dotnet run
+```
+- Open another WSL2 terminal
+```bash
+cd /Path/to_the_folder/that_stores_the_project/ExpeGraph/frontend
+npm install
+npm run dev
+```
+- Open a Windows PowerShell terminal
+```bash
+cd \\wsl.localhost\Path\to_the_folder\that_stores_the_project\ExpeGraph\experiment
+uv sync
+uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+## Implemented features:
+- Implemented features can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/implemented_features/ImplementedFeatures.pdf)
+
+
+

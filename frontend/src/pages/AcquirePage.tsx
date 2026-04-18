@@ -9,6 +9,9 @@ import {
 } from "@mui/material"
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
+import Plot from "react-plotly.js"
+import { runMeasurement } from '../api/acquire'
+import { TrendingUp } from "@mui/icons-material"
 
 type VoltageSweepBlock = {
   vsta: number
@@ -39,8 +42,12 @@ const SectionBlock = ({ title, children }: { title: string; children: React.Reac
 
 export default function AcquirePage() {
   const [tab, setTab] = useState(0)
+  const [voltages, setVoltages] = useState<number[]>([])
+  const [currents, setCurrents] = useState<number[]>([])
+  const [running, setRunning] = useState(false)
+  const [selectedResource, setSelectedResource] = useState("")
 
-  const { register, control } = useForm<SetupFormValues>({
+  const { register, control, getValues, watch } = useForm<SetupFormValues>({
     defaultValues: {
       sweeps: [{ vsta: 0, vsto: 0, vstep: 0 }],
       xAxisMode: "Auto",
@@ -49,6 +56,7 @@ export default function AcquirePage() {
       yAxisScale: "Linear",
     },
   })
+  const yAxisScale = watch("yAxisScale")
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -91,7 +99,11 @@ export default function AcquirePage() {
             <Select size="small" displayEmpty sx={{ minWidth: 240 }}>
               <MenuItem value="" disabled>Select equipment</MenuItem>
               {connectedEquipment.map((eq) => (
-                <MenuItem key={eq.equipmentId} value={eq.connectingStr ?? ""}>
+                <MenuItem 
+                  key={eq.equipmentId} 
+                  value={eq.connectingStr ?? ""}
+                  onClick={() => setSelectedResource(eq.connectingStr)}
+                >
                   {eq.equipmentName}
                 </MenuItem>
               ))}
@@ -165,6 +177,7 @@ export default function AcquirePage() {
                   <Stack direction="row" alignItems="center" spacing={1}>
                     <Typography variant="body2" color="text.secondary">Scale</Typography>
                     <Controller
+                      {...register( axis === "X" ? "xAxisScale" : "yAxisScale")}
                       control={control}
                       name={axis === "X" ? "xAxisScale" : "yAxisScale"}
                       render={({ field }) => (
@@ -187,12 +200,54 @@ export default function AcquirePage() {
       {tab === 1 && (
         <Stack spacing={3}>
           <Box>
-            <Button variant="contained" size="large">Run</Button>
+            <Button 
+            variant="contained" 
+            size="large"
+            disabled={running || !selectedResource}
+            onClick={() => {
+              setVoltages([])
+              setCurrents([])
+              runMeasurement(
+                selectedResource,
+                getValues("sweeps"),
+                (v, i) => {
+                  setVoltages((prev) => [...prev, v])
+                  setCurrents((prev) => [...prev, i])
+                },
+                () => setRunning(false)
+              )
+            }
+
+            }
+            >
+              Run</Button>
           </Box>
-          <Box sx={{ width: "100%", height: 500, border: "1px dashed grey", borderRadius: 1,
+          {/* <Box sx={{ width: "100%", height: 500, border: "1px dashed grey", borderRadius: 1,
             display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Typography color="text.secondary">Graph will appear here</Typography>
-          </Box>
+          </Box> */}
+          <Plot
+            data={[{
+              x: voltages,
+              y: currents,
+              type: "scatter",
+              mode: "line+markers",
+              name: "I-V"
+            }]}
+            layout={{
+              title: "I-V Curve",
+              xaxis: { title: "Voltage (V)"},
+              yaxis: {
+                title: "Current (A)",
+                type: yAxisScale === "Log" ? "log": "linear"
+              },
+              autosize: true,
+            }}
+            style={{ width: "100%", height: "500px"}}
+            useResizeHandler
+          >
+
+          </Plot>
         </Stack>
       )}
     </div>

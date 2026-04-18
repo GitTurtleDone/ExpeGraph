@@ -147,6 +147,10 @@ async def run_equipment(req: RunEquipmentRequest):
             vsto = sweep['vsto']
             vstep = sweep['vstep']
             step_num = int(abs((vsta-vsto)/vstep)) + 1
+            if vsto >= vsta:
+                vstep = abs(vstep)
+            else:
+                vstep = -abs(vstep)
             device.write('*RST')
             device.write(iRange)
             device.write("SOUR:VOLT:RANG %f" % vRange)
@@ -161,6 +165,10 @@ async def run_equipment(req: RunEquipmentRequest):
                 current = result.split(',')[0][:-1]
                 point = {'voltage': round(float(voltage),4), 'current': current}
                 yield {'data': json.dumps(point)}
+        strVol = ':SOUR:VOLT 0'
+        device.write(':INIT:IMM')
+        device.write(strVol)
+        device.write(':SOUR:VOLT:STAT OFF')
     return EventSourceResponse(stream())
 
 

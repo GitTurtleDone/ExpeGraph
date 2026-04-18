@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
 from typing import Any, cast
-
 import pyvisa
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import json
+# import numpy as np
+from sse_starlette.sse import EventSourceResponse
 
 rm: pyvisa.ResourceManager | None = None
 equipment: dict[str, pyvisa.resources.MessageBasedResource] = {}
@@ -113,6 +115,7 @@ def send_command(req: CommandRequest) -> CommandResponse:
 def disconnect_equipment(req: DisconnectRequest) -> dict[str, str]:
     """Close the connection to a piece of equipment."""
     device = equipment.pop(req.resource_string, None)
+    print(equipment)
     if device is None:
         raise HTTPException(status_code=404, detail=f"Not connected to {req.resource_string}")
     try:
@@ -124,3 +127,41 @@ def disconnect_equipment(req: DisconnectRequest) -> dict[str, str]:
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     return {"status": "disconnected", "resource": req.resource_string}
+
+class RunEquipmentRequest(BaseModel):
+    resource_string: str
+    sweeps: list[dict]
+
+@app.post("/measurement/run")
+async def run_equipment(req: RunEquipmentRequest):
+    device = equipment.get(req.resource_string)
+    if device is None:
+        raise HTTPException(status_code=404, detail='Equipment not Connected')
+    vRange = 10
+    vILIM = 2e-3
+    iRange = '2e-9'
+    iNPLC = 1
+    async def stream():
+        for sweep in req.sweeps:
+            vsta = sweep['vsta']
+            vsto = sweep['vsto']
+            vstep = sweep['vstep']
+            step_num = int(abs((vsta-vsto)/vstep)) + 1
+            device.write('*RST')
+            device.write(iRange)
+            device.write("SOUR:VOLT:RANG %f" % vRange)
+            device.write("SOUR:VOLT:ILIM %f" %vILIM)
+            device.write(":SENSE:CURR:NPLC %f" %iNPLC )
+            device.write(':SOUR:VOLT:STAT ON')
+            for voltage in [vsta + vstep * i for i in range(step_num)]:
+                strVol = ':SOUR:VOLT {0:.2f}'.format(voltage)
+                device.write(':INIT:IMM')
+                device.write(strVol)
+                result = device.query(':MEASure:CURRent?')
+                current = result.split(',')[0][:-1]
+                point = {'voltage': round(float(voltage),4), 'current': current}
+                yield {'data': json.dumps(point)}
+    return EventSourceResponse(stream())
+
+
+    

@@ -19,7 +19,8 @@ async def lifespan(app: FastAPI):
     yield
     for resource in equipment.values():
         try:
-            resource.write("SYST:LOC")
+            resource.write('*RST')
+            resource.write('SYST:LOC')
         except Exception:
             pass
         try:
@@ -62,12 +63,7 @@ class CommandResponse(BaseModel):
 @app.get("/equipment")
 def list_equipment() -> list[str]:
     """List all available VISA resources."""
-    if rm is None:
-        raise HTTPException(status_code=500, detail="Resource manager not initialized")
-    try:
-        return list(rm.list_resources())
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return list(equipment.keys())
 
 
 @app.post("/equipment/connect")
@@ -119,6 +115,7 @@ def disconnect_equipment(req: DisconnectRequest) -> dict[str, str]:
     if device is None:
         raise HTTPException(status_code=404, detail=f"Not connected to {req.resource_string}")
     try:
+        device.write('*RST')
         device.write("SYST:LOC")
     except Exception:
         pass  # not all instruments support SYST:LOC, ignore if it fails
@@ -152,22 +149,21 @@ async def run_equipment(req: RunEquipmentRequest):
             else:
                 vstep = -abs(vstep)
             device.write('*RST')
-            device.write(iRange)
+            device.write(":SENSE:CURR:RANG %f" % float(iRange))
             device.write("SOUR:VOLT:RANG %f" % vRange)
             device.write("SOUR:VOLT:ILIM %f" %vILIM)
-            device.write(":SENSE:CURR:NPLC %f" %iNPLC )
+            device.write(":SENSE:CURR:NPLC %f" %iNPLC)
             device.write(':SOUR:VOLT:STAT ON')
             for voltage in [vsta + vstep * i for i in range(step_num)]:
                 strVol = ':SOUR:VOLT {0:.2f}'.format(voltage)
-                device.write(':INIT:IMM')
                 device.write(strVol)
                 result = device.query(':MEASure:CURRent?')
                 current = result.split(',')[0][:-1]
                 point = {'voltage': round(float(voltage),4), 'current': current}
                 yield {'data': json.dumps(point)}
         strVol = ':SOUR:VOLT 0'
-        device.write(':INIT:IMM')
         device.write(strVol)
+        # device.write(':INIT:IMM')
         device.write(':SOUR:VOLT:STAT OFF')
     return EventSourceResponse(stream())
 

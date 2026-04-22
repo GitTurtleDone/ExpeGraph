@@ -9,7 +9,7 @@ export async function getAllConnectedEquipment():Promise<string[]>{
 }
 
 export function runMeasurement(
-	resourceString: str, 
+	resourceString: string, 
 	sweeps: {vsta: number, vsto: number, vstep: number}[],
 	onPoint: (voltage: number, current: number) => void,
 	onDone: () => void

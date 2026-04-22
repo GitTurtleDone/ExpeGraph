@@ -59,6 +59,7 @@ export async function connectEquipment(strConnecting: string) {
   return res.json();
 }
 
+
 export async function disconnectEquipment(strConnecting: string) {
 	const res = await fetch(`${WINDOW_BASE}/equipment/disconnect`, {
 	method: 'DELETE',

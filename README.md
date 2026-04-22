@@ -28,6 +28,9 @@ The architecture of the application can be seen [here](https://github.com/GitTur
 
 The database schema can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/design/DatabaseSchema.md).
 
+## Implemented features:
+- Implemented features can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/implemented_features/ImplementedFeatures.pdf)
+
 ## Running the app:
 
 To run the app, follow these steps: 
@@ -54,8 +57,7 @@ uv sync
 uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-## Implemented features:
-- Implemented features can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/implemented_features/ImplementedFeatures.pdf)
+
 
 
 

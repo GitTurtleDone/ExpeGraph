@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import AppShell from './components/shared/AppShell'
 import DashboardPage from './pages/DashboardPage'
-import AcquirePage from './pages/AcquirePage'
+import AcquirePage from './pages/AcquirePage/AcquirePage'
 import EquipmentPage from './pages/EquipmentPage'
 import BatchesPage from './pages/BatchesPage'
 import SamplesPage from './pages/SamplesPage'

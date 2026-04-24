@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
-import { getAllConnectedEquipment } from "../api/acquire";
-import { getAllEquipment } from "../api/equipment";
+import { getAllConnectedEquipment } from "../../api/acquire";
+import { getAllEquipment } from "../../api/equipment";
 import {
   Stack,
   Typography,
@@ -19,7 +19,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import Plot from "react-plotly.js";
-import { runMeasurement } from "../api/acquire";
+import { runMeasurement } from "../../api/acquire";
 import { TrendingUp } from "@mui/icons-material";
 
 type VoltageSweepBlock = {

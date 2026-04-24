@@ -21,6 +21,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import Plot from "react-plotly.js";
 import { runMeasurement } from "../../api/acquire";
 import { TrendingUp } from "@mui/icons-material";
+import SaveTab from "./SaveTab";
 
 type VoltageSweepBlock = {
   vsta: number;
@@ -319,6 +320,7 @@ export default function AcquirePage() {
           ></Plot>
         </Stack>
       )}
+      { tab === 2 && (<SaveTab/>)}
     </div>
   );
 }

@@ -7,6 +7,7 @@ from pydantic import BaseModel
 import json
 # import numpy as np
 from sse_starlette.sse import EventSourceResponse
+import time
 
 rm: pyvisa.ResourceManager | None = None
 equipment: dict[str, pyvisa.resources.MessageBasedResource] = {}
@@ -155,6 +156,12 @@ async def run_equipment(req: RunEquipmentRequest):
             device.write(":SENSE:CURR:NPLC %f" %iNPLC)
             device.write(':SOUR:VOLT:STAT ON')
             for voltage in [vsta + vstep * i for i in range(step_num)]:
+                # This first "if" block just to remove wrong current at first measurement 
+                if voltage == vsta:
+                    strVol = ':SOUR:VOLT {0:.2f}'.format(voltage)
+                    device.write(strVol)
+                    time.sleep(0.1)
+                    device.query(':MEASure:CURRent?')                
                 strVol = ':SOUR:VOLT {0:.2f}'.format(voltage)
                 device.write(strVol)
                 result = device.query(':MEASure:CURRent?')

@@ -7,6 +7,8 @@ from pydantic import BaseModel
 import json
 # import numpy as np
 from sse_starlette.sse import EventSourceResponse
+import time
+import math
 
 rm: pyvisa.ResourceManager | None = None
 equipment: dict[str, pyvisa.resources.MessageBasedResource] = {}
@@ -143,7 +145,9 @@ async def run_equipment(req: RunEquipmentRequest):
             vsta = sweep['vsta']
             vsto = sweep['vsto']
             vstep = sweep['vstep']
-            step_num = int(abs((vsta-vsto)/vstep)) + 1
+            # if vstep == 0:
+            #     raise HTTPException(status_code=422, detail="vstep must not be zero")
+            
             if vsto >= vsta:
                 vstep = abs(vstep)
             else:
@@ -154,7 +158,20 @@ async def run_equipment(req: RunEquipmentRequest):
             device.write("SOUR:VOLT:ILIM %f" %vILIM)
             device.write(":SENSE:CURR:NPLC %f" %iNPLC)
             device.write(':SOUR:VOLT:STAT ON')
-            for voltage in [vsta + vstep * i for i in range(step_num)]:
+
+            #---------This block is to remove wrong measurement 
+            # when starting a sweep at non-zero vstart--------------
+            strVol = ':SOUR:VOLT {0:.2f}'.format(vsta)
+            device.write(strVol)
+            time.sleep(0.1)
+            device.query(':MEASure:CURRent?') 
+            #-------------------------------------------------------
+            step_num = math.ceil(abs((vsta-vsto)/vstep)) + 1
+            # building the voltages first + [vsto] is to deal with case like 
+            # vsta, vsto, vstep = 0, 1, 0.3 respectively 
+            voltages = [vsta + vstep * i for i in range(step_num - 1)] + [vsto]
+
+            for voltage in voltages:                 
                 strVol = ':SOUR:VOLT {0:.2f}'.format(voltage)
                 device.write(strVol)
                 result = device.query(':MEASure:CURRent?')

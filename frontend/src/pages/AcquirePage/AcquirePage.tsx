@@ -67,15 +67,16 @@ export default function AcquirePage() {
   const [selectedResource, setSelectedResource] = useState("");
   const [runId, setRunId] = useState(0);
 
-  const { register, control, getValues, watch } = useForm<SetupFormValues>({
-    defaultValues: {
-      sweeps: [{ vsta: 0, vsto: 0, vstep: 0 }],
-      xAxisMode: "Auto",
-      xAxisScale: "Linear",
-      yAxisMode: "Auto",
-      yAxisScale: "Linear",
-    },
-  });
+  const { register, control, getValues, watch, handleSubmit } =
+    useForm<SetupFormValues>({
+      defaultValues: {
+        sweeps: [{ vsta: 0, vsto: 1, vstep: 0.1 }],
+        xAxisMode: "Auto",
+        xAxisScale: "Linear",
+        yAxisMode: "Auto",
+        yAxisScale: "Linear",
+      },
+    });
   const [xAxisMode, xAxisScale, yAxisMode, yAxisScale] = watch([
     "xAxisMode",
     "xAxisScale",
@@ -184,6 +185,8 @@ export default function AcquirePage() {
                       <OutlinedInput
                         {...register(`sweeps.${index}.vstep`, {
                           valueAsNumber: true,
+                          validate: (value) =>
+                            value !== 0 || "Vstep must not be zero",
                         })}
                         size="small"
                         type="number"
@@ -194,7 +197,7 @@ export default function AcquirePage() {
 
                   {index === 0 ? (
                     <IconButton
-                      onClick={() => append({ vsta: 0, vsto: 0, vstep: 0 })}
+                      onClick={() => append({ vsta: 0, vsto: 1, vstep: 0.1 })}
                     >
                       <AddIcon />
                     </IconButton>
@@ -267,21 +270,26 @@ export default function AcquirePage() {
               variant="contained"
               size="large"
               disabled={running || !selectedResource}
-              onClick={() => {
+              onClick={handleSubmit((data) => {
                 setVoltages([]);
                 setCurrents([]);
                 setRunId((id) => id + 1);
-                setRunning(true);
-                runMeasurement(
-                  selectedResource,
-                  getValues("sweeps"),
-                  (v, i) => {
-                    setVoltages((prev) => [...prev, v]);
-                    setCurrents((prev) => [...prev, i]);
-                  },
-                  () => setRunning(false),
-                );
-              }}
+                // filter out sweeps with zero Vstep
+                const validSweeps = data.sweeps.filter((s) => s.vstep !== 0 );
+                
+                if (validSweeps.length > 0) {
+                  setRunning(true);
+                  runMeasurement(
+                    selectedResource,
+                    validSweeps,
+                    (v, i) => {
+                      setVoltages((prev) => [...prev, v]);
+                      setCurrents((prev) => [...prev, i]);
+                    },
+                    () => setRunning(false),
+                  );
+                }
+              })}
             >
               Run
             </Button>
@@ -320,7 +328,7 @@ export default function AcquirePage() {
           ></Plot>
         </Stack>
       )}
-      { tab === 2 && (<SaveTab/>)}
+      {tab === 2 && <SaveTab />}
     </div>
   );
 }

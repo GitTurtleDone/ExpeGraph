@@ -142,16 +142,16 @@ async def run_equipment(req: RunEquipmentRequest):
     iNPLC = 1
     async def stream():
         for sweep in req.sweeps:
-            vsta = sweep['vsta']
-            vsto = sweep['vsto']
-            vstep = sweep['vstep']
-            # if vstep == 0:
-            #     raise HTTPException(status_code=422, detail="vstep must not be zero")
+            vsta = sweep['vsta'] # start voltage
+            vsto = sweep['vsto'] # stop voltage
+            vste = sweep['vste'] # voltage step
+            # if vste == 0:
+            #     raise HTTPException(status_code=422, detail="vste must not be zero")
             
             if vsto >= vsta:
-                vstep = abs(vstep)
+                vste = abs(vste)
             else:
-                vstep = -abs(vstep)
+                vste = -abs(vste)
             device.write('*RST')
             device.write(":SENSE:CURR:RANG %f" % float(iRange))
             device.write("SOUR:VOLT:RANG %f" % vRange)
@@ -166,10 +166,10 @@ async def run_equipment(req: RunEquipmentRequest):
             time.sleep(0.1)
             device.query(':MEASure:CURRent?') 
             #-------------------------------------------------------
-            step_num = math.ceil(abs((vsta-vsto)/vstep)) + 1
+            step_num = math.ceil(abs((vsta-vsto)/vste)) + 1
             # building the voltages first + [vsto] is to deal with case like 
-            # vsta, vsto, vstep = 0, 1, 0.3 respectively 
-            voltages = [vsta + vstep * i for i in range(step_num - 1)] + [vsto]
+            # vsta, vsto, vste = 0, 1, 0.3 respectively 
+            voltages = [vsta + vste * i for i in range(step_num - 1)] + [vsto]
 
             for voltage in voltages:                 
                 strVol = ':SOUR:VOLT {0:.2f}'.format(voltage)

@@ -1,4 +1,5 @@
 // const BASE = "http://localhost:5174";
+import type { VoltageSweepBlock } from "../types/AcquirePage/acquire";
 const WINDOW_BASE = "http://172.31.80.1:8000";
 export async function getAllConnectedEquipment():Promise<string[]>{
 	const res = await fetch(`${WINDOW_BASE}/equipment`)
@@ -10,7 +11,7 @@ export async function getAllConnectedEquipment():Promise<string[]>{
 
 export function runMeasurement(
 	resourceString: string, 
-	sweeps: {vsta: number, vsto: number, vstep: number}[],
+	sweeps: VoltageSweepBlock[],
 	onPoint: (voltage: number, current: number) => void,
 	onDone: () => void
 ) {

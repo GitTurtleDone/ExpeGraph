@@ -21,13 +21,14 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import Plot from "react-plotly.js";
 import { runMeasurement } from "../../api/acquire";
 import { TrendingUp } from "@mui/icons-material";
-import SaveTab from "./SaveTab";
+import SaveTab from "./SaveMeasurementDataButton";
+import type { VoltageSweepBlock } from "../../types/AcquirePage/acquire";
 
-type VoltageSweepBlock = {
-  vsta: number;
-  vsto: number;
-  vstep: number;
-};
+// export type VoltageSweepBlock = {
+//   vsta: number;
+//   vsto: number;
+//   vste: number;
+// };
 
 type SetupFormValues = {
   sweeps: VoltageSweepBlock[];
@@ -70,18 +71,19 @@ export default function AcquirePage() {
   const { register, control, getValues, watch, handleSubmit } =
     useForm<SetupFormValues>({
       defaultValues: {
-        sweeps: [{ vsta: 0, vsto: 1, vstep: 0.1 }],
+        sweeps: [{ vsta: 0, vsto: 1, vste: 0.1 }],
         xAxisMode: "Auto",
         xAxisScale: "Linear",
         yAxisMode: "Auto",
         yAxisScale: "Linear",
       },
     });
-  const [xAxisMode, xAxisScale, yAxisMode, yAxisScale] = watch([
+  const [xAxisMode, xAxisScale, yAxisMode, yAxisScale, sweeps] = watch([
     "xAxisMode",
     "xAxisScale",
     "yAxisMode",
     "yAxisScale",
+    "sweeps",
   ]);
 
   const { fields, append, remove } = useFieldArray({
@@ -121,7 +123,7 @@ export default function AcquirePage() {
         >
           <Tab label="Setup" />
           <Tab label="Run" />
-          <Tab label="Save" />
+          
         </Tabs>
       </Box>
 
@@ -183,10 +185,10 @@ export default function AcquirePage() {
                       />
                       <VLabel pre="V" sub="step" />
                       <OutlinedInput
-                        {...register(`sweeps.${index}.vstep`, {
+                        {...register(`sweeps.${index}.vste`, {
                           valueAsNumber: true,
                           validate: (value) =>
-                            value !== 0 || "Vstep must not be zero",
+                            value !== 0 || "vste must not be zero",
                         })}
                         size="small"
                         type="number"
@@ -197,7 +199,7 @@ export default function AcquirePage() {
 
                   {index === 0 ? (
                     <IconButton
-                      onClick={() => append({ vsta: 0, vsto: 1, vstep: 0.1 })}
+                      onClick={() => append({ vsta: 0, vsto: 1, vste: 0.1 })}
                     >
                       <AddIcon />
                     </IconButton>
@@ -274,8 +276,8 @@ export default function AcquirePage() {
                 setVoltages([]);
                 setCurrents([]);
                 setRunId((id) => id + 1);
-                // filter out sweeps with zero Vstep
-                const validSweeps = data.sweeps.filter((s) => s.vstep !== 0 );
+                // filter out sweeps with zero vste
+                const validSweeps = data.sweeps.filter((s) => s.vste !== 0 );
                 
                 if (validSweeps.length > 0) {
                   setRunning(true);
@@ -326,9 +328,16 @@ export default function AcquirePage() {
             style={{ width: "100%", height: "500px" }}
             useResizeHandler
           ></Plot>
+          <SaveTab 
+            running = {running} 
+            selectedResource = {selectedResource}
+            runId={runId}
+            sweeps={sweeps} 
+            voltages={voltages} 
+            currents={currents} 
+            />
         </Stack>
       )}
-      {tab === 2 && <SaveTab />}
     </div>
   );
 }

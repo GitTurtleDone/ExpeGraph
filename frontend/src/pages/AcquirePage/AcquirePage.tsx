@@ -21,8 +21,9 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import Plot from "react-plotly.js";
 import { runMeasurement } from "../../api/acquire";
 import { TrendingUp } from "@mui/icons-material";
-import SaveTab from "./SaveMeasurementDataButton";
+import SaveDataButton from "./SaveDataButton";
 import type { VoltageSweepBlock } from "../../types/AcquirePage/acquire";
+import StopButton  from "./StopButton";
 
 // export type VoltageSweepBlock = {
 //   vsta: number;
@@ -267,7 +268,8 @@ export default function AcquirePage() {
       {/* Run Tab */}
       {tab === 1 && (
         <Stack spacing={3}>
-          <Box>
+          <Stack direction='row' sx={{gap: 3}}>
+            <Box></Box>
             <Button
               variant="contained"
               size="large"
@@ -295,7 +297,12 @@ export default function AcquirePage() {
             >
               Run
             </Button>
-          </Box>
+            <StopButton 
+              running={running} 
+              onStop={() => setRunning(false)}/>
+            
+          </Stack>
+          
           {/* <Box sx={{ width: "100%", height: 500, border: "1px dashed grey", borderRadius: 1,
             display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Typography color="text.secondary">Graph will appear here</Typography>
@@ -328,7 +335,7 @@ export default function AcquirePage() {
             style={{ width: "100%", height: "500px" }}
             useResizeHandler
           ></Plot>
-          <SaveTab 
+          <SaveDataButton 
             running = {running} 
             selectedResource = {selectedResource}
             runId={runId}

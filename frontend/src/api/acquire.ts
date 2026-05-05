@@ -1,6 +1,10 @@
 // const BASE = "http://localhost:5174";
 import type { VoltageSweepBlock } from "../types/AcquirePage/acquire";
-const WINDOW_BASE = "http://172.31.80.1:8000";
+
+const WINDOW_BASE = "http://172.31.80.1:8000"// base URL of the backend
+
+let abortController: AbortController | null
+
 export async function getAllConnectedEquipment():Promise<string[]>{
 	const res = await fetch(`${WINDOW_BASE}/equipment`)
 	if (!res.ok) throw new Error('Failed to get connected devices')
@@ -14,13 +18,16 @@ export function runMeasurement(
 	sweeps: VoltageSweepBlock[],
 	onPoint: (voltage: number, current: number) => void,
 	onDone: () => void
+	
 ) {
 	// SSE uses EventSource -> can't use fetch for streaming
 	// -> Need to POST first then listen
+	abortController = new AbortController()
 	fetch(`${WINDOW_BASE}/measurement/run`, {
 		method: 'POST',
 		headers: {'Content-Type':'application/json'},
-		body: JSON.stringify({ resource_string: resourceString, sweeps })
+		body: JSON.stringify({ resource_string: resourceString, sweeps }),
+		signal: abortController.signal,
 	}).then(async(res) => {
 		const reader = res.body!.getReader()
 		const decoder = new TextDecoder()
@@ -33,8 +40,22 @@ export function runMeasurement(
 				if (line.startsWith("data: ")) {
 					const point = JSON.parse(line.slice(6))
 					onPoint(point.voltage, point.current)
+					// console.log(point)
 				}
 			})	 
 		}
+	}).catch((e) =>{
+		if (e.name === 'AbortError') { onDone(); return}
+		console.log(e)
+	})
+}
+
+export function stopMeasurement(){
+	fetch(
+		`${WINDOW_BASE}/measurement/stop`, {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+	}).then(async(res) =>{
+		console.log(res)
 	})
 }

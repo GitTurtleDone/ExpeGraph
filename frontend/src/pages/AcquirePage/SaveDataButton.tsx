@@ -16,7 +16,7 @@ type SaveFormValues = {
 import { Button, Stack, Typography } from "@mui/material";
 import type { VoltageSweepBlock } from "../../types/AcquirePage/acquire";
 import { useState } from "react";
-export default function SaveTab(
+export default function SaveDataButton(
   { running, selectedResource, runId, sweeps = [], voltages = [], currents = [] }:
   { running: boolean, selectedResource: string, runId: number, sweeps?: VoltageSweepBlock[], voltages?: number[], currents?: number[] }
 ) {

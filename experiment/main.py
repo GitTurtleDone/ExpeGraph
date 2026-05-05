@@ -7,13 +7,13 @@ from pydantic import BaseModel
 import json
 # import numpy as np
 from sse_starlette.sse import EventSourceResponse
-import time
 import math
-
+import asyncio
 rm: pyvisa.ResourceManager | None = None
 equipment: dict[str, pyvisa.resources.MessageBasedResource] = {}
 
-
+stop_event = asyncio.Event()
+stop_event.clear()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global rm
@@ -56,7 +56,6 @@ class CommandRequest(BaseModel):
     resource_string: str
     command: str
     read_response: bool = False
-
 
 class CommandResponse(BaseModel):
     response: str | None = None
@@ -133,6 +132,7 @@ class RunEquipmentRequest(BaseModel):
 
 @app.post("/measurement/run")
 async def run_equipment(req: RunEquipmentRequest):
+    stop_event.clear()
     device = equipment.get(req.resource_string)
     if device is None:
         raise HTTPException(status_code=404, detail='Equipment not Connected')
@@ -142,6 +142,13 @@ async def run_equipment(req: RunEquipmentRequest):
     iNPLC = 1
     async def stream():
         for sweep in req.sweeps:
+            if stop_event.is_set():
+                # device.write(':SOUR:VOLT 0')
+                # device.write(':SOUR:VOLT:STAT OFF')
+                device.write('*RST')    
+                print('All sweeps are stopped.')
+                break
+                    
             vsta = sweep['vsta'] # start voltage
             vsto = sweep['vsto'] # stop voltage
             vste = sweep['vste'] # voltage step
@@ -163,15 +170,21 @@ async def run_equipment(req: RunEquipmentRequest):
             # when starting a sweep at non-zero vstart--------------
             strVol = ':SOUR:VOLT {0:.2f}'.format(vsta)
             device.write(strVol)
-            time.sleep(0.1)
-            device.query(':MEASure:CURRent?') 
+            await asyncio.sleep(0.1)
+            device.query(':MEASure:CURRent?')
             #-------------------------------------------------------
             step_num = math.ceil(abs((vsta-vsto)/vste)) + 1
-            # building the voltages first + [vsto] is to deal with case like 
-            # vsta, vsto, vste = 0, 1, 0.3 respectively 
+            # building the voltages first + [vsto] is to deal with case like
+            # vsta, vsto, vste = 0, 1, 0.3 respectively
             voltages = [vsta + vste * i for i in range(step_num - 1)] + [vsto]
 
-            for voltage in voltages:                 
+            for voltage in voltages:
+                if stop_event.is_set():
+                    device.write(':SOUR:VOLT 0')
+                    device.write(':SOUR:VOLT:STAT OFF')
+                    device.write('*RST')   
+                    print('Sweep is stopped')
+                    return             
                 strVol = ':SOUR:VOLT {0:.2f}'.format(voltage)
                 device.write(strVol)
                 result = device.query(':MEASure:CURRent?')
@@ -183,6 +196,14 @@ async def run_equipment(req: RunEquipmentRequest):
         # device.write(':INIT:IMM')
         device.write(':SOUR:VOLT:STAT OFF')
     return EventSourceResponse(stream())
+
+
+
+@app.post('/measurement/stop')
+async def stop_measurement():
+    stop_event.set()
+    print('Stop at post/measurement/stop')
+    return {'status': 'Measurement is stopped'}
 
 
     

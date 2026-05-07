@@ -202,7 +202,6 @@ async def run_equipment(req: RunEquipmentRequest):
 @app.post('/measurement/stop')
 async def stop_measurement():
     stop_event.set()
-    print('Stop at post/measurement/stop')
     return {'status': 'Measurement is stopped'}
 
 

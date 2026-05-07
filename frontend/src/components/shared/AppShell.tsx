@@ -87,7 +87,7 @@ export default function AppShell() {
         <Box className="content">
           <Outlet />
         </Box>
-        <footer className="footer">© 2026 ExpeGraph by Giang. T. Dang.</footer>
+        <footer className="footer" style={{textAlign: "center"}} >© 2026 ExpeGraph by Giang T. Dang.</footer>
       </Box>
     </div>
   );

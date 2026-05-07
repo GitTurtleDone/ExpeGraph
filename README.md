@@ -5,11 +5,12 @@ Requirements
 
 ### Experiment:
 
-The 1st module takes data from measurement equipments.
+The 1st module takes data from measurement equipments. Save the measurements to a file
 
 ### Data Management:
 
-The 2nd module stores the taken data in files then write them to a database, and
+The 2nd module stores information related to data in  a database. 
+This module also manages data related to labs, projects, equipment, samples, measurements, etc.
 
 ### Graphing:
 
@@ -17,12 +18,12 @@ The 3rd module retrieves the data from the database, compare data taken from dif
 
 ## Current specifications:
 
-- The main equipment is **Keithley/Keysight** parameter analyzers/sourcemeters/LCR meters or others.
+- The main equipment are **Keithley/Keysight** parameter analyzers/sourcemeters/LCR meters or others.
 - **PyVisa** is used to control the equipment.
 - The format of the data files are **.csv** and **.txt**.
 - The database is **PostgreSQL**.
 - **Plotly** is used for interactive graphs in the frontend (zoom, pan, annotations, drag-and-drop). **Matplotlib** is used exclusively for final publication export. Graphs are saved in .tiff, .eps, or .ps formats.
-- There should be chatbots to assist experimentators to perform tasks in the 3 modules.
+- There should be a chatbot to assist experimentators to perform tasks in the 3 modules.
 
 The architecture of the application can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/design/ArchitectureAndTools.md).
 

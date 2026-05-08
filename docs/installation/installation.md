@@ -488,3 +488,23 @@ When replacing the NI GPIB-USB-HS adapter with a **Prologix GPIB-USB**:
 4. Change `INSTRUMENT_BASE` from `http://172.x.x.x:8000` to `http://localhost:8000`
 
 No other changes needed — the rest of the architecture is identical.
+
+## Installation for a chatbot development environment:
+
+### Install ollama and pull llama3.1
+
+```bash
+#1
+sudo apt-get install zstd # zstd is required for ollama extraction
+curl -fsSL https://ollama.com/install.sh | sh
+ollama serve
+ollama pull llama3.1 # pull down the 8B model
+```
+
+### Set up the python project for the chatbot
+
+```bash
+cd path/to/ExpeGraph/chatbot
+uv init .
+uv add langchain langchain-ollama langchain-chroma chromadb fastapi uvicorn sentence-transformers langchain-huggingface pymupdf
+```

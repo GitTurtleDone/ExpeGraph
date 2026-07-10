@@ -184,7 +184,7 @@ async def run_equipment(req: RunEquipmentRequest):
                     device.write(':SOUR:VOLT:STAT OFF')
                     device.write('*RST')   
                     print('Sweep is stopped')
-                    return             
+                    break             
                 strVol = ':SOUR:VOLT {0:.2f}'.format(voltage)
                 device.write(strVol)
                 result = device.query(':MEASure:CURRent?')

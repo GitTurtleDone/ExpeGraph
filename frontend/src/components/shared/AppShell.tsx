@@ -7,6 +7,7 @@ import {
   ListItemIcon,
   Box,
   ListSubheader,
+  IconButton,
 } from "@mui/material";
 
 import type { SvgIconComponent } from "@mui/icons-material";
@@ -72,7 +73,13 @@ export default function AppShell() {
   const [showSideBar, setShowSideBar] = useState(false);
   return (
     <div className="shell">
-      <Drawer variant="permanent" sx={{ width: DRAWER_WIDTH, '& .MuiDrawer-paper': { width: DRAWER_WIDTH } }}>
+      
+      <Drawer 
+        variant="persistent" 
+        sx={{ width: showSideBar ? DRAWER_WIDTH : 0, '& .MuiDrawer-paper': { width: DRAWER_WIDTH } }} 
+        open={showSideBar}
+
+      >
         <div className="sidebar-logo">ExpeGraph</div>
         <List>
           {NAV.map((group, i) => (
@@ -108,9 +115,25 @@ export default function AppShell() {
           Chat
         </ListItemButton>
       </Drawer>
+      
 
       <Box component="main" className="main">
         <header className="topbar">
+          <IconButton 
+            onClick={() => setShowSideBar(!showSideBar)}
+            sx={{
+              position: "fixed",
+              top: 0,
+              left: showSideBar ? DRAWER_WIDTH-45 : 0,
+              zIndex: (theme) => theme.zIndex.drawer + 1
+            }}
+            size="large"
+          >
+            {showSideBar ? 
+              <ChevronLeftIcon></ChevronLeftIcon>  
+              : <MenuIcon ></MenuIcon>
+            }
+          </IconButton>
           <span className="topbar-title" />
           <div className="topbar-user">User ▾</div>
         </header>

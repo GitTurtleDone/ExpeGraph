@@ -70,7 +70,7 @@ const NAV: NavGroup[] = [
 ];
 
 export default function AppShell() {
-  const [showSideBar, setShowSideBar] = useState(false);
+  const [showSideBar, setShowSideBar] = useState(true);
   return (
     <div className="shell">
       

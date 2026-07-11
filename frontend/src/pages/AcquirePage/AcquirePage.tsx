@@ -110,7 +110,7 @@ export default function AcquirePage() {
 
   return (
     <div>
-      <Typography variant="h2" mb={3}>
+      <Typography variant="h2" mb={4}>
         Acquire
       </Typography>
 

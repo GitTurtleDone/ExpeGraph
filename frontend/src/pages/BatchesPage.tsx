@@ -10,8 +10,8 @@ import * as z from "zod";
 
 import  { batchSchema, batchInputSchema, type Batch, type BatchInput} from "../types/batches"
 
-type batchInputSchemaElement = {
-  label: string, type: string, registered: boolean, disabled: boolean
+type BatchInputElementLayout = {
+  label: string, optional: boolean, type: string, registered: boolean, disabled: boolean
 }
 
 export default function BatchesPage() {
@@ -27,6 +27,17 @@ export default function BatchesPage() {
       labId: ""
     }
   })
+  const batchInputElementLayout : BatchInputElementLayout[] = [
+    {label: "Batch ID", optional: true, type: "string", registered: false, disabled: true },
+    {label: "Batch Name", optional: false, type: "string", registered: true, disabled: false },
+    {label: "Description", optional: true, type: "string", registered: true, disabled: false },
+    {label: "Fabrication Date", optional: true, type: "LocalDate", registered: true, disabled: false },
+    {label: "Treatment", optional: true, type: "LocalDate", registered: true, disabled: false },
+    {label: "Project ID", optional: true, type: "LocalDate", registered: true, disabled: false }, 
+    {label: "Lab ID", optional: true, type: "LocalDate", registered: true, disabled: false }, 
+  ]
+    
+
   
   return (
     <Stack sx={{ alignItems: "flex-start"}}>

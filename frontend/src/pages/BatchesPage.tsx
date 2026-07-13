@@ -11,7 +11,7 @@ import * as z from "zod";
 import  { batchSchema, batchInputSchema, type Batch, type BatchInput} from "../types/batches"
 
 type BatchInputElementLayout = {
-  label: string, optional: boolean, type: string, registered: boolean, disabled: boolean
+  label: string, optional: boolean, type: string, elementKey: string, registered: boolean, disabled: boolean
 }
 
 export default function BatchesPage() {
@@ -28,13 +28,13 @@ export default function BatchesPage() {
     }
   })
   const batchInputElementLayout : BatchInputElementLayout[] = [
-    {label: "Batch ID", optional: true, type: "string", registered: false, disabled: true },
-    {label: "Batch Name", optional: false, type: "string", registered: true, disabled: false },
-    {label: "Description", optional: true, type: "string", registered: true, disabled: false },
-    {label: "Fabrication Date", optional: true, type: "LocalDate", registered: true, disabled: false },
-    {label: "Treatment", optional: true, type: "LocalDate", registered: true, disabled: false },
-    {label: "Project ID", optional: true, type: "LocalDate", registered: true, disabled: false }, 
-    {label: "Lab ID", optional: true, type: "LocalDate", registered: true, disabled: false }, 
+    {label: "Batch ID", optional: true, type: "string", elementKey: "batchId", registered: false, disabled: true },
+    {label: "Batch Name", optional: false, type: "string", elementKey: "batchName", registered: true, disabled: false },
+    {label: "Description", optional: true, type: "string", elementKey: "description", registered: true, disabled: false },
+    {label: "Fabrication Date", optional: true, type: "LocalDate", elementKey: "fabricationDate", registered: true, disabled: false },
+    {label: "Treatment", optional: true, type: "LocalDate", elementKey: "treatment", registered: true, disabled: false },
+    {label: "Project ID", optional: true, type: "LocalDate", elementKey: "projectId", registered: true, disabled: false }, 
+    {label: "Lab ID", optional: true, type: "LocalDate", elementKey: "labId", registered: true, disabled: false }, 
   ]
     
 
@@ -59,11 +59,12 @@ export default function BatchesPage() {
           <Stack
           ></Stack>
           { batchInputElementLayout.map((e) => 
-            <Box display="grid" gridTemplateColumns="1fr 2fr"sx={{gap: 4, alignItems: "center"}}>
+            <Box key={e.label} display="grid" gridTemplateColumns="1fr 2fr"sx={{gap: 4, alignItems: "center"}}>
               <Typography variant="h5" mb={2}>{e.label} {e.optional ? " " : " * "}</Typography>
-              <OutlinedInput key={e.label} {...register} type={e.type} size="small"/>
+              <OutlinedInput  {...{register}} type={e.type} size="small" disabled={e.disabled}/>
             </Box>       
           )}
+          <Typography variant="h6" pt={2}> * = Required</Typography>
 
       </Collapse>
       

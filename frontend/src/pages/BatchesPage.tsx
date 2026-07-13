@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Typography, Collapse, Stack, IconButton, Box } from "@mui/material";
+import { Typography, Collapse, Stack, IconButton, Box, OutlinedInput } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AddIcon from "@mui/icons-material/Add";
@@ -55,7 +55,16 @@ export default function BatchesPage() {
         <Typography variant="h4"> Add a batch</Typography>
       </Box>
       <Collapse in={showAddBatch}>
-          <Typography> Show some thing here</Typography>
+          {/* <Typography> Show some thing here</Typography> */}
+          <Stack
+          ></Stack>
+          { batchInputElementLayout.map((e) => 
+            <Box display="grid" gridTemplateColumns="1fr 2fr"sx={{gap: 4, alignItems: "center"}}>
+              <Typography variant="h5" mb={2}>{e.label} {e.optional ? " " : " * "}</Typography>
+              <OutlinedInput key={e.label} {...register} type={e.type} size="small"/>
+            </Box>       
+          )}
+
       </Collapse>
       
 

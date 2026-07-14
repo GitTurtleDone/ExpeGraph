@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Typography, Collapse, Stack, IconButton, Box, OutlinedInput } from "@mui/material";
+import { Typography, Collapse, Stack, IconButton, Box, OutlinedInput, Button } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AddIcon from "@mui/icons-material/Add";
@@ -16,7 +16,11 @@ type BatchInputElementLayout = {
 
 export default function BatchesPage() {
   const [showAddBatch, setShowAddBatch] = useState(false);
-  const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<BatchInput>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<BatchInput>({
     resolver: zodResolver(batchInputSchema),
     defaultValues: {
       batchName: "IrOxNewSM",
@@ -31,12 +35,15 @@ export default function BatchesPage() {
     {label: "Batch ID", optional: true, type: "string", elementKey: "batchId", registered: false, disabled: true },
     {label: "Batch Name", optional: false, type: "string", elementKey: "batchName", registered: true, disabled: false },
     {label: "Description", optional: true, type: "string", elementKey: "description", registered: true, disabled: false },
-    {label: "Fabrication Date", optional: true, type: "LocalDate", elementKey: "fabricationDate", registered: true, disabled: false },
-    {label: "Treatment", optional: true, type: "LocalDate", elementKey: "treatment", registered: true, disabled: false },
-    {label: "Project ID", optional: true, type: "LocalDate", elementKey: "projectId", registered: true, disabled: false }, 
-    {label: "Lab ID", optional: true, type: "LocalDate", elementKey: "labId", registered: true, disabled: false }, 
+    {label: "Fabrication Date", optional: true, type: "date", elementKey: "fabricationDate", registered: true, disabled: false },
+    {label: "Treatment", optional: true, type: "string", elementKey: "treatment", registered: true, disabled: false },
+    {label: "Project ID", optional: true, type: "string", elementKey: "projectId", registered: true, disabled: false }, 
+    {label: "Lab ID", optional: true, type: "string", elementKey: "labId", registered: true, disabled: false }, 
   ]
+  
+  const createBatch = async function name(params:type) {
     
+  }
 
   
   return (
@@ -59,13 +66,13 @@ export default function BatchesPage() {
           <Stack
           ></Stack>
           { batchInputElementLayout.map((e) => 
-            <Box key={e.label} display="grid" gridTemplateColumns="1fr 2fr"sx={{gap: 4, alignItems: "center"}}>
+            <Box key={e.label} display="grid" gridTemplateColumns="1fr 2fr"sx={{gap: 4, alignItems: "center", pt: 2}}>
               <Typography variant="h5" mb={2}>{e.label} {e.optional ? " " : " * "}</Typography>
               <OutlinedInput  {...{register}} type={e.type} size="small" disabled={e.disabled}/>
             </Box>       
           )}
           <Typography variant="h6" pt={2}> * = Required</Typography>
-
+          <Button variant="outlined" sx={{mt:3}} size="large" onClick={handleSubmit(createBatch)}>Insert the batch</Button>
       </Collapse>
       
 

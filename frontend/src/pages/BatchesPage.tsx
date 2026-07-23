@@ -8,7 +8,8 @@ import AddIcon from "@mui/icons-material/Add";
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import { createBatch } from "../api/batch";
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { getAllBatches, getBatchById, createBatch, updateBatch, deleteBatch } from "../api/batch";
 import * as z from "zod";
 
 import  { batchSchema, batchInputSchema, type Batch, type BatchInput} from "../types/batches"
@@ -45,14 +46,23 @@ export default function BatchesPage() {
     {label: "Lab ID", optional: true, type: "string", elementKey: "labId", registered: true, disabled: false }, 
   ]
   const queryClient = useQueryClient()
+  const allBatches = useQuery({
+    queryKey: ["getAllBatches"],
+    queryFn: 
+  })
   const onCreateBatch  = useMutation({
     mutationFn: createBatch,
     onSuccess: () => {
       queryClient.invalidateQueries()
     }
-
-
   })
+  const batchColumns: GridColDef[] = [
+    { field: 'id', headerName: 'ID', width: 70},
+    { field: 'batchName', headerName: 'Batch Name', width: 140},
+    { field: 'fabricationDate', headerName: 'Fabrication Date', width: 100}
+  ];
+
+   
   
   return (
     <Stack sx={{ alignItems: "flex-start"}}>
@@ -65,6 +75,7 @@ export default function BatchesPage() {
               key="TextSearch" 
               sx={{width: "80%"}}
               placeholder="Search batches" 
+              size="small"
             />
             <IconButton>
               <SearchOutlinedIcon fontSize="large"></SearchOutlinedIcon>
@@ -78,7 +89,7 @@ export default function BatchesPage() {
               : <ChevronRightOutlinedIcon fontSize="large"/>}  
             </IconButton>
             <Typography variant="h6">
-              Addvanced search by: 
+              Addvanced search
             </Typography>
           </Box>
           

@@ -1,23 +1,25 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Typography, Collapse, Stack, IconButton, Box, OutlinedInput, Button } from "@mui/material";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Typography, Collapse, Stack, IconButton, Box, Checkbox, OutlinedInput, Button, InputAdornment } from "@mui/material";
 import { useForm } from "react-hook-form";
 import type { Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AddIcon from "@mui/icons-material/Add";
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
+import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import { createBatch } from "../api/batch";
 import * as z from "zod";
 
 import  { batchSchema, batchInputSchema, type Batch, type BatchInput} from "../types/batches"
+import {  OutletTwoTone } from "@mui/icons-material";
 
 type BatchInputElementLayout = {
   label: string, optional: boolean, type: string, elementKey: Path<BatchInput> | string, registered: boolean, disabled: boolean, multiline?: Boolean | undefined
 }
 
 export default function BatchesPage() {
-  const [showAddBatch, setShowAddBatch] = useState(false);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const {
     register,
     handleSubmit,
@@ -42,20 +44,88 @@ export default function BatchesPage() {
     {label: "Project ID", optional: true, type: "string", elementKey: "projectId", registered: true, disabled: false }, 
     {label: "Lab ID", optional: true, type: "string", elementKey: "labId", registered: true, disabled: false }, 
   ]
-  
-  const {onCreateBatch } = useMutation({
+  const queryClient = useQueryClient()
+  const onCreateBatch  = useMutation({
     mutationFn: createBatch,
+    onSuccess: () => {
+      queryClient.invalidateQueries()
+    }
 
 
   })
   
-
-  
   return (
     <Stack sx={{ alignItems: "flex-start"}}>
       <Typography variant="h2" mb={4}>Batches</Typography>
+      <Box sx={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5}}>
+        {/* Left Panel */}
+        <Stack gap={2}>
+          <Box sx={{display: "flex", gap: 1}}>
+            <OutlinedInput 
+              key="TextSearch" 
+              sx={{width: "80%"}}
+              placeholder="Search batches" 
+            />
+            <IconButton>
+              <SearchOutlinedIcon fontSize="large"></SearchOutlinedIcon>
+            </IconButton>
+          </Box>
+          
+          <Box sx={{display:"flex", alignItems: "center"}}>
+            <IconButton onClick={()=>setShowAdvancedSearch(!showAdvancedSearch)}>
+              {showAdvancedSearch ?
+                <ExpandLessOutlinedIcon fontSize="large"/> 
+              : <ChevronRightOutlinedIcon fontSize="large"/>}  
+            </IconButton>
+            <Typography variant="h6">
+              Addvanced search by: 
+            </Typography>
+          </Box>
+          
+          <Collapse in={showAdvancedSearch}>
+            <Box sx={{display: "grid", gridTemplateColumns: "1fr 3fr 1fr 3fr 1fr 3fr", alignItems: "center", gap: "5px 5px"}}>
+              <Checkbox defaultValue="false"></Checkbox>
+              <Typography sx={{fontWeight: "bold"}} >ID range</Typography>
+              <Typography> from </Typography>
+              <OutlinedInput size="small"></OutlinedInput>
+              <Typography sx={{marginLeft: 1.5}}>to</Typography>
+              <OutlinedInput  size="small"></OutlinedInput>
+              
+              <Checkbox defaultValue="false"></Checkbox>
+              <Typography sx={{fontWeight: "bold"}} >Fabrication date </Typography>
+              <Typography> from </Typography>
+              <OutlinedInput type="date" size="small"></OutlinedInput>
+              <Typography sx={{marginLeft: 1.5}}>to</Typography>
+              <OutlinedInput type="date"  size="small"></OutlinedInput>  
+            </Box>
+            
+          </Collapse>
+           
+            
+        </Stack>
+        {/* Left Panel */}
+        
+        {/* Right Panel */}
+        <Stack>
+          { batchInputElementLayout.map((e) => 
+            <Box key={e.label} display="grid" gridTemplateColumns="1fr 2fr"sx={{gap: 4, alignItems: "center", pt: 2}}>
+              <Typography variant="h5" mb={2}>{e.label} {e.optional ? " " : " * "}</Typography>
+              <OutlinedInput  {...(e.registered ? register(e.elementKey) : {})} type={e.type} size="small" disabled={e.disabled} multiline={e.multiline} minRows={e.multiline ? 3 : 0}/>
+            </Box>       
+          )}
+          <Typography variant="h6" pt={2}> * = Required</Typography>
+          <Box sx={{display: "flex", gap: 5}}>
+            <Button type="submit" variant="contained" sx={{mt:3}} size="large" > New </Button>
+            <Button type="submit" variant="contained" sx={{mt:3}} size="large" onClick={handleSubmit(onCreateBatch)}>Add</Button>
+            <Button type="submit" variant="contained" sx={{mt:3}} size="large" > Update </Button>
+            <Button type="submit" variant="contained" sx={{mt:3}} size="large" color="error" > Delete </Button>
+          </Box>
+         {/* Right Panel */} 
+        </Stack>
+      </Box>
+
       {/*  Add a batch */}
-      <Box sx={{display: "flex", alignItems: "center"}}>
+      {/* <Box sx={{display: "flex", alignItems: "center"}}>
         <IconButton
           onClick={() => setShowAddBatch(!showAddBatch)}
         >
@@ -65,20 +135,9 @@ export default function BatchesPage() {
           }
         </IconButton>
         <Typography variant="h4"> Add a batch</Typography>
-      </Box>
-      <Collapse in={showAddBatch}>
-          {/* <Typography> Show some thing here</Typography> */}
-          <Stack
-          ></Stack>
-          { batchInputElementLayout.map((e) => 
-            <Box key={e.label} display="grid" gridTemplateColumns="1fr 2fr"sx={{gap: 4, alignItems: "center", pt: 2}}>
-              <Typography variant="h5" mb={2}>{e.label} {e.optional ? " " : " * "}</Typography>
-              <OutlinedInput  {...(e.registered ? register(e.elementKey) : {})} type={e.type} size="small" disabled={e.disabled} multiline={e.multiline} minRows={e.multiline ? 3 : 0}/>
-            </Box>       
-          )}
-          <Typography variant="h6" pt={2}> * = Required</Typography>
-          <Button variant="outlined" sx={{mt:3}} size="large" onClick={handleSubmit(onCreateBatch)}>Insert the batch</Button>
-      </Collapse>
+      </Box> */}
+
+      
       
 
       {/* Find a batch by Fabrication Date, Treatment, ProjectId, Keyword */}
@@ -88,67 +147,3 @@ export default function BatchesPage() {
 }
 
 
-// Great question — and the key insight is that these two patterns don't compete; they stack. They solve different layers:
-
-// Layer	Equipment (old)	Batches (new)
-// Form state + validation	manual useState + manual onChange	react-hook-form + zod
-// Server communication	useQuery / useMutation	useQuery / useMutation (unchanged)
-// So you keep useQuery/useMutation exactly as in Equipment. React-hook-form just replaces the useState blob and the manual onChange wiring — the part of Equipment that was verbose and unvalidated. The bridge between the two is handleSubmit: it runs zod validation first, and only calls your mutation if the data is valid.
-
-// The pattern
-
-// // 1. QUERY — same as Equipment: list batches
-// const batches = useQuery({ queryKey: ["batches"], queryFn: getAllBatches });
-
-// // 2. MUTATION — same as Equipment: create a batch
-// const queryClient = useQueryClient();
-// const addBatch = useMutation({
-//   mutationFn: createBatch,
-//   onSuccess: () => {
-//     queryClient.invalidateQueries({ queryKey: ["batches"] });
-//     reset();                       // clear the form (from useForm)
-//   },
-// });
-
-// // 3. FORM — replaces useState + onChange, adds zod validation
-// const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
-//   useForm<BatchInput>({ resolver: zodResolver(batchInputSchema), defaultValues: {...} });
-
-// // 4. BRIDGE — validated data flows into the mutation
-// const onSubmit = (data: BatchInput) => addBatch.mutate(data);
-// Then the JSX wraps the fields in a <form> and the button becomes a submit:
-
-
-// <form onSubmit={handleSubmit(onSubmit)}>
-//   {batchInputElementLayout.map((e) => (
-//     <Box key={e.elementKey} display="grid" gridTemplateColumns="1fr 2fr" sx={{ gap: 4 }}>
-//       <Typography variant="h5">{e.label} {e.optional ? "" : "*"}</Typography>
-//       <OutlinedInput
-//         {...(e.registered ? register(e.elementKey) : {})}
-//         type={e.type}
-//         size="small"
-//         disabled={e.disabled}
-//         error={!!errors[e.elementKey as keyof BatchInput]}
-//       />
-//     </Box>
-//   ))}
-//   <Button type="submit" variant="contained" disabled={isSubmitting || addBatch.isPending}>
-//     {addBatch.isPending ? "Adding…" : "Add"}
-//   </Button>
-// </form>
-// What changed vs. Equipment, concretely
-// No more useState(equipment) and no manual onChange — register(field) wires each input to RHF automatically.
-// The Add button is no longer an onClick that reads state and calls mutate. Instead it's type="submit", and handleSubmit(onSubmit) gates it: zod runs first, invalid fields populate errors, and onSubmit (with the mutation) only fires when validation passes. In Equipment, nothing stopped a bad payload from hitting the server.
-// useMutation is unchanged — mutationFn: createBatch, onSuccess invalidates the query. Same as addEquipment.
-// Two things to decide
-// Loading/pending state now has two flags: isSubmitting (RHF, during the async submit handler) and addBatch.isPending (the mutation). Disable the button on either, as above.
-
-// Your empty projectId/labId strings — recall the FK issue from earlier. Since your defaultValues use "", add a zod transform so empty becomes undefined/null before it reaches createBatch, e.g.:
-
-
-// projectId: z.coerce.number().int().positive().optional().or(z.literal("").transform(() => undefined))
-// That way validation itself cleans the payload, instead of hand-massaging it like the || undefined dance all over the Equipment Add button.
-
-// Bottom line: use RHF+zod for the form, keep useQuery/useMutation for the network — and let handleSubmit be the seam between them.
-
-// Your batch.ts is currently empty, by the way. Want me to scaffold it (mirroring equipment.ts with getAllBatches/createBatch/etc.) and wire up BatchesPage.tsx with this pattern?

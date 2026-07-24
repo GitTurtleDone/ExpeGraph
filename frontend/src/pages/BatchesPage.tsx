@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Typography, Collapse, Stack, IconButton, Box, Checkbox, OutlinedInput, Button, InputAdornment } from "@mui/material";
+import { Typography, Collapse, Stack, IconButton, Box, Checkbox, OutlinedInput, Button, InputAdornment, Paper } from "@mui/material";
 import { useForm } from "react-hook-form";
 import type { Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,7 +8,8 @@ import AddIcon from "@mui/icons-material/Add";
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { DataGrid } from '@mui/x-data-grid';
+import type { GridColDef } from "@mui/x-data-grid";
 import { getAllBatches, getBatchById, createBatch, updateBatch, deleteBatch } from "../api/batch";
 import * as z from "zod";
 
@@ -24,6 +25,7 @@ export default function BatchesPage() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<BatchInput>({
     resolver: zodResolver(batchInputSchema),
@@ -48,7 +50,7 @@ export default function BatchesPage() {
   const queryClient = useQueryClient()
   const allBatches = useQuery({
     queryKey: ["getAllBatches"],
-    queryFn: 
+    queryFn: getAllBatches
   })
   const onCreateBatch  = useMutation({
     mutationFn: createBatch,
@@ -59,8 +61,22 @@ export default function BatchesPage() {
   const batchColumns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70},
     { field: 'batchName', headerName: 'Batch Name', width: 140},
-    { field: 'fabricationDate', headerName: 'Fabrication Date', width: 100}
+    { field: 'fabricationDate', headerName: 'Fabrication Date', width: 100},
   ];
+
+  // temporily assign a dummy rows, will return real batches later
+  const batchRows = [
+    {id: 1, batchName: "batch 1", fabricationDate: "01/12/2024"},
+    {id: 2, batchName: "batch 2", fabricationDate: "02/01/2025"},
+    {id: 3, batchName: "batch 3", fabricationDate: "02/02/2025"},
+    {id: 4, batchName: "batch 4", fabricationDate: "02/03/2025"},
+    {id: 5, batchName: "batch 5", fabricationDate: "02/04/2025"},
+    {id: 6, batchName: "batch 6", fabricationDate: "02/05/2025"},
+    {id: 7, batchName: "batch 7", fabricationDate: "02/06/2025"},
+    {id: 8, batchName: "batch 8", fabricationDate: "02/07/2025"},
+  ]
+
+  const paginationModel = { page: 0, pageSize: 5};
 
    
   
@@ -109,9 +125,21 @@ export default function BatchesPage() {
               <Typography sx={{marginLeft: 1.5}}>to</Typography>
               <OutlinedInput type="date"  size="small"></OutlinedInput>  
             </Box>
-            
           </Collapse>
-           
+          <Typography variant="h5">List of batches</Typography>
+          <Paper sx={{height: 300, width: "100%"}}>
+            <DataGrid
+              rows={batchRows}
+              columns={batchColumns}
+              initialState={{ pagination: { paginationModel: {
+                pageSize: 5, 
+              }}}}
+              pageSizeOptions= {[5, 10, 50]}
+              checkboxSelection
+              sx={{ border: 0}}
+            />
+
+          </Paper>
             
         </Stack>
         {/* Left Panel */}

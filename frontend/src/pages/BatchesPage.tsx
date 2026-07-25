@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Typography, Collapse, Stack, IconButton, Box, Checkbox, OutlinedInput, Button, InputAdornment, Paper } from "@mui/material";
 import { useForm } from "react-hook-form";
+import { ErrorMessage} from "@hookform/error-message";
 import type { Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AddIcon from "@mui/icons-material/Add";
@@ -17,7 +18,7 @@ import  { batchSchema, batchInputSchema, type Batch, type BatchInput} from "../t
 import {  OutletTwoTone } from "@mui/icons-material";
 
 type BatchInputElementLayout = {
-  label: string, optional: boolean, type: string, elementKey: Path<BatchInput> | string, registered: boolean, disabled: boolean, multiline?: Boolean | undefined
+  label: string, optional: boolean, type: string, elementKey: Path<BatchInput>, registered: boolean, disabled: boolean, multiline?: Boolean | undefined
 }
 
 export default function BatchesPage() {
@@ -42,44 +43,46 @@ export default function BatchesPage() {
     {label: "Batch ID", optional: true, type: "string", elementKey: "batchId", registered: false, disabled: true },
     {label: "Batch Name", optional: false, type: "string", elementKey: "batchName", registered: true, disabled: false },
     {label: "Description", optional: true, type: "string", elementKey: "description", registered: true, disabled: false },
-    {label: "Fabrication Date", optional: true, type: "date", elementKey: "fabricationDate", registered: true, disabled: false },
+    {label: "Fabrication Date", optional: false, type: "date", elementKey: "fabricationDate", registered: true, disabled: false },
     {label: "Treatment", optional: true, type: "string", elementKey: "treatment", registered: true, disabled: false, multiline: true },
     {label: "Project ID", optional: true, type: "string", elementKey: "projectId", registered: true, disabled: false }, 
     {label: "Lab ID", optional: true, type: "string", elementKey: "labId", registered: true, disabled: false }, 
   ]
   const queryClient = useQueryClient()
   const allBatches = useQuery({
-    queryKey: ["getAllBatches"],
+    queryKey: ["batches"],
     queryFn: getAllBatches
   })
   const onCreateBatch  = useMutation({
     mutationFn: createBatch,
     onSuccess: () => {
-      queryClient.invalidateQueries()
+      queryClient.invalidateQueries({
+        queryKey: ["batches"],
+      });
+      reset();
     }
   })
+
+  const addBatch = (data: BatchInput) => onCreateBatch.mutate(data);
   const batchColumns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70},
     { field: 'batchName', headerName: 'Batch Name', width: 140},
-    { field: 'fabricationDate', headerName: 'Fabrication Date', width: 100},
+    { field: 'fabricationDate', headerName: 'Fabrication Date', width: 150},
+    { field: 'treatment', headerName: 'Treatment', width: 100},
   ];
 
   // temporily assign a dummy rows, will return real batches later
   const batchRows = [
-    {id: 1, batchName: "batch 1", fabricationDate: "01/12/2024"},
-    {id: 2, batchName: "batch 2", fabricationDate: "02/01/2025"},
-    {id: 3, batchName: "batch 3", fabricationDate: "02/02/2025"},
-    {id: 4, batchName: "batch 4", fabricationDate: "02/03/2025"},
-    {id: 5, batchName: "batch 5", fabricationDate: "02/04/2025"},
-    {id: 6, batchName: "batch 6", fabricationDate: "02/05/2025"},
-    {id: 7, batchName: "batch 7", fabricationDate: "02/06/2025"},
-    {id: 8, batchName: "batch 8", fabricationDate: "02/07/2025"},
+    {id: 1, batchName: "batch 1", fabricationDate: "01/12/2024", treatment: "treatment A"},
+    {id: 2, batchName: "batch 2", fabricationDate: "02/01/2025", treatment: "treatment A"},
+    {id: 3, batchName: "batch 3", fabricationDate: "02/02/2025", treatment: "treatment A"},
+    {id: 4, batchName: "batch 4", fabricationDate: "02/03/2025", treatment: "treatment A"},
+    {id: 5, batchName: "batch 5", fabricationDate: "02/04/2025", treatment: "treatment A"},
+    {id: 6, batchName: "batch 6", fabricationDate: "02/05/2025", treatment: "treatment A"},
+    {id: 7, batchName: "batch 7", fabricationDate: "02/06/2025", treatment: "treatment A"},
+    {id: 8, batchName: "batch 8", fabricationDate: "02/07/2025", treatment: "treatment A"},
   ]
-
   const paginationModel = { page: 0, pageSize: 5};
-
-   
-  
   return (
     <Stack sx={{ alignItems: "flex-start"}}>
       <Typography variant="h2" mb={4}>Batches</Typography>
@@ -97,37 +100,40 @@ export default function BatchesPage() {
               <SearchOutlinedIcon fontSize="large"></SearchOutlinedIcon>
             </IconButton>
           </Box>
-          
-          <Box sx={{display:"flex", alignItems: "center"}}>
-            <IconButton onClick={()=>setShowAdvancedSearch(!showAdvancedSearch)}>
-              {showAdvancedSearch ?
-                <ExpandLessOutlinedIcon fontSize="large"/> 
-              : <ChevronRightOutlinedIcon fontSize="large"/>}  
-            </IconButton>
-            <Typography variant="h6">
-              Addvanced search
-            </Typography>
-          </Box>
-          
-          <Collapse in={showAdvancedSearch}>
-            <Box sx={{display: "grid", gridTemplateColumns: "1fr 3fr 1fr 3fr 1fr 3fr", alignItems: "center", gap: "5px 5px"}}>
-              <Checkbox defaultValue="false"></Checkbox>
-              <Typography sx={{fontWeight: "bold"}} >ID range</Typography>
-              <Typography> from </Typography>
-              <OutlinedInput size="small"></OutlinedInput>
-              <Typography sx={{marginLeft: 1.5}}>to</Typography>
-              <OutlinedInput  size="small"></OutlinedInput>
-              
-              <Checkbox defaultValue="false"></Checkbox>
-              <Typography sx={{fontWeight: "bold"}} >Fabrication date </Typography>
-              <Typography> from </Typography>
-              <OutlinedInput type="date" size="small"></OutlinedInput>
-              <Typography sx={{marginLeft: 1.5}}>to</Typography>
-              <OutlinedInput type="date"  size="small"></OutlinedInput>  
+          <Stack>
+            <Box sx={{display:"flex", alignItems: "center"}}>
+              <IconButton onClick={()=>setShowAdvancedSearch(!showAdvancedSearch)}>
+                {showAdvancedSearch ?
+                  <ExpandLessOutlinedIcon fontSize="large"/> 
+                : <ChevronRightOutlinedIcon fontSize="large"/>}  
+              </IconButton>
+              <Typography>
+                Addvanced search
+              </Typography>
             </Box>
-          </Collapse>
-          <Typography variant="h5">List of batches</Typography>
-          <Paper sx={{height: 300, width: "100%"}}>
+            <Collapse sx={{mt: 0}}in={showAdvancedSearch}>
+              <Box sx={{display: "grid", gridTemplateColumns: "1fr 3fr 1fr 3fr 1fr 3fr", alignItems: "center", gap: "5px 5px"}}>
+                <Checkbox defaultValue="false"></Checkbox>
+                <Typography sx={{fontWeight: "bold"}} >ID range</Typography>
+                <Typography> from </Typography>
+                <OutlinedInput size="small"></OutlinedInput>
+                <Typography sx={{marginLeft: 1.5}}>to</Typography>
+                <OutlinedInput  size="small"></OutlinedInput>
+                
+                <Checkbox defaultValue="false"></Checkbox>
+                <Typography sx={{fontWeight: "bold"}} >Fabrication date </Typography>
+                <Typography> from </Typography>
+                <OutlinedInput type="date" size="small"></OutlinedInput>
+                <Typography sx={{marginLeft: 1.5}}>to</Typography>
+                <OutlinedInput type="date"  size="small"></OutlinedInput>  
+              </Box>
+            </Collapse>
+          </Stack>
+          
+          
+          
+          <Typography variant="h4" sx={{mt: 3}}>List of batches</Typography>
+          <Paper sx={{height: "80%", width: "100%"}}>
             <DataGrid
               rows={batchRows}
               columns={batchColumns}
@@ -149,15 +155,25 @@ export default function BatchesPage() {
           { batchInputElementLayout.map((e) => 
             <Box key={e.label} display="grid" gridTemplateColumns="1fr 2fr"sx={{gap: 4, alignItems: "center", pt: 2}}>
               <Typography variant="h5" mb={2}>{e.label} {e.optional ? " " : " * "}</Typography>
-              <OutlinedInput  {...(e.registered ? register(e.elementKey) : {})} type={e.type} size="small" disabled={e.disabled} multiline={e.multiline} minRows={e.multiline ? 3 : 0}/>
+              <Stack>
+                <OutlinedInput  {...(e.registered ? register(e.elementKey) : {})} type={e.type} size="small" disabled={e.disabled} multiline={e.multiline} minRows={e.multiline ? 3 : 0}/>
+                {/* Error message for each field */}
+                <ErrorMessage 
+                  errors={errors}
+                  name={e.elementKey}
+                  render={({message}) => (<Typography variant="caption" color="error">{message}</Typography>)}
+                />
+              </Stack>
+              
             </Box>       
           )}
           <Typography variant="h6" pt={2}> * = Required</Typography>
           <Box sx={{display: "flex", gap: 5}}>
-            <Button type="submit" variant="contained" sx={{mt:3}} size="large" > New </Button>
-            <Button type="submit" variant="contained" sx={{mt:3}} size="large" onClick={handleSubmit(onCreateBatch)}>Add</Button>
-            <Button type="submit" variant="contained" sx={{mt:3}} size="large" > Update </Button>
-            <Button type="submit" variant="contained" sx={{mt:3}} size="large" color="error" > Delete </Button>
+            <Button variant="contained" sx={{mt:3}} size="large" onClick={() => reset()}> New </Button>
+            <Button variant="contained" sx={{mt:3}} size="large" onClick={handleSubmit(addBatch)}>
+              {onCreateBatch.isPending ? "Adding ..." : "Add"}</Button>
+            <Button variant="contained" sx={{mt:3}} size="large" > Update </Button>
+            <Button variant="contained" sx={{mt:3}} size="large" color="error" > Delete </Button>
           </Box>
          {/* Right Panel */} 
         </Stack>

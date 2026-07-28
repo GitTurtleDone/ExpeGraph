@@ -21,8 +21,16 @@ type BatchInputElementLayout = {
   label: string, optional: boolean, type: string, elementKey: Path<BatchInput>, registered: boolean, disabled: boolean, multiline?: Boolean | undefined
 }
 
+type BatchRow = {
+  id: number,
+  batchName: string,
+  fabricationDate: Date,
+  treatment?: string,
+}
+
 export default function BatchesPage() {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [foundBatches, setFoundBatches] = useState<BatchRow[]>([]);
   const {
     register,
     handleSubmit,
@@ -71,17 +79,19 @@ export default function BatchesPage() {
     { field: 'treatment', headerName: 'Treatment', width: 100},
   ];
 
-  // temporily assign a dummy rows, will return real batches later
-  const batchRows = [
-    {id: 1, batchName: "batch 1", fabricationDate: "01/12/2024", treatment: "treatment A"},
-    {id: 2, batchName: "batch 2", fabricationDate: "02/01/2025", treatment: "treatment A"},
-    {id: 3, batchName: "batch 3", fabricationDate: "02/02/2025", treatment: "treatment A"},
-    {id: 4, batchName: "batch 4", fabricationDate: "02/03/2025", treatment: "treatment A"},
-    {id: 5, batchName: "batch 5", fabricationDate: "02/04/2025", treatment: "treatment A"},
-    {id: 6, batchName: "batch 6", fabricationDate: "02/05/2025", treatment: "treatment A"},
-    {id: 7, batchName: "batch 7", fabricationDate: "02/06/2025", treatment: "treatment A"},
-    {id: 8, batchName: "batch 8", fabricationDate: "02/07/2025", treatment: "treatment A"},
-  ]
+  const setBatchRows = () => {
+    if (allBatches.data) {
+                setFoundBatches(
+                  allBatches.data.map((b) => ({
+                      id: b.batchId, 
+                      batchName: b.batchName, 
+                      fabricationDate: b.fabricationDate, 
+                      treatment: b.treatment,
+                  }))
+                );
+    } 
+  };
+  
   const paginationModel = { page: 0, pageSize: 5};
   return (
     <Stack sx={{ alignItems: "flex-start"}}>
@@ -96,7 +106,10 @@ export default function BatchesPage() {
               placeholder="Search batches" 
               size="small"
             />
-            <IconButton>
+            <IconButton onClick={() => 
+              setBatchRows()
+            }
+            >
               <SearchOutlinedIcon fontSize="large"></SearchOutlinedIcon>
             </IconButton>
           </Box>
@@ -135,7 +148,7 @@ export default function BatchesPage() {
           <Typography variant="h4" sx={{mt: 3}}>List of batches</Typography>
           <Paper sx={{height: "80%", width: "100%"}}>
             <DataGrid
-              rows={batchRows}
+              rows={foundBatches}
               columns={batchColumns}
               initialState={{ pagination: { paginationModel: {
                 pageSize: 5, 

@@ -1,7 +1,7 @@
 import * as z from "zod";
 
 export const batchSchema = z.object({
-    batchId: z.string(),
+    batchId: z.number().int().positive(),
     batchName: z.string().min(1, "Batch name is required"),
     description: z.string().optional(),
     fabricationDate: z.string().min(1, "Fabrication date is required"),

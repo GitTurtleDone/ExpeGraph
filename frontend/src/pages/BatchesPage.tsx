@@ -18,19 +18,20 @@ import  { batchSchema, batchInputSchema, type Batch, type BatchInput} from "../t
 import {  OutletTwoTone } from "@mui/icons-material";
 
 type BatchInputElementLayout = {
-  label: string, optional: boolean, type: string, elementKey: Path<BatchInput>, registered: boolean, disabled: boolean, multiline?: Boolean | undefined
+  label: string, optional: boolean, type: string, elementKey: Path<BatchInput>,  disabled: boolean, multiline?: Boolean | undefined
 }
 
 type BatchRow = {
   id: number,
   batchName: string,
-  fabricationDate: Date,
+  fabricationDate: string,
   treatment?: string,
 }
 
 export default function BatchesPage() {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [foundBatches, setFoundBatches] = useState<BatchRow[]>([]);
+  const [selectedBatch, setSelectedBatch] = useState<Batch>();
   const {
     register,
     handleSubmit,
@@ -43,18 +44,19 @@ export default function BatchesPage() {
       description: "IrOx SBDs using new milled shadow masks",
       fabricationDate: "2024-12-01", // ISO demands YYYY-MM-DD
       treatment: "Standard treatment: Ohmic 450 C, 3min, N2, furnace. IrOx/Ir 40/40 nm",
-      projectId: "",
-      labId: ""
+      projectId: undefined,
+      labId: undefined
     }
   })
+  
   const batchInputElementLayout : BatchInputElementLayout[] = [
-    {label: "Batch ID", optional: true, type: "string", elementKey: "batchId", registered: false, disabled: true },
-    {label: "Batch Name", optional: false, type: "string", elementKey: "batchName", registered: true, disabled: false },
-    {label: "Description", optional: true, type: "string", elementKey: "description", registered: true, disabled: false },
-    {label: "Fabrication Date", optional: false, type: "date", elementKey: "fabricationDate", registered: true, disabled: false },
-    {label: "Treatment", optional: true, type: "string", elementKey: "treatment", registered: true, disabled: false, multiline: true },
-    {label: "Project ID", optional: true, type: "string", elementKey: "projectId", registered: true, disabled: false }, 
-    {label: "Lab ID", optional: true, type: "string", elementKey: "labId", registered: true, disabled: false }, 
+    
+    {label: "Batch Name", optional: false, type: "string", elementKey: "batchName", disabled: false },
+    {label: "Description", optional: true, type: "string", elementKey: "description",  disabled: false },
+    {label: "Fabrication Date", optional: false, type: "Date", elementKey: "fabricationDate", disabled: false },
+    {label: "Treatment", optional: true, type: "string", elementKey: "treatment", disabled: false, multiline: true },
+    {label: "Project ID", optional: true, type: "string", elementKey: "projectId", disabled: false }, 
+    {label: "Lab ID", optional: true, type: "string", elementKey: "labId", disabled: false }, 
   ]
   const queryClient = useQueryClient()
   const allBatches = useQuery({
@@ -81,14 +83,14 @@ export default function BatchesPage() {
 
   const setBatchRows = () => {
     if (allBatches.data) {
-                setFoundBatches(
-                  allBatches.data.map((b) => ({
-                      id: b.batchId, 
-                      batchName: b.batchName, 
-                      fabricationDate: b.fabricationDate, 
-                      treatment: b.treatment,
-                  }))
-                );
+      setFoundBatches(
+        allBatches.data.map((b) => ({
+            id: b.batchId, 
+            batchName: b.batchName, 
+            fabricationDate: b.fabricationDate, 
+            treatment: b.treatment,
+        }))
+      );
     } 
   };
   
@@ -126,26 +128,26 @@ export default function BatchesPage() {
             </Box>
             <Collapse sx={{mt: 0}}in={showAdvancedSearch}>
               <Box sx={{display: "grid", gridTemplateColumns: "1fr 3fr 1fr 3fr 1fr 3fr", alignItems: "center", gap: "5px 5px"}}>
-                <Checkbox defaultValue="false"></Checkbox>
+                <Checkbox defaultValue="false" />
                 <Typography sx={{fontWeight: "bold"}} >ID range</Typography>
                 <Typography> from </Typography>
-                <OutlinedInput size="small"></OutlinedInput>
+                <OutlinedInput size="small" />
                 <Typography sx={{marginLeft: 1.5}}>to</Typography>
-                <OutlinedInput  size="small"></OutlinedInput>
+                <OutlinedInput  size="small" />
                 
-                <Checkbox defaultValue="false"></Checkbox>
+                <Checkbox defaultValue="false" />
                 <Typography sx={{fontWeight: "bold"}} >Fabrication date </Typography>
                 <Typography> from </Typography>
-                <OutlinedInput type="date" size="small"></OutlinedInput>
+                <OutlinedInput type="date" size="small" />
                 <Typography sx={{marginLeft: 1.5}}>to</Typography>
-                <OutlinedInput type="date"  size="small"></OutlinedInput>  
+                <OutlinedInput type="date"  size="small" />
               </Box>
             </Collapse>
           </Stack>
           
           
           
-          <Typography variant="h4" sx={{mt: 3}}>List of batches</Typography>
+          {/* <Typography variant="h4" sx={{mt: 3}}>List of batches</Typography> */}
           <Paper sx={{height: "80%", width: "100%"}}>
             <DataGrid
               rows={foundBatches}
@@ -155,6 +157,22 @@ export default function BatchesPage() {
               }}}}
               pageSizeOptions= {[5, 10, 50]}
               checkboxSelection
+              showToolbar
+              label="List of found batches"
+              onRowClick={(params)=>{
+                setSelectedBatch(allBatches.data?.find((b) => b.batchId === params.row.id))
+                if (!selectedBatch) return;
+                reset({
+                  batchName: selectedBatch.batchName,
+                  description: selectedBatch.description ?? "",
+                  fabricationDate: selectedBatch.fabricationDate,
+                  treatment: selectedBatch.treatment ?? "",
+                  projectId: selectedBatch.projectId ?? undefined,
+                  labId: selectedBatch.labId ?? undefined,
+                })
+                
+
+              }}
               sx={{ border: 0}}
             />
 
@@ -165,11 +183,16 @@ export default function BatchesPage() {
         
         {/* Right Panel */}
         <Stack>
+          <Box key="batchId" display="grid" gridTemplateColumns="1fr 2fr" sx={{gap: 4, alignItems: "center", pt: 2}}>
+            <Typography variant="h5" mb={2}>Batch ID</Typography>
+            <OutlinedInput type="number" size="small" disabled value={selectedBatch?.batchId ?? undefined} /> 
+          
+          </Box>
           { batchInputElementLayout.map((e) => 
-            <Box key={e.label} display="grid" gridTemplateColumns="1fr 2fr"sx={{gap: 4, alignItems: "center", pt: 2}}>
+            <Box key={e.label} display="grid" gridTemplateColumns="1fr 2fr" sx={{gap: 4, alignItems: "center", pt: 2}}>
               <Typography variant="h5" mb={2}>{e.label} {e.optional ? " " : " * "}</Typography>
               <Stack>
-                <OutlinedInput  {...(e.registered ? register(e.elementKey) : {})} type={e.type} size="small" disabled={e.disabled} multiline={e.multiline} minRows={e.multiline ? 3 : 0}/>
+                <OutlinedInput  {...register(e.elementKey)} type={e.type} size="small" disabled={e.disabled} multiline={e.multiline} minRows={e.multiline ? 3 : 0}/>
                 {/* Error message for each field */}
                 <ErrorMessage 
                   errors={errors}

@@ -1,61 +1,72 @@
 // const BASE = "http://localhost:5174";
 import type { VoltageSweepBlock } from "../types/AcquirePage/acquire";
 
-const WINDOW_BASE = "http://172.31.80.1:8000"// base URL of the backend
+//const WINDOW_BASE = "http://172.31.80.1:8000"// base URL of the backend, this address for Office Computer
 
-let abortController: AbortController | null
+// base URL of the backend, this address for personal laptop
+// this is the WSL2 default gateway (= Windows host), from `ip route show default`
+// NOT the /etc/resolv.conf nameserver — that's a DNS-only tunneling address and won't route other ports
+const WINDOW_BASE = "http://172.26.64.1:8000";
 
-export async function getAllConnectedEquipment():Promise<string[]>{
-	const res = await fetch(`${WINDOW_BASE}/equipment`)
-	if (!res.ok) throw new Error('Failed to get connected devices')
-	const data = await res.json()
-	console.log(data)
-	return data
+let abortController: AbortController | null;
+
+export async function getAllConnectedEquipment(): Promise<string[]> {
+  const res = await fetch(`${WINDOW_BASE}/equipment`);
+  if (!res.ok) throw new Error("Failed to get connected devices");
+  const data = await res.json();
+  console.log(data);
+  return data;
 }
 
 export function runMeasurement(
-	resourceString: string, 
-	sweeps: VoltageSweepBlock[],
-	onPoint: (voltage: number, current: number) => void,
-	onDone: () => void
-	
+  resourceString: string,
+  sweeps: VoltageSweepBlock[],
+  onPoint: (voltage: number, current: number) => void,
+  onDone: () => void,
 ) {
-	// SSE uses EventSource -> can't use fetch for streaming
-	// -> Need to POST first then listen
-	abortController = new AbortController()
-	fetch(`${WINDOW_BASE}/measurement/run`, {
-		method: 'POST',
-		headers: {'Content-Type':'application/json'},
-		body: JSON.stringify({ resource_string: resourceString, sweeps }),
-		signal: abortController.signal,
-	}).then(async(res) => {
-		const reader = res.body!.getReader()
-		const decoder = new TextDecoder()
-		while (true) {
-			const { done, value } = await reader.read()
-			if (done) { onDone(); break}
-			const text = decoder.decode(value)
-			// returned SSE lines format: "data: {...}\n\n"
-			text.split("\n").forEach((line) => {
-				if (line.startsWith("data: ")) {
-					const point = JSON.parse(line.slice(6))
-					onPoint(point.voltage, point.current)
-					// console.log(point)
-				}
-			})	 
-		}
-	}).catch((e) =>{
-		if (e.name === 'AbortError') { onDone(); return}
-		console.log(e)
-	})
+  // SSE uses EventSource -> can't use fetch for streaming
+  // -> Need to POST first then listen
+  abortController = new AbortController();
+  fetch(`${WINDOW_BASE}/measurement/run`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ resource_string: resourceString, sweeps }),
+    signal: abortController.signal,
+  })
+    .then(async (res) => {
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          onDone();
+          break;
+        }
+        const text = decoder.decode(value);
+        // returned SSE lines format: "data: {...}\n\n"
+        text.split("\n").forEach((line) => {
+          if (line.startsWith("data: ")) {
+            const point = JSON.parse(line.slice(6));
+            onPoint(point.voltage, point.current);
+            // console.log(point)
+          }
+        });
+      }
+    })
+    .catch((e) => {
+      if (e.name === "AbortError") {
+        onDone();
+        return;
+      }
+      console.log(e);
+    });
 }
 
-export function stopMeasurement(){
-	fetch(
-		`${WINDOW_BASE}/measurement/stop`, {
-		method: 'POST',
-		headers: {'Content-Type': 'application/json'},
-	}).then(async(res) =>{
-		console.log(res)
-	})
+export function stopMeasurement() {
+  fetch(`${WINDOW_BASE}/measurement/stop`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  }).then(async (res) => {
+    console.log(res);
+  });
 }

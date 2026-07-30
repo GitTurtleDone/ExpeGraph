@@ -57,7 +57,7 @@ function EquipmentPage() {
     queryKey: ["equipments"],
     queryFn: getAllEquipment,
     staleTime: 1000 * 60 * 5, // 5 minutes
-  })
+  });
 
   // Mutate - runs when mutate() is called
   const queryClient = useQueryClient();
@@ -66,14 +66,14 @@ function EquipmentPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipments"] });
     },
-  })
+  });
   const udtEquipment = useMutation({
     mutationFn: ({ id, data }: { id: number; data: CreateEquipmentRequest }) =>
       updateEquipment(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipments"] });
     },
-  })
+  });
   const delEquipment = useMutation({
     mutationFn: deleteEquipment,
     onSuccess: () => {
@@ -89,22 +89,22 @@ function EquipmentPage() {
         location: "",
         connectingStr: "",
         notes: "",
-      })
+      });
     },
-  })
+  });
   const conEquipment = useMutation({
-	  mutationFn: (strConnecting: string) => connectEquipment(strConnecting),
-	  onSuccess: () => {
-		  queryClient.invalidateQueries({ queryKey: ['equipments']})
-	  },
-  })
+    mutationFn: (strConnecting: string) => connectEquipment(strConnecting),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["equipments"] });
+    },
+  });
 
-const disEquipment = useMutation({
-      mutationFn: (strConnecting: string) => disconnectEquipment(strConnecting),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['equipments']})
-      },
-})
+  const disEquipment = useMutation({
+    mutationFn: (strConnecting: string) => disconnectEquipment(strConnecting),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["equipments"] });
+    },
+  });
 
   return (
     <div>
@@ -123,62 +123,71 @@ const disEquipment = useMutation({
             All{" "}
           </Typography>
           <List dense>
-            <ListItemButton 
-                key="new" 
-                selected={equipment.equipmentId === 0}
-                onClick={() => setEquipment({
-                    equipmentId: 0,
-                    equipmentName: "",
-                    manufacturer: "",
-                    model: "",
-                    serialNumber: "",
-                    purchaseYear: "",
-                    calibrationDue: "",
-                    location: "",
-                    connectingStr: "",
-                    notes: "",
-                })}
-            >New</ListItemButton>
-            {allEquipment.data?.slice().sort((a, b) => a.equipmentId - b.equipmentId).map((eq) => (
-              <ListItemButton
-                key={eq.equipmentId}
-                selected={equipment.equipmentId === eq.equipmentId}
-                onClick={() =>
-                  setEquipment({
-                    equipmentId: eq.equipmentId,
-                    equipmentName: eq.equipmentName,
-                    manufacturer: eq.manufacturer ?? "",
-                    model: eq.model ?? "",
-                    serialNumber: eq.serialNumber ?? "",
-                    purchaseYear: eq.purchaseYear || "",
-                    calibrationDue: eq.calibrationDue ?? "",
-                    location: eq.location ?? "",
-                    connectingStr: eq.connectingStr ?? "",
-                    notes: eq.notes ?? "",
-                  })
-                }
-              >
-                {eq.equipmentName}
-              </ListItemButton>
-            ))}
-          </List>
-          <Stack direction='row' pt={5} gap={5}>
-              <Button 
-              variant="contained"
-              onClick={() => conEquipment.mutate(equipment.connectingStr)}
+            <ListItemButton
+              key="new"
+              selected={equipment.equipmentId === 0}
+              onClick={() =>
+                setEquipment({
+                  equipmentId: 0,
+                  equipmentName: "",
+                  manufacturer: "",
+                  model: "",
+                  serialNumber: "",
+                  purchaseYear: "",
+                  calibrationDue: "",
+                  location: "",
+                  connectingStr: "",
+                  notes: "",
+                })
+              }
             >
-            Connect Equipment
+              New
+            </ListItemButton>
+            {allEquipment.data
+              ?.slice()
+              .sort((a, b) => a.equipmentId - b.equipmentId)
+              .map((eq) => (
+                <ListItemButton
+                  key={eq.equipmentId}
+                  selected={equipment.equipmentId === eq.equipmentId}
+                  onClick={() =>
+                    setEquipment({
+                      equipmentId: eq.equipmentId,
+                      equipmentName: eq.equipmentName,
+                      manufacturer: eq.manufacturer ?? "",
+                      model: eq.model ?? "",
+                      serialNumber: eq.serialNumber ?? "",
+                      purchaseYear: eq.purchaseYear || "",
+                      calibrationDue: eq.calibrationDue ?? "",
+                      location: eq.location ?? "",
+                      connectingStr: eq.connectingStr ?? "",
+                      notes: eq.notes ?? "",
+                    })
+                  }
+                >
+                  {eq.equipmentName}
+                </ListItemButton>
+              ))}
+          </List>
+          <Stack direction="row" pt={5} gap={5}>
+            <Button
+              variant="contained"
+              onClick={() => {
+                console.log(equipment.equipmentId);
+                conEquipment.mutate(equipment.connectingStr);
+              }}
+            >
+              Connect Equipment
             </Button>
             <Button
-              variant='contained'
+              variant="contained"
               onClick={() => disEquipment.mutate(equipment.connectingStr)}
             >
-            {disEquipment.isPending ? 'Disconnecting...' : 'Disconnect Equipment'}
+              {disEquipment.isPending
+                ? "Disconnecting..."
+                : "Disconnect Equipment"}
             </Button>
-
           </Stack>
-          
-
         </Stack>
         <Stack spacing={1.5} width="50%" mb={5}>
           {equipmentLayout.map(({ label, type, field }) => (
@@ -243,20 +252,20 @@ const disEquipment = useMutation({
               }
               variant="contained"
             >
-              {udtEquipment.isPending ? 'Updating...' : 'Update'}
+              {udtEquipment.isPending ? "Updating..." : "Update"}
             </Button>
-            <Button onClick={() => delEquipment.mutate(equipment.equipmentId)}
+            <Button
+              onClick={() => delEquipment.mutate(equipment.equipmentId)}
               variant="contained"
               color="error"
               disabled={delEquipment.isPending}
             >
               {delEquipment.isPending ? "Delete..." : "Delete"}
             </Button>
-            
           </Stack>
         </Stack>
       </Stack>
     </div>
-  )
+  );
 }
 export default EquipmentPage;

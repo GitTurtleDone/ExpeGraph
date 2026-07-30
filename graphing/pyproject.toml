@@ -1,0 +1,13 @@
+[project]
+name = "graphing"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "kaleido>=1.2.0",
+    "matplotlib>=3.10.8",
+    "pandas>=3.0.1",
+    "plotly>=6.6.0",
+    "psycopg2-binary>=2.9.11",
+]

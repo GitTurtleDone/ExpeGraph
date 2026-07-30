@@ -154,8 +154,9 @@ curl http://localhost:8000/docs
 
 ```bash
 # In WSL2 terminal
-cat /etc/resolv.conf | grep nameserver
-# → nameserver 172.x.x.x   ← use this IP for INSTRUMENT_BASE in the frontend
+#cat /etc/resolv.conf | grep nameserver # for WSL2 DNS-tunneling proxy IP only, not general TCP rout to the host
+ip route show default
+# → nameserver 172.x.x.x   ← use this IP for WINDOW_BASE in the frontend
 ```
 
 ---

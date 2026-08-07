@@ -45,7 +45,6 @@ export default function BatchesPage() {
     register,
     handleSubmit,
     reset,
-    resetDefaultValues,
     formState: { errors, isSubmitting },
   } = useForm<BatchInput>({
     resolver: zodResolver(batchInputSchema),
@@ -77,12 +76,11 @@ export default function BatchesPage() {
   })
 
   const onUpdateBatch = useMutation({
-    mutationFn: (id: number, data: BatchInput) => updateBatch(id, data),
+    mutationFn: ({ id, data }: { id: number; data: BatchInput }) => updateBatch(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["batches"],
       });
-      reset();
     }
   })
 
@@ -174,18 +172,17 @@ export default function BatchesPage() {
               label="List of found batches"
               onRowClick={(params)=>{
                 setSelectedId(params.row.id)
-                setSelectedBatch(allBatches.data?.find((b) => b.batchId === params.row.id))
-                if (!selectedBatch) return;
+                const batch = allBatches.data?.find((b) => b.batchId === params.row.id)
+                setSelectedBatch(batch)
+                if (!batch) return;
                 reset({
-                  batchName: selectedBatch.batchName,
-                  description: selectedBatch.description ?? "",
-                  fabricationDate: selectedBatch.fabricationDate,
-                  treatment: selectedBatch.treatment ?? "",
-                  projectId: selectedBatch.projectId ?? undefined,
-                  labId: selectedBatch.labId ?? undefined,
+                  batchName: batch.batchName,
+                  description: batch.description ?? "",
+                  fabricationDate: batch.fabricationDate,
+                  treatment: batch.treatment ?? "",
+                  projectId: batch.projectId ?? undefined,
+                  labId: batch.labId ?? undefined,
                 })
-                
-                
 
               }}
               sx={{ border: 0}}
@@ -229,7 +226,15 @@ export default function BatchesPage() {
             </Button>
             <Button variant="contained" sx={{mt:3}} size="large" onClick={handleSubmit(addBatch)}>
               {onCreateBatch.isPending ? "Adding ..." : "Add"}</Button>
-            <Button variant="contained" sx={{mt:3}} size="large" onClick={handleSubmit(onUpdateBatch.mutate)}> Update </Button>
+            <Button
+              variant="contained" sx={{mt:3}} size="large"
+              disabled={selectedId === ""}
+              onClick={handleSubmit((formData) =>
+                onUpdateBatch.mutate({ id: Number(selectedId), data: formData })
+              )}
+            >
+              {onUpdateBatch.isPending ? "Updating ..." : "Update"}
+            </Button>
             <Button variant="contained" sx={{mt:3}} size="large" color="error" > Delete </Button>
           </Box>
          {/* Right Panel */} 

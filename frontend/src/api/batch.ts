@@ -37,12 +37,15 @@ export async function updateBatch(
     id: number,
     data: BatchInput
 ): Promise<Batch>{
-    const res = await fetch(`{BASE}/Batches`, {
+    const res = await fetch(`${BASE}/Batches/${id}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
     })
-    if (!res.ok) throw new Error(`Failed to update batch ${id}.`)
+    if (!res.ok) {
+        const message = await res.text();
+        throw new Error(message || `Failed to update batch ${id}.`);
+    }
     return res.json();
 }
 

@@ -32,21 +32,24 @@ export default function BatchesPage() {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [foundBatches, setFoundBatches] = useState<BatchRow[]>([]);
   const [selectedBatch, setSelectedBatch] = useState<Batch>();
+  const [selectedId, setSelectedId] = useState<string|number>("");
+  const batchDefaultValues = {
+    batchName: "IrOxNewSM",
+    description: "IrOx SBDs using new milled shadow masks",
+    fabricationDate: "2024-12-01", // ISO demands YYYY-MM-DD
+    treatment: "Standard treatment: Ohmic 450 C, 3min, N2, furnace. IrOx/Ir 40/40 nm",
+    projectId:"",
+    labId: "",
+  }
   const {
     register,
     handleSubmit,
     reset,
+    resetDefaultValues,
     formState: { errors, isSubmitting },
   } = useForm<BatchInput>({
     resolver: zodResolver(batchInputSchema),
-    defaultValues: {
-      batchName: "IrOxNewSM",
-      description: "IrOx SBDs using new milled shadow masks",
-      fabricationDate: "2024-12-01", // ISO demands YYYY-MM-DD
-      treatment: "Standard treatment: Ohmic 450 C, 3min, N2, furnace. IrOx/Ir 40/40 nm",
-      projectId: undefined,
-      labId: undefined
-    }
+    defaultValues: batchDefaultValues,
   })
   
   const batchInputElementLayout : BatchInputElementLayout[] = [
@@ -65,6 +68,16 @@ export default function BatchesPage() {
   })
   const onCreateBatch  = useMutation({
     mutationFn: createBatch,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["batches"],
+      });
+      reset(batchDefaultValues);
+    }
+  })
+
+  const onUpdateBatch = useMutation({
+    mutationFn: (id: number, data: BatchInput) => updateBatch(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["batches"],
@@ -160,6 +173,7 @@ export default function BatchesPage() {
               showToolbar
               label="List of found batches"
               onRowClick={(params)=>{
+                setSelectedId(params.row.id)
                 setSelectedBatch(allBatches.data?.find((b) => b.batchId === params.row.id))
                 if (!selectedBatch) return;
                 reset({
@@ -170,6 +184,7 @@ export default function BatchesPage() {
                   projectId: selectedBatch.projectId ?? undefined,
                   labId: selectedBatch.labId ?? undefined,
                 })
+                
                 
 
               }}
@@ -185,7 +200,7 @@ export default function BatchesPage() {
         <Stack>
           <Box key="batchId" display="grid" gridTemplateColumns="1fr 2fr" sx={{gap: 4, alignItems: "center", pt: 2}}>
             <Typography variant="h5" mb={2}>Batch ID</Typography>
-            <OutlinedInput type="number" size="small" disabled value={selectedBatch?.batchId ?? undefined} /> 
+            <OutlinedInput type="number" size="small" disabled value={selectedId} /> 
           
           </Box>
           { batchInputElementLayout.map((e) => 
@@ -205,10 +220,16 @@ export default function BatchesPage() {
           )}
           <Typography variant="h6" pt={2}> * = Required</Typography>
           <Box sx={{display: "flex", gap: 5}}>
-            <Button variant="contained" sx={{mt:3}} size="large" onClick={() => reset()}> New </Button>
+            <Button variant="contained" sx={{mt:3}} size="large" onClick={() =>{
+                reset(batchDefaultValues)
+                setSelectedId("")
+              } 
+              
+              }> New 
+            </Button>
             <Button variant="contained" sx={{mt:3}} size="large" onClick={handleSubmit(addBatch)}>
               {onCreateBatch.isPending ? "Adding ..." : "Add"}</Button>
-            <Button variant="contained" sx={{mt:3}} size="large" > Update </Button>
+            <Button variant="contained" sx={{mt:3}} size="large" onClick={handleSubmit(onUpdateBatch.mutate)}> Update </Button>
             <Button variant="contained" sx={{mt:3}} size="large" color="error" > Delete </Button>
           </Box>
          {/* Right Panel */} 

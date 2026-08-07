@@ -1,12 +1,12 @@
 import type { Equipment, CreateEquipmentRequest } from "../types/equipment";
 
 const BASE = "http://localhost:5174";
-//const WINDOW_BASE = "http://172.31.80.1:8000"// base URL of the backend, this address for Office Computer
+const WINDOW_BASE = "http://172.31.80.1:8000"// base URL of the backend, this address for Office Computer
 
 // base URL of the backend, this address for personal laptop
 // this is the WSL2 default gateway (= Windows host), from `ip route show default`
 // NOT the /etc/resolv.conf nameserver — that's a DNS-only tunneling address and won't route other ports
-const WINDOW_BASE = "http://172.26.64.1:8000";
+//const WINDOW_BASE = "http://172.26.64.1:8000";
 export async function getAllEquipment(): Promise<Equipment[]> {
   const res = await fetch(`${BASE}/Equipment`);
   if (!res.ok) throw new Error("Failed to fetch equipment");

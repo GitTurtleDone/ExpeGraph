@@ -11,7 +11,7 @@ import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import { DataGrid } from '@mui/x-data-grid';
 import type { GridColDef } from "@mui/x-data-grid";
-import { getAllBatches, getBatchById, createBatch, updateBatch, deleteBatch } from "../api/batch";
+import { getAllBatches, getBatchById, createBatch, updateBatch, deleteBatch, type BatchQuery } from "../api/batch";
 import * as z from "zod";
 
 import  { batchSchema, batchInputSchema, type Batch, type BatchInput} from "../types/batches"
@@ -33,6 +33,8 @@ export default function BatchesPage() {
   const [foundBatches, setFoundBatches] = useState<BatchRow[]>([]);
   const [selectedBatch, setSelectedBatch] = useState<Batch>();
   const [selectedId, setSelectedId] = useState<string|number>("");
+  const [searchText, setSearchText] = useState("");
+  const [filters, setFilters] = useState<BatchQuery>({});
   const batchDefaultValues = {
     batchName: "IrOxNewSM",
     description: "IrOx SBDs using new milled shadow masks",
@@ -62,8 +64,8 @@ export default function BatchesPage() {
   ]
   const queryClient = useQueryClient()
   const allBatches = useQuery({
-    queryKey: ["batches"],
-    queryFn: getAllBatches
+    queryKey: ["batches", filters],
+    queryFn: () => getAllBatches(filters),
   })
   const onCreateBatch  = useMutation({
     mutationFn: createBatch,
@@ -114,7 +116,10 @@ export default function BatchesPage() {
         <Stack gap={2}>
           <Box sx={{display: "flex", gap: 1}}>
             <OutlinedInput 
-              key="TextSearch" 
+              key="SearchText" 
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") setFilters({search: searchText})}}
               sx={{width: "80%"}}
               placeholder="Search batches" 
               size="small"
@@ -147,7 +152,7 @@ export default function BatchesPage() {
                 <OutlinedInput  size="small" />
                 
                 <Checkbox defaultValue="false" />
-                <Typography sx={{fontWeight: "bold"}} >Fabrication date </Typography>
+                <Typography sx={{fontWeight: "bold"}} >Fabrication date range</Typography>
                 <Typography> from </Typography>
                 <OutlinedInput type="date" size="small" />
                 <Typography sx={{marginLeft: 1.5}}>to</Typography>

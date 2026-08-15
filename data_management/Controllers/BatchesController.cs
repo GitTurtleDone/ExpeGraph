@@ -54,7 +54,7 @@ public class BatchesController : ControllerBase
             ("batchname", false) => query.OrderBy(b => b.BatchName).ThenBy(b => b.BatchId),
             ("batchname", true) => query.OrderByDescending(b => b.BatchName).ThenBy(b => b.BatchId),
             ("fabricationdate", false) => query.OrderBy(b => b.FabricationDate).ThenBy(b => b.BatchId),
-            ("fabricationdate", true) => query.OrderBy(b => b.FabricationDate).ThenBy(b => b.BatchId),
+            ("fabricationdate", true) => query.OrderByDescending(b => b.FabricationDate).ThenBy(b => b.BatchId),
             (_, true) => query.OrderByDescending(b => b.BatchId),
             _ => query.OrderBy(b => b.BatchId),
         };

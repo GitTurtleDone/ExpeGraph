@@ -1,9 +1,28 @@
 import type { Batch, BatchInput } from "../types/batches";
 
+export type BatchQuery = {
+    searchText?: string,
+    minId?: number,
+    maxId?: number,
+    fabricatedFrom?: string, //"YYYY-MM-DD"
+    fabricatedTo?: string,
+    projectId?: number,
+    labId?: number,
+    sort?: "batchName" | "fabrcicationDate",
+    order?: "asc" | "desc"
+}
 const BASE = "http://localhost:5174"
 
-export async function getAllBatches(): Promise<Batch[]> {
-    const res = await fetch(`${BASE}/Batches`)
+
+export async function getAllBatches(q: BatchQuery = {}): Promise<Batch[]> {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(q)) {
+        if (value !== undefined && value !== null && value !=="") {
+            params.append(key, String(value));
+        }
+    }
+    const qs = params.toString();
+    const res = await fetch(`${BASE}/Batches${qs ? `?${qs}` : ""}`)
     if (!res.ok) throw new Error("Failed to fetch batches");
     return res.json();
 }

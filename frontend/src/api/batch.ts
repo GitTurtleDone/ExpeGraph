@@ -1,23 +1,26 @@
 import type { Batch, BatchInput } from "../types/batches";
 
+// Every field is optional. An absent key means "don't filter on this".
+// The checkboxes in the UI decide which keys get set; see buildFilters() in BatchesPage.
 export type BatchQuery = {
-    searchText?: string,
+    search?: string,
     minId?: number,
     maxId?: number,
     fabricatedFrom?: string, //"YYYY-MM-DD"
     fabricatedTo?: string,
     projectId?: number,
     labId?: number,
-    sort?: "batchName" | "fabrcicationDate",
+    sort?: "batchName" | "fabricationDate",
     order?: "asc" | "desc"
 }
+
 const BASE = "http://localhost:5174"
 
 
 export async function getAllBatches(q: BatchQuery = {}): Promise<Batch[]> {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(q)) {
-        if (value !== undefined && value !== null && value !=="") {
+        if (value !== undefined && value !== null && value !== "") {
             params.append(key, String(value));
         }
     }

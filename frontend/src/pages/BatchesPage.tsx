@@ -94,6 +94,8 @@ export default function BatchesPage() {
     projectId: "",
     labId: "",
   });
+
+  const [enableSearch, setEnableSearch] = useState(false);
   const batchDefaultValues = {
     batchName: "IrOxNewSM",
     description: "IrOx SBDs using new milled shadow masks",
@@ -162,6 +164,7 @@ export default function BatchesPage() {
   const allBatches = useQuery({
     queryKey: ["batches", filters],
     queryFn: () => getAllBatches(filters),
+    enabled: enableSearch,
   });
   const onCreateBatch = useMutation({
     mutationFn: createBatch,
@@ -239,7 +242,10 @@ export default function BatchesPage() {
   };
 
   // Setting "filters" changes the queryKey, which is what makes TanStack refetch.
-  const runSearch = () => setFilters(buildSearchFilters());
+  const runSearch = () => {
+    setFilters(buildSearchFilters());
+    setEnableSearch(true);
+  }
 
   return (
     <Stack sx={{ alignItems: "flex-start" }}>

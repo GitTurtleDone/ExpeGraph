@@ -21,6 +21,7 @@ public class BatchConfiguration : IEntityTypeConfiguration<Batch>
         entity.Property(b => b.FabricationDate)
                 .HasColumnName("fabrication_date")
                 .IsRequired();
+        entity.HasIndex(b => b.FabricationDate);
         entity.Property(b => b.Treatment).HasColumnName("treatment");
         entity.Property(b => b.ProjectId).HasColumnName("project_id");
         entity.Property(b => b.LabId).HasColumnName("lab_id");

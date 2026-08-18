@@ -1,9 +1,31 @@
 import type { Batch, BatchInput } from "../types/batches";
 
+// Every field is optional. An absent key means "don't filter on this".
+// The checkboxes in the UI decide which keys get set; see buildFilters() in BatchesPage.
+export type BatchQuery = {
+    search?: string,
+    minId?: number,
+    maxId?: number,
+    fabricatedFrom?: string, //"YYYY-MM-DD"
+    fabricatedTo?: string,
+    projectId?: number,
+    labId?: number,
+    sort?: "batchName" | "fabricationDate",
+    order?: "asc" | "desc"
+}
+
 const BASE = "http://localhost:5174"
 
-export async function getAllBatches(): Promise<Batch[]> {
-    const res = await fetch(`${BASE}/Batches`)
+
+export async function getAllBatches(q: BatchQuery = {}): Promise<Batch[]> {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(q)) {
+        if (value !== undefined && value !== null && value !== "") {
+            params.append(key, String(value));
+        }
+    }
+    const qs = params.toString();
+    const res = await fetch(`${BASE}/Batches${qs ? `?${qs}` : ""}`)
     if (!res.ok) throw new Error("Failed to fetch batches");
     return res.json();
 }
@@ -37,12 +59,15 @@ export async function updateBatch(
     id: number,
     data: BatchInput
 ): Promise<Batch>{
-    const res = await fetch(`{BASE}/Batches`, {
+    const res = await fetch(`${BASE}/Batches/${id}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
     })
-    if (!res.ok) throw new Error(`Failed to update batch ${id}.`)
+    if (!res.ok) {
+        const message = await res.text();
+        throw new Error(message || `Failed to update batch ${id}.`);
+    }
     return res.json();
 }
 

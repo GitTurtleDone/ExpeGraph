@@ -19,13 +19,53 @@ public class BatchesController : ControllerBase
 
     // GET /batches
     [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await _db.Batches
+    public async Task<IActionResult> GetAll([FromQuery] BatchQuery q)
+    {
+        //Applying filtering from the frontend query
+        // leave server pagination for now
+        // var page = Math.Max(1, q.Page);
+        // var pageSize = Math.Clamp(q.PageSize, 1, 200);
+
+        //Skip snapshoting
+        var query = _db.Batches.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(q.Search))
+        {
+            var search_words = $"%{q.Search.Trim()}%";
+            query = query.Where(b =>
+                EF.Functions.ILike(b.BatchName, search_words) ||
+                EF.Functions.ILike(b.Description, search_words) || 
+                EF.Functions.ILike(b.Treatment, search_words));
+            
+        }
+        
+        //filtering batches by the Id and FabricationDate ranges and ProjectId and LabId
+        if (q.MinId is not null) query = query.Where(b => b.BatchId >= q.MinId);
+        if (q.MaxId is not null) query = query.Where(b => b.BatchId <= q.MaxId);
+        if (q.FabricatedFrom is not null)  query = query.Where(b => b.FabricationDate >= q.FabricatedFrom);
+        if (q.FabricatedTo is not null) query = query.Where(b => b.FabricationDate <= q.FabricatedTo);
+        if (q.ProjectId is not null) query = query.Where(b => b.ProjectId == q.ProjectId);
+        if (q.LabId is not null) query = query.Where(b => b.LabId == q.LabId);
+
+        var desc = string.Equals(q.Order, "desc", StringComparison.OrdinalIgnoreCase);
+
+        query = (q.Sort?.ToLowerInvariant(), desc) switch
+        {
+            ("batchname", false) => query.OrderBy(b => b.BatchName).ThenBy(b => b.BatchId),
+            ("batchname", true) => query.OrderByDescending(b => b.BatchName).ThenBy(b => b.BatchId),
+            ("fabricationdate", false) => query.OrderBy(b => b.FabricationDate).ThenBy(b => b.BatchId),
+            ("fabricationdate", true) => query.OrderByDescending(b => b.FabricationDate).ThenBy(b => b.BatchId),
+            (_, true) => query.OrderByDescending(b => b.BatchId),
+            _ => query.OrderBy(b => b.BatchId),
+        };
+        
+
+        return Ok(await query
             .Select(b => new BatchResponse(
                 b.BatchId, b.BatchName, b.Description, b.FabricationDate,
                 b.Treatment, b.ProjectId, b.LabId, b.CreatedAt))
             .ToListAsync());
-
+    }    
     // GET /batches/5
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)

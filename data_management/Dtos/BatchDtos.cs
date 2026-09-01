@@ -29,7 +29,7 @@ public record UpdateBatchRequest(
 // filtering a query from the frontend
 public record BatchQuery 
 {
-    public string? Search { get; init;}
+    public string? Search { get; init;} // init prevent mutation of the object after initialization
     public int? MinId { get; init; }
     public int? MaxId { get; init; }
     public DateOnly? FabricatedFrom { get; init; }

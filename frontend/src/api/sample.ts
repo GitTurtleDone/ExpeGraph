@@ -36,13 +36,23 @@ export async function createSample (data: SampleInput) : Promise<Sample> {
 }
 
 export async function updateSample (id: number, data: SampleInput) : Promise<Sample> {
-    const res = await fetch(`${BASE}/${String(id)}`, {
+    const res = await fetch(`${BASE}/Samples/${id}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
     })
 
-    if (!res.ok) throw new Error(`Failed to update the sample with id ${id}`)
+    if (!res.ok) throw new Error(`Failed to update the sample ${id}`)
     return res.json();
+}
+
+export async function deleteSample(id: number) {
+    const res = await fetch (`${BASE}/Samples/${id}`, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"}
+    })
+    if (!res.ok) throw new Error(`Failed to delete sample ${id}`)
+
+    
 }
 

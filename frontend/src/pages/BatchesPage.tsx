@@ -9,7 +9,6 @@ import {
   Checkbox,
   OutlinedInput,
   Button,
-  InputAdornment,
   Paper,
 } from "@mui/material";
 import { useForm } from "react-hook-form";

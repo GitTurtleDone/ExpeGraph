@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Typography, Stack, Box, Checkbox, OutlinedInput, Button, Paper } from "@mui/material";
 //import { register } from "plotly.js";
 import { sampleSchema, sampleInputSchema, type Sample, type SampleInput  } from "../types/samples";
@@ -25,6 +26,7 @@ export default function SamplesPage() {
     treatment: "Standard treatment",
     batchId: 15
   }
+  const [selectedId, setSelectedId] = useState(undefined);
   const {register, handleSubmit, reset, formState:{ errors, isSubmitting}} = useForm<SampleInput>({
     resolver: zodResolver(sampleInputSchema),
     defaultValues: sampleInputDefaultValue,
@@ -43,8 +45,20 @@ export default function SamplesPage() {
         </Stack>
         {/* -- Right panel -- */}
         <Stack>
-          <Box></Box>
-          <Box sx={{display: "grid", gridAutoColumns: "1fr 1fr 1fr 1fr" }}></Box>
+          <Box key="sampleId" display="grid" gridTemplateColumns="1fr 2fr" sx={{ gap: 4, alignItems: "center", pt:2}}>
+            <Typography variant="h5">ID</Typography>
+            <OutlinedInput type="number" size="small" disabled value={selectedId}></OutlinedInput>
+          </Box>
+            {sampleInputElementLayout.map((e) =>  
+              <Box key={e.label} display="grid" gridTemplateColumns="1fr 2fr" sx={{ gap: 4, alignItems: "center", pt: 2}}>
+              
+                <Typography variant="h5">{e.label}</Typography>
+                <OutlinedInput type={e.type} size="small" {...register(e.elementKey)}></OutlinedInput>
+              </Box>
+            )}
+          
+    
+          <Box sx={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr" }}></Box>
 
         </Stack>
       </Box>

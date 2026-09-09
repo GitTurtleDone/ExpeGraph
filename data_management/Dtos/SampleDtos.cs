@@ -22,3 +22,17 @@ public record UpdateSampleRequest(
     string? Treatment,
     Dictionary<string, object>? Properties,
     int? BatchId);
+
+// for filtering a query from the frontend
+// when searching for samples
+
+public record SampleQuery
+{
+    public string? Search { get; init; }
+    public int? MinId { get; init; }
+    public int? MaxId { get; init; }
+    public int? BatchId { get; init; }
+    public string? Sort { get; init; }
+    public string? Order { get; init; }
+
+}

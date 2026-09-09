@@ -34,7 +34,7 @@ export async function updateEquipment(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to update equipment");
+  if (!res.ok) throw new Error(`Failed to update equipment ${id}`);
   return res.json();
 }
 
@@ -43,7 +43,7 @@ export async function deleteEquipment(id: number) {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
   });
-  if (!res.ok) throw new Error("Failed to delete equipment");
+  if (!res.ok) throw new Error(`Failed to delete equipment ${id}`);
 }
 
 export async function getEquipmentByName(name: string): Promise<Equipment> {

@@ -3,6 +3,7 @@ using DataManagement.Dtos;
 using DataManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Expressions;
 
 namespace DataManagement.Controllers;
 
@@ -17,11 +18,47 @@ public class SamplesController: ControllerBase
 		_db = db;
 	}
 	[HttpGet]
-	public async Task<IActionResult> GetAll() =>
-		Ok(await _db.Samples
+	public async Task<IActionResult> GetAll([FromQuery] SampleQuery q)
+	{
+		var query = _db.Samples.AsNoTracking();
+		// use search_words in SampleName, Description, Treatment
+		if (!string.IsNullOrWhiteSpace(q.Search))
+		{
+			var search_words = $"%{q.Search.Trim()}%";
+			query = query.Where(s =>
+				EF.Functions.ILike(s.SampleName, search_words) ||
+				EF.Functions.ILike(s.Description, search_words) ||
+				EF.Functions.ILike(s.Treatment, search_words)
+			);
+		}
+
+		//filtering samples by the Id and BatchId
+		if (q.MinId is not null) query = query.Where(s => s.SampleId >= q.MinId);
+		if (q.MaxId is not null) query = query.Where(s => s.SampleId <= q.MaxId);
+		if (q.BatchId is not null) query = query.Where(s => s.BatchId == q.BatchId);
+
+		var desc = string.Equals(q.Order, "desc", StringComparison.OrdinalIgnoreCase);
+		query = (q.Sort?.ToLowerInvariant(),desc) switch
+		{
+			("samplename", false) => query.OrderBy(s => s.SampleName).ThenBy(s => s.SampleId),
+			("samplename", true) => query.OrderByDescending(s => s.SampleName).ThenBy(s => s.SampleId),
+			(_, true) => query.OrderByDescending(s => s.SampleId),
+			_ => query.OrderBy(s => s.SampleId),
+		};
+		
+		return Ok(await query
 			.Select(s => new SampleResponse(
-			s.SampleId, s.SampleName, s.Description, s.Treatment, s.Properties, s.BatchId, s.CreatedAt))
+				s.SampleId, s.SampleName, s.Description,
+				s.Treatment, s.Properties, s.BatchId, s.CreatedAt
+			))
 			.ToListAsync());
+
+
+	} 
+		// Ok(await _db.Samples
+		// 	.Select(s => new SampleResponse(
+		// 	s.SampleId, s.SampleName, s.Description, s.Treatment, s.Properties, s.BatchId, s.CreatedAt))
+		// 	.ToListAsync());
 	
 	
 	[HttpGet("{id:int}")]

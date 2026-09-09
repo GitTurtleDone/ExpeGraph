@@ -72,10 +72,9 @@ export async function updateBatch(
 }
 
 export async function deleteBatch(id: number) {
-    const res = await fetch(`${BASE}/Equipment`, {
+    const res = await fetch(`${BASE}/Batches/${id}`, {
         method: "DELETE",
         headers: {"Content-Type" : "application/json"}
     })
     if (!res.ok) throw new Error(`Failed to delete batch ${id}`)
-    else return 
 } 

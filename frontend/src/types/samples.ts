@@ -4,7 +4,21 @@ export const sampleSchema = z.object({
   sampleName: z.string().min(1, "Sample name is required"),
   description: z.string().optional(),
   treatment: z.string().optional(),
-  properties: z.record(z.string(), z.unknown()).optional(),
+  properties: z.preprocess(
+   (v) => {
+      if (typeof v !== "string") return v;
+      const trimmed = v.trim();
+      if ( trimmed === "") return undefined;
+      try {
+        return JSON.parse(trimmed);   
+      } catch {
+        return v;
+      }
+    },
+    z.record(z.string(), z.unknown(), {
+      error: 'Properties must be a JSON object, e.g. {"thickness": 140}',
+    }).optional(), 
+  ),
   batchId: z.preprocess(
     (v) => (v === "" ? undefined : Number(v)),
     z.number().int().positive().optional(),

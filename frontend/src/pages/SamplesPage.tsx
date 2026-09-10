@@ -4,6 +4,8 @@ import { Typography, Stack, Box, Checkbox, OutlinedInput, Button, Paper } from "
 import { sampleSchema, sampleInputSchema, type Sample, type SampleInput  } from "../types/samples";
 import { useForm, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { getAllSamples, createSample, updateSample, deleteSample } from "../api/sample";
+import { ErrorMessage } from "@hookform/error-message";
 type SampleInputElementLayout = {
   label: string;
   optional:boolean;
@@ -18,7 +20,7 @@ export default function SamplesPage() {
     { label: "Description", optional: true, type: "string", elementKey: "description", disabled: false, multiline: true},
     { label: "Treatment", optional: true, type: "string", elementKey: "treatment", disabled: false, multiline: true},
     { label: "Properties", optional: true, type: "unknown", elementKey: "properties", disabled: false},
-    { label: "BatchId", optional: true, type: "number", elementKey: "batchId", disabled: false}
+    { label: "Batch ID", optional: true, type: "number", elementKey: "batchId", disabled: false}
   ] 
   const sampleInputDefaultValue: SampleInput =  {
     sampleName: "Dev10",
@@ -31,7 +33,11 @@ export default function SamplesPage() {
     resolver: zodResolver(sampleInputSchema),
     defaultValues: sampleInputDefaultValue,
     
-  });  
+  }); 
+  const onCreateSample = async (data: SampleInput): Promise<Sample> => {
+    console.log(data)
+    createSample(data)
+  } 
 
   return (
     <Stack sx={{alignItems: "flex-start"}}>
@@ -51,14 +57,29 @@ export default function SamplesPage() {
           </Box>
             {sampleInputElementLayout.map((e) =>  
               <Box key={e.label} display="grid" gridTemplateColumns="1fr 2fr" sx={{ gap: 4, alignItems: "center", pt: 2}}>
-              
-                <Typography variant="h5">{e.label}</Typography>
-                <OutlinedInput type={e.type} size="small" {...register(e.elementKey)}></OutlinedInput>
+                <Typography variant="h5">{e.label}{!e.optional ? "*": ""}</Typography>
+                <Stack>
+                  <OutlinedInput type={e.type} size="small" {...register(e.elementKey)}></OutlinedInput>
+                  <ErrorMessage
+                    errors={errors}
+                    name={e.elementKey}
+                    render={({message}) => <Typography variant="caption" color="error">{message}</Typography>}
+                  />
+                </Stack>
+                
               </Box>
             )}
-          
-    
-          <Box sx={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr" }}></Box>
+          <Typography variant="h6" mt={2} mb={3}>* = Required</Typography>
+          <Box sx={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr" }}>
+            <Button 
+              variant="contained" 
+              size="large" 
+              disabled={isSubmitting ? true : false}
+              onClick={handleSubmit(onCreateSample)}
+            >
+              {isSubmitting ? "Creating new sample" : "Create"}
+            </Button>
+          </Box>
 
         </Stack>
       </Box>

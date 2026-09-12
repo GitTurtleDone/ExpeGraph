@@ -23,10 +23,10 @@ export default function SamplesPage() {
     { label: "Batch ID", optional: true, type: "number", elementKey: "batchId", disabled: false}
   ] 
   const sampleInputDefaultValue: SampleInput =  {
-    sampleName: "Dev10",
-    description: "10/140 IrOx/Ir",
+    sampleName: "Dev07",
+    description: "3000 um in diameter diode",
     treatment: "Standard treatment",
-    batchId: 15
+    batchId: 1
   }
   const [selectedId, setSelectedId] = useState(undefined);
   const {register, handleSubmit, reset, formState:{ errors, isSubmitting}} = useForm<SampleInput>({

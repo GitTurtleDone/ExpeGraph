@@ -26,6 +26,7 @@ export default function SamplesPage() {
     sampleName: "Dev07",
     description: "3000 um in diameter diode",
     treatment: "Standard treatment",
+    properties: "",
     batchId: 1
   }
   const [selectedId, setSelectedId] = useState(undefined);
@@ -70,14 +71,36 @@ export default function SamplesPage() {
               </Box>
             )}
           <Typography variant="h6" mt={2} mb={3}>* = Required</Typography>
-          <Box sx={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr" }}>
+          <Box sx={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 4 }}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => reset(sampleInputDefaultValue)}
+            >
+              New
+            </Button>
             <Button 
               variant="contained" 
               size="large" 
               disabled={isSubmitting ? true : false}
               onClick={handleSubmit(onCreateSample)}
             >
-              {isSubmitting ? "Creating new sample" : "Create"}
+              {isSubmitting ? "Adding new sample" : "Add"}
+            </Button>
+            
+            <Button
+              variant="contained"
+              size="large"
+              disabled= {isSubmitting ? true: false}
+            >
+              Update
+            </Button>
+            <Button
+              variant="contained"
+              size="large"
+              color="error"
+            >
+              Delete
             </Button>
           </Box>
 

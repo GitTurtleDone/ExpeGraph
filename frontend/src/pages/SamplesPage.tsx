@@ -1,11 +1,25 @@
 import React, { useState } from "react";
-import { Typography, Stack, Box, Checkbox, OutlinedInput, Button, Paper } from "@mui/material";
-//import { register } from "plotly.js";
-import { sampleSchema, sampleInputSchema, type Sample, type SampleInput  } from "../types/samples";
-import { useForm, type Path } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { getAllSamples, createSample, updateSample, deleteSample } from "../api/sample";
+
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { Typography, Collapse, Stack, IconButton, Box, Checkbox, OutlinedInput, Button, Paper, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
+import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import { DataGrid } from "@mui/x-data-grid";
+import type { GridColDef } from "@mui/x-data-grid";
+
+
+import { useForm} from "react-hook-form";
+import type { Path } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import * as z from "zod";
+import { sampleSchema, sampleInputSchema, type Sample, type SampleInput  } from "../types/samples";
+
+import { getAllSamples, createSample, updateSample, deleteSample } from "../api/sample";
+
 type SampleInputElementLayout = {
   label: string;
   optional:boolean;
@@ -14,6 +28,12 @@ type SampleInputElementLayout = {
   disabled: boolean;
   multiline?: boolean | undefined;
 };
+
+type SearchCheckboxes = {
+  idRange: boolean,
+  batchIdRange: boolean
+}
+
 export default function SamplesPage() {
   const sampleInputElementLayout: SampleInputElementLayout[] = [
     { label: "Name", optional: false, type: "string", elementKey: "sampleName", disabled: false},
@@ -30,16 +50,62 @@ export default function SamplesPage() {
     batchId: 1
   }
   const [selectedId, setSelectedId] = useState(undefined);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [searchCheckboxes, setSearchCheckboxes] = useState<SearchCheckboxes>({
+    idRange: false,
+    batchIdRange: false
+  })
   const {register, handleSubmit, reset, formState:{ errors, isSubmitting}} = useForm<SampleInput>({
     resolver: zodResolver(sampleInputSchema),
     defaultValues: sampleInputDefaultValue,
     
   }); 
-  const onCreateSample = async (data: SampleInput): Promise<Sample> => {
-    console.log(data)
-    createSample(data)
+  const onAddSample = async (data: SampleInput): Promise<Sample> => {
+    createSample(data);
   } 
+  const onUpdateSample = async (id: number, data: SampleInput): Promise<Sample> => {
+    updateSample(id, data);
+  }
+  const onDeleteSample = async () => {
+    if (selectedId && Number.isInteger(selectedId)){
+      deleteSample(selectedId);
+    } else {
+      return (
+        <Dialog
+          open={openDeleteDialog}
+          onClose={onCloseDeleteDialog}
+        >
+          <DialogTitle>
+            Sample selected?
+          </DialogTitle>
+          <DialogContent>
+            Did you select the sample to Delete?
+          </DialogContent>
+          <DialogActions>
+            <Button
+              type="outlined"
+              onClick={onCloseDeleteDialog} 
+              autoFocus
+            >
+            OK
+            </Button>
+          </DialogActions>
+          
+        </Dialog>
+      )
+    }
+  }
+  const onOpenDeleteDialog = () => {
+    setOpenDeleteDialog(true);
+  }
+  const onCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+  }
+  const handleSearchChb = () => {
 
+  }
+ 
   return (
     <Stack sx={{alignItems: "flex-start"}}>
       <Typography variant="h2" mb={4}>
@@ -48,7 +114,53 @@ export default function SamplesPage() {
       <Box sx={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5}}>
         {/* -- Lef panel--*/}
         <Stack>
-          <OutlinedInput></OutlinedInput>
+          <Box sx={{display:"grid", gridTemplateColumns: "9fr 1fr", gap: 1}}>
+            <OutlinedInput size="small" placeholder="Search samples" />
+            <IconButton>
+              <SearchOutlinedIcon fontSize="large"/>
+            </IconButton>
+          </Box>
+          <Box sx={{display:"flex", alignItems: "center", mt: 2}}>
+            {showAdvancedSearch ? (
+              <IconButton onClick={() => setShowAdvancedSearch(false)}>
+                <ExpandLessOutlinedIcon fontSize="large"/>
+              </IconButton>
+               
+              ): (
+                <IconButton onClick={() => setShowAdvancedSearch(true)}>
+                  <ChevronRightOutlinedIcon fontSize="large"/>
+                </IconButton>
+            )}
+            <Typography> Advanced Search</Typography>
+          </Box>
+          <Collapse
+            in={showAdvancedSearch}
+          >
+            <Box sx={{display: "grid", gridTemplateColumns: "1fr 3fr 1fr 3fr 1fr 3fr", alignItems: "center", gap: "5px 5px"}}>
+              <Checkbox id="idRangeCheckBox" onClick={() => setAdvancedSearchCheckBoxValues()}checked={advancedSearchCheckBoxValues.idRange}/>
+              <Typography>Id Range</Typography>
+              <Typography>from</Typography>
+              <OutlinedInput size="small"/>
+              <Typography>to</Typography>
+              <OutlinedInput size="small"/>
+
+              <Checkbox 
+                id="batchIdRange" 
+                checked={advancedSearchCheckBoxValues.batchIdRange}
+                onChange={}
+              />
+              <Typography>Batch Id Range</Typography>
+              <Typography>from</Typography>
+              <OutlinedInput size="small"/>
+              <Typography>to</Typography>
+              <OutlinedInput size="small"/>
+
+              
+            </Box>
+          </Collapse>
+        
+          
+          
         </Stack>
         {/* -- Right panel -- */}
         <Stack>
@@ -83,7 +195,7 @@ export default function SamplesPage() {
               variant="contained" 
               size="large" 
               disabled={isSubmitting ? true : false}
-              onClick={handleSubmit(onCreateSample)}
+              onClick={handleSubmit(onAddSample)}
             >
               {isSubmitting ? "Adding new sample" : "Add"}
             </Button>
@@ -91,7 +203,8 @@ export default function SamplesPage() {
             <Button
               variant="contained"
               size="large"
-              disabled= {isSubmitting ? true: false}
+              disabled= {selectedId ? false: true}
+              onClick={handleSubmit(onUpdateSample)}
             >
               Update
             </Button>
@@ -99,6 +212,8 @@ export default function SamplesPage() {
               variant="contained"
               size="large"
               color="error"
+              disabled={selectedId ? false: true}
+              onClick={onDeleteSample}
             >
               Delete
             </Button>

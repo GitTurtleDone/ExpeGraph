@@ -1,26 +1,39 @@
 import React, { useState } from "react";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import {
   Typography,
   Collapse,
   Stack,
-  IconButton,
   Box,
   Checkbox,
   OutlinedInput,
   Button,
+  IconButton,
   Paper,
 } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { ErrorMessage } from "@hookform/error-message";
-import type { Path } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import AddIcon from "@mui/icons-material/Add";
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
+
+
+import { useForm } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
+import type { Path } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import * as z from "zod";
+import {
+  batchSchema,
+  batchInputSchema,
+  type Batch,
+  type BatchInput,
+} from "../types/batches";
+
+
 import {
   getAllBatches,
   getBatchById,
@@ -29,15 +42,7 @@ import {
   deleteBatch,
   type BatchQuery,
 } from "../api/batch";
-import * as z from "zod";
 
-import {
-  batchSchema,
-  batchInputSchema,
-  type Batch,
-  type BatchInput,
-} from "../types/batches";
-import { OutletTwoTone } from "@mui/icons-material";
 
 type BatchInputElementLayout = {
   label: string;
@@ -280,7 +285,7 @@ export default function BatchesPage() {
                   <ChevronRightOutlinedIcon fontSize="large" />
                 )}
               </IconButton>
-              <Typography>Addvanced search</Typography>
+              <Typography>Advanced search</Typography>
             </Box>
             <Collapse sx={{ mt: 0 }} in={showAdvancedSearch}>
               <Box

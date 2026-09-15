@@ -189,8 +189,8 @@ export default function BatchesPage() {
       });
     },
   });
-
   const addBatch = (data: BatchInput) => onCreateBatch.mutate(data);
+  
   const batchColumns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 70 },
     { field: "batchName", headerName: "Batch Name", width: 140 },
@@ -399,7 +399,7 @@ export default function BatchesPage() {
                   },
                 },
               }}
-              pageSizeOptions={[5, 10, 50]}
+              pageSizeOptions={[5, 10, 50, {value: -1, label: "All"}]}
               checkboxSelection
               showToolbar
               label="List of found batches"

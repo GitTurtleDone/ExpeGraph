@@ -30,8 +30,8 @@ type SampleInputElementLayout = {
 };
 
 type SearchCheckboxes = {
-  idRange: boolean,
-  batchIdRange: boolean
+  idRangeChb: boolean,
+  batchIdRangeChb: boolean
 }
 
 export default function SamplesPage() {
@@ -53,8 +53,8 @@ export default function SamplesPage() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [searchCheckboxes, setSearchCheckboxes] = useState<SearchCheckboxes>({
-    idRange: false,
-    batchIdRange: false
+    idRangeChb: false,
+    batchIdRangeChb: false
   })
   const {register, handleSubmit, reset, formState:{ errors, isSubmitting}} = useForm<SampleInput>({
     resolver: zodResolver(sampleInputSchema),
@@ -102,9 +102,25 @@ export default function SamplesPage() {
   const onCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
   }
-  const handleSearchChb = () => {
+  const handleSearchChb = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchCheckboxes((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.checked
+    }))
+  } 
 
-  }
+  const sampleColumns: GridColDef[] = [
+    { field: "id", headerName: "ID", width: 70},
+    { field: "sampleName", headerName: "Sample Name", width: 140 },
+    { field: "treatment", headerName: "Treatment", width: 140},
+    { field: "batchId", headerName: "Batch ID", width: 70}
+  ]
+  const allSamples = [
+    {id: 1, sampleName: "Dev07", treatment: "Standard treatment", batchId: 1},
+    {id: 2, sampleName: "Dev08", treatment: "Standard treatment", batchId: 1},
+    {id: 3, sampleName: "Dev07", treatment: "Standard treatment", batchId: 1}
+  ]
+
  
   return (
     <Stack sx={{alignItems: "flex-start"}}>
@@ -137,7 +153,11 @@ export default function SamplesPage() {
             in={showAdvancedSearch}
           >
             <Box sx={{display: "grid", gridTemplateColumns: "1fr 3fr 1fr 3fr 1fr 3fr", alignItems: "center", gap: "5px 5px"}}>
-              <Checkbox id="idRangeCheckBox" onClick={() => setAdvancedSearchCheckBoxValues()}checked={advancedSearchCheckBoxValues.idRange}/>
+              <Checkbox 
+                name="idRangeChb" 
+                checked={searchCheckboxes.idRangeChb}
+                onChange={handleSearchChb}
+              />
               <Typography>Id Range</Typography>
               <Typography>from</Typography>
               <OutlinedInput size="small"/>
@@ -145,21 +165,31 @@ export default function SamplesPage() {
               <OutlinedInput size="small"/>
 
               <Checkbox 
-                id="batchIdRange" 
-                checked={advancedSearchCheckBoxValues.batchIdRange}
-                onChange={}
+                name="batchIdRangeChb" 
+                checked={searchCheckboxes.batchIdRangeChb}
+                onChange={handleSearchChb}
               />
               <Typography>Batch Id Range</Typography>
               <Typography>from</Typography>
               <OutlinedInput size="small"/>
               <Typography>to</Typography>
-              <OutlinedInput size="small"/>
-
-              
+              <OutlinedInput size="small"/>  
             </Box>
           </Collapse>
-        
-          
+          <DataGrid 
+            columns={sampleColumns}
+            rows={allSamples}
+            initialState={{
+              pagination: {
+                paginationModel: {pageSize: 5, page: 0}
+              }
+            }}
+            pageSizeOptions={[5, 10, 100, {value: -1, label: "All"}]}
+            checkboxSelection
+            showToolbar
+            label="List of found samples"
+
+          />  
           
         </Stack>
         {/* -- Right panel -- */}
@@ -218,7 +248,6 @@ export default function SamplesPage() {
               Delete
             </Button>
           </Box>
-
         </Stack>
       </Box>
     </Stack>

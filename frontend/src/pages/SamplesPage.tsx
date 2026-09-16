@@ -19,6 +19,8 @@ import * as z from "zod";
 import { sampleSchema, sampleInputSchema, type Sample, type SampleInput  } from "../types/samples";
 
 import { getAllSamples, createSample, updateSample, deleteSample } from "../api/sample";
+import type { SampleQuery } from "../api/sample";
+import { Preview } from "@mui/icons-material";
 
 type SampleInputElementLayout = {
   label: string;
@@ -31,7 +33,19 @@ type SampleInputElementLayout = {
 
 type SearchCheckboxes = {
   idRangeChb: boolean,
-  batchIdRangeChb: boolean
+  batchIdChb: boolean
+}
+
+type SampleRow = {
+  id: number,
+  sampleName: string,
+  treatment: string,
+  batchId: number
+}
+type SearchFields = {
+  minId: string,
+  maxId: string,
+  batchId: string
 }
 
 export default function SamplesPage() {
@@ -54,8 +68,16 @@ export default function SamplesPage() {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [searchCheckboxes, setSearchCheckboxes] = useState<SearchCheckboxes>({
     idRangeChb: false,
-    batchIdRangeChb: false
+    batchIdChb: false
   })
+  const [searchText, setSearchText] = useState("");
+  const [searchFilters, setSearchFilters] = useState<SearchFields>({
+    minId: "",
+    maxId: "",
+    batchId: ""
+  })
+  const [filters, setFilters] = useState<SampleQuery>({})
+  const [enableSearch, setEnableSearch] = useState(false);
   const {register, handleSubmit, reset, formState:{ errors, isSubmitting}} = useForm<SampleInput>({
     resolver: zodResolver(sampleInputSchema),
     defaultValues: sampleInputDefaultValue,
@@ -102,12 +124,7 @@ export default function SamplesPage() {
   const onCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
   }
-  const handleSearchChb = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchCheckboxes((prev) => ({
-      ...prev,
-      [event.target.name]: event.target.checked
-    }))
-  } 
+   
 
   const sampleColumns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 70},
@@ -115,11 +132,57 @@ export default function SamplesPage() {
     { field: "treatment", headerName: "Treatment", width: 140},
     { field: "batchId", headerName: "Batch ID", width: 70}
   ]
-  const allSamples = [
-    {id: 1, sampleName: "Dev07", treatment: "Standard treatment", batchId: 1},
-    {id: 2, sampleName: "Dev08", treatment: "Standard treatment", batchId: 1},
-    {id: 3, sampleName: "Dev07", treatment: "Standard treatment", batchId: 1}
-  ]
+  // const allSamples = [
+  //   {id: 1, sampleName: "Dev07", treatment: "Standard treatment", batchId: 1},
+  //   {id: 2, sampleName: "Dev08", treatment: "Standard treatment", batchId: 1},
+  //   {id: 3, sampleName: "Dev07", treatment: "Standard treatment", batchId: 1}
+  // ]
+
+  const buildSearchFilters = ():SampleQuery => {
+    const f: SampleQuery = {};
+    if (searchText.trim()) f.search = searchText.trim();
+    if (searchCheckboxes.idRangeChb) {
+      if (searchFilters.minId !== "") f.minId = Number(searchFilters.minId);
+      if (searchFilters.maxId !== "") f.maxId = Number(searchFilters.maxId);
+    }
+    if (searchCheckboxes.batchIdChb && searchFilters.batchId !== "") 
+      f.batchId = Number(searchFilters.batchId);
+    return f;
+  };
+  
+  const allSamples = useQuery({
+    queryKey: ["samples", filters],
+    queryFn: () => getAllSamples(filters),
+    enabled: enableSearch
+  })
+
+  const sampleRows: SampleRow[] = (allSamples.data ?? []).map((s) => ({
+    id: s.sampleId, 
+    sampleName: s.sampleName, 
+    treatment: s.treatment, 
+    batchId: s.batchId}))
+
+  const handleSearchChb = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchCheckboxes((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.checked
+    }))
+  }
+
+  const handleSearchField = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchFilters((prev) => ({
+      ...prev, 
+      [event.target.name]: event.target.value
+    }))
+
+  }
+  const runSearch = () => {
+    // build Search Filters
+    setFilters(buildSearchFilters());
+    console.log(searchFilters);
+    setEnableSearch(true);
+
+  }
 
  
   return (
@@ -129,68 +192,93 @@ export default function SamplesPage() {
       </Typography>
       <Box sx={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5}}>
         {/* -- Lef panel--*/}
-        <Stack>
+        <Stack gap={2}>
           <Box sx={{display:"grid", gridTemplateColumns: "9fr 1fr", gap: 1}}>
-            <OutlinedInput size="small" placeholder="Search samples" />
-            <IconButton>
+            <OutlinedInput 
+              name="searchText"
+              size="small" 
+              placeholder="Search samples" 
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") runSearch();
+              }}
+            />
+            <IconButton onClick={runSearch}>
               <SearchOutlinedIcon fontSize="large"/>
             </IconButton>
           </Box>
-          <Box sx={{display:"flex", alignItems: "center", mt: 2}}>
-            {showAdvancedSearch ? (
-              <IconButton onClick={() => setShowAdvancedSearch(false)}>
-                <ExpandLessOutlinedIcon fontSize="large"/>
-              </IconButton>
-               
-              ): (
-                <IconButton onClick={() => setShowAdvancedSearch(true)}>
-                  <ChevronRightOutlinedIcon fontSize="large"/>
+          <Stack>
+            <Box sx={{display:"flex", alignItems: "center", mt: 2}}>
+              {showAdvancedSearch ? (
+                <IconButton onClick={() => setShowAdvancedSearch(false)}>
+                  <ExpandLessOutlinedIcon fontSize="large"/>
                 </IconButton>
-            )}
-            <Typography> Advanced Search</Typography>
-          </Box>
-          <Collapse
-            in={showAdvancedSearch}
-          >
-            <Box sx={{display: "grid", gridTemplateColumns: "1fr 3fr 1fr 3fr 1fr 3fr", alignItems: "center", gap: "5px 5px"}}>
-              <Checkbox 
-                name="idRangeChb" 
-                checked={searchCheckboxes.idRangeChb}
-                onChange={handleSearchChb}
-              />
-              <Typography>Id Range</Typography>
-              <Typography>from</Typography>
-              <OutlinedInput size="small"/>
-              <Typography>to</Typography>
-              <OutlinedInput size="small"/>
-
-              <Checkbox 
-                name="batchIdRangeChb" 
-                checked={searchCheckboxes.batchIdRangeChb}
-                onChange={handleSearchChb}
-              />
-              <Typography>Batch Id Range</Typography>
-              <Typography>from</Typography>
-              <OutlinedInput size="small"/>
-              <Typography>to</Typography>
-              <OutlinedInput size="small"/>  
+                
+                ): (
+                  <IconButton onClick={() => setShowAdvancedSearch(true)}>
+                    <ChevronRightOutlinedIcon fontSize="large"/>
+                  </IconButton>
+              )}
+              <Typography> Advanced Search</Typography>
             </Box>
-          </Collapse>
-          <DataGrid 
-            columns={sampleColumns}
-            rows={allSamples}
-            initialState={{
-              pagination: {
-                paginationModel: {pageSize: 5, page: 0}
-              }
-            }}
-            pageSizeOptions={[5, 10, 100, {value: -1, label: "All"}]}
-            checkboxSelection
-            showToolbar
-            label="List of found samples"
+            <Collapse
+              in={showAdvancedSearch}
+            >
+              <Box sx={{display: "grid", gridTemplateColumns: "1fr 3fr 1fr 3fr 1fr 3fr", alignItems: "center", gap: "5px 5px"}}>
+                <Checkbox 
+                  name="idRangeChb" 
+                  checked={searchCheckboxes.idRangeChb}
+                  onChange={handleSearchChb}
+                />
+                <Typography sx={{fontWeight: "bold"}}>Id Range</Typography>
+                <Typography>from</Typography>
+                <OutlinedInput 
+                  name="minId" 
+                  value={searchFilters.minId} 
+                  size="small"
+                  onChange={handleSearchField}
+                />
+                <Typography>to</Typography>
+                <OutlinedInput 
+                  name="maxId" 
+                  value={searchFilters.maxId} 
+                  size="small"
+                  onChange={handleSearchField}
+                />
 
-          />  
-          
+                <Checkbox 
+                  name="batchIdChb" 
+                  checked={searchCheckboxes.batchIdChb}
+                  onChange={handleSearchChb}
+                />
+                <Typography sx={{fontWeight: "bold"}}>Batch Id</Typography>
+                <Typography></Typography>
+                <OutlinedInput 
+                  name="batchId"
+                  value={searchFilters.batchId} 
+                  onChange={handleSearchField}
+                  size="small"/>
+                <Typography></Typography>
+                <Typography></Typography>  
+              </Box>
+            </Collapse>
+          </Stack>
+          <Paper>
+            <DataGrid 
+              columns={sampleColumns}
+              rows={sampleRows}
+              initialState={{
+                pagination: {
+                  paginationModel: {pageSize: 5, page: 0}
+                }
+              }}
+              pageSizeOptions={[5, 10, 100, {value: -1, label: "All"}]}
+              checkboxSelection
+              showToolbar
+              label="List of found samples"
+            />
+          </Paper>  
         </Stack>
         {/* -- Right panel -- */}
         <Stack>

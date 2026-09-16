@@ -287,7 +287,7 @@ export default function BatchesPage() {
               </IconButton>
               <Typography>Advanced search</Typography>
             </Box>
-            <Collapse sx={{ mt: 0 }} in={showAdvancedSearch}>
+            <Collapse in={showAdvancedSearch}>
               <Box
                 sx={{
                   display: "grid",

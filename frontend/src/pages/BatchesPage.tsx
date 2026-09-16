@@ -80,7 +80,6 @@ type SearchFields = {
 
 export default function BatchesPage() {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
-  const [selectedBatch, setSelectedBatch] = useState<Batch>();
   const [selectedId, setSelectedId] = useState<string | number>("");
   const [searchText, setSearchText] = useState("");
   const [filters, setFilters] = useState<BatchQuery>({});
@@ -408,7 +407,6 @@ export default function BatchesPage() {
                 const batch = allBatches.data?.find(
                   (b) => b.batchId === params.row.id,
                 );
-                setSelectedBatch(batch);
                 if (!batch) return;
                 reset({
                   batchName: batch.batchName,

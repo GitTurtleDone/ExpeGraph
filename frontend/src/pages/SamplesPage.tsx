@@ -7,7 +7,7 @@ import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { DataGrid } from "@mui/x-data-grid";
-import type { GridColDef } from "@mui/x-data-grid";
+import type { GridColDef, GridEventListener } from "@mui/x-data-grid";
 
 
 import { useForm} from "react-hook-form";
@@ -20,7 +20,8 @@ import { sampleSchema, sampleInputSchema, type Sample, type SampleInput  } from 
 
 import { getAllSamples, createSample, updateSample, deleteSample } from "../api/sample";
 import type { SampleQuery } from "../api/sample";
-import { Preview } from "@mui/icons-material";
+import { isNumber } from "@mui/x-data-grid/internals";
+
 
 type SampleInputElementLayout = {
   label: string;
@@ -64,6 +65,7 @@ export default function SamplesPage() {
     batchId: 1
   }
   const [selectedId, setSelectedId] = useState(undefined);
+  // const [selectedSample, setSelectedSample] = useState<Sample>();
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [searchCheckboxes, setSearchCheckboxes] = useState<SearchCheckboxes>({
@@ -113,7 +115,6 @@ export default function SamplesPage() {
             OK
             </Button>
           </DialogActions>
-          
         </Dialog>
       )
     }
@@ -132,11 +133,6 @@ export default function SamplesPage() {
     { field: "treatment", headerName: "Treatment", width: 140},
     { field: "batchId", headerName: "Batch ID", width: 70}
   ]
-  // const allSamples = [
-  //   {id: 1, sampleName: "Dev07", treatment: "Standard treatment", batchId: 1},
-  //   {id: 2, sampleName: "Dev08", treatment: "Standard treatment", batchId: 1},
-  //   {id: 3, sampleName: "Dev07", treatment: "Standard treatment", batchId: 1}
-  // ]
 
   const buildSearchFilters = ():SampleQuery => {
     const f: SampleQuery = {};
@@ -179,11 +175,8 @@ export default function SamplesPage() {
   const runSearch = () => {
     // build Search Filters
     setFilters(buildSearchFilters());
-    console.log(searchFilters);
     setEnableSearch(true);
-
   }
-
  
   return (
     <Stack sx={{alignItems: "flex-start"}}>
@@ -277,6 +270,20 @@ export default function SamplesPage() {
               checkboxSelection
               showToolbar
               label="List of found samples"
+              onRowClick={(params) => {
+                setSelectedId(params.row.id)
+                const sample = allSamples.data?.find((s) => s.sampleId === params.row.id)
+                // setSelectedSample(sample)
+                if (!sample) return;
+                reset({
+                  sampleName: sample.sampleName,
+                  description: sample.description ?? "",
+                  treatment: sample.treatment ?? "",
+                  properties: sample.properties ?? undefined,
+                  batchId: sample.batchId ?? undefined,
+                })
+
+              }}
             />
           </Paper>  
         </Stack>

@@ -68,7 +68,6 @@ export default function SamplesPage() {
   const [selectedId, setSelectedId] = useState<number | undefined>();
   const [selectedSample, setSelectedSample] = useState<Sample | undefined>();
   const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>({ type: 'include', ids: new Set()})
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [searchCheckboxes, setSearchCheckboxes] = useState<SearchCheckboxes>({
     idRangeChb: false,
@@ -82,58 +81,20 @@ export default function SamplesPage() {
   })
   const [filters, setFilters] = useState<SampleQuery>({})
   const [enableSearch, setEnableSearch] = useState(false);
+  const [openDeleteWarningDialog, setOpenDeleteWarningDialog] = useState(false);
+  const [openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog] = useState(false);
   const {register, handleSubmit, reset, formState:{ errors, isSubmitting}} = useForm<SampleInput>({
     resolver: zodResolver(sampleInputSchema),
     defaultValues: sampleInputDefaultValues,
-    
   }); 
   
-  // const onUpdateSample = async (id: number, data: SampleInput): Promise<Sample> => {
-  //   updateSample(id, data);
-  // }
-  const onDeleteSample = async () => {
-    if (selectedId && Number.isInteger(selectedId)){
-      deleteSample(selectedId);
-    } else {
-      return (
-        <Dialog
-          open={openDeleteDialog}
-          onClose={onCloseDeleteDialog}
-        >
-          <DialogTitle>
-            Sample selected?
-          </DialogTitle>
-          <DialogContent>
-            Did you select the sample to Delete?
-          </DialogContent>
-          <DialogActions>
-            <Button
-              type="outlined"
-              onClick={onCloseDeleteDialog} 
-              autoFocus
-            >
-            OK
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )
-    }
-  }
-  const onOpenDeleteDialog = () => {
-    setOpenDeleteDialog(true);
-  }
-  const onCloseDeleteDialog = () => {
-    setOpenDeleteDialog(false);
-  }
-   
-
   const sampleColumns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 50},
+    { field: "id", headerName: "ID", width: 75},
     { field: "sampleName", headerName: "Sample Name", width: 100},
-    { field: "description", headerName: "Description", width: 300},
-    { field: "batchId", headerName: "Batch ID", width: 50}
+    { field: "description", headerName: "Description", width: 250},
+    { field: "batchId", headerName: "Batch ID", width: 75}
   ]
-
+  // GET
   const buildSearchFilters = ():SampleQuery => {
     const f: SampleQuery = {};
     if (searchText.trim()) f.search = searchText.trim();
@@ -151,44 +112,17 @@ export default function SamplesPage() {
     queryFn: () => getAllSamples(filters),
     enabled: enableSearch
   })
-
-  const queryClient = useQueryClient()
-  const onCreateSample = useMutation({
-    mutationFn: (data: SampleInput) => createSample(data),
-    onSuccess: async (newSample) =>{
-      setSelectedSample(newSample);
-      setSelectedId(newSample.sampleId);
-      setRowSelectionModel({type: 'include', ids: new Set()})
-      await queryClient.invalidateQueries({queryKey: ["samples"]});
-    }
-  })
-  // const addSample = async (data: SampleInput): Promise<Sample> => {
-  //   onCreateSample.mutate(data);
-  // } 
-
-  const onUpdateSample = useMutation({
-    mutationFn: ({ id, data}: {id: number, data: SampleInput}) => updateSample(id, data),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({queryKey: ["samples"]});
-    }
-  })
-  // const updateSample = ({ id, data}: {id: number, data: SampleInput}): Promise<Sample> => {
-  //   onUpdateSample.mutate(id, data);
-  //   setSelectedSample(onUpdateSample.data);
-  // }
   const sampleRows: SampleRow[] = (allSamples.data ?? []).map((s) => ({
     id: s.sampleId, 
     sampleName: s.sampleName, 
     description: s.description, 
     batchId: s.batchId}))
-
   const handleSearchChb = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchCheckboxes((prev) => ({
       ...prev,
       [event.target.name]: event.target.checked
     }))
   }
-
   const handleSearchField = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchFilters((prev) => ({
       ...prev, 
@@ -199,6 +133,66 @@ export default function SamplesPage() {
   const runSearch = () => {
     setFilters(buildSearchFilters());
     setEnableSearch(true);
+  }
+
+  // CREATE
+  const queryClient = useQueryClient()
+  const onCreateSample = useMutation({
+    mutationFn: (data: SampleInput) => createSample(data),
+    onSuccess: async (newSample) =>{
+      setSelectedSample(newSample);
+      setSelectedId(newSample.sampleId);
+      setRowSelectionModel({type: 'include', ids: new Set()})
+      await queryClient.invalidateQueries({queryKey: ["samples"]});
+    }
+  }) 
+
+  // UPDATE
+  const onUpdateSample = useMutation({
+    mutationFn: ({ id, data}: {id: number, data: SampleInput}) => updateSample(id, data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({queryKey: ["samples"]});
+    }
+  })
+  
+  // DELETE
+  // const onDeleteSample = async () => {
+  //   if (selectedId && Number.isInteger(selectedId)){
+  //     onOpenDeleteDialog();
+  //     // deleteSample(selectedId);
+  //   } else {
+  //     onOpenDeleteDialog();
+  //   }
+  const onDeleteSample = useMutation({
+    mutationFn: async () => await deleteSample(Number(selectedId)),
+    onSuccess: async () => {
+      onOpenDeleteConfirmingDialog();
+      setSelectedId("");
+      setSelectedSample(undefined);
+      setRowSelectionModel({type: 'include', ids: new Set()})
+      reset(sampleInputDefaultValues);
+      await queryClient.invalidateQueries({queryKey: ["samples"]});
+      
+    }
+  })
+  // const handleDeleteSample = () => {
+  //   if (Number.isInteger(selectedId)) {
+  //       onOpenDeleteWarningDialog();  
+  //   } else {
+
+  //   }
+  // }
+  const onOpenDeleteWarningDialog = () => {
+    setOpenDeleteWarningDialog(true);
+  }
+  const onCloseDeleteWarningDialog = () => {
+    setOpenDeleteWarningDialog(false);
+  }
+  const onOpenDeleteConfirmingDialog = () => {
+    setOpenDeleteConfirmingDialog(true);
+  }
+  const onCloseDeleteConfirmingDialog = () => {
+    setOpenDeleteConfirmingDialog(false);
   }
  
   return (
@@ -375,13 +369,59 @@ export default function SamplesPage() {
               size="large"
               color="error"
               disabled={selectedId ? false: true}
-              onClick={onDeleteSample}
+              onClick={onOpenDeleteWarningDialog}
             >
               Delete
             </Button>
           </Box>
         </Stack>
       </Box>
+      <Dialog
+          open={openDeleteWarningDialog}
+          onClose={onCloseDeleteWarningDialog}
+        >
+          <DialogTitle>
+            Delete sample?
+          </DialogTitle>
+          <DialogContent>
+            Do you really want to delete sample {selectedId} ?
+          </DialogContent>
+          
+          <DialogActions>
+            <Button
+              type="outlined"
+              onClick={onCloseDeleteWarningDialog} 
+              autoFocus
+            >
+            No
+            </Button>
+            <Button
+              type="outlined"
+              onClick={() => {
+                onCloseDeleteWarningDialog();
+                onDeleteSample.mutate();
+              }} 
+            >
+            Yes
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openDeleteConfirmingDialog}
+          onClose={onCloseDeleteConfirmingDialog}
+        >
+        <DialogTitle>Confirming Delete Sample</DialogTitle>
+        <DialogContent>Sample {selectedId} was deleted</DialogContent>
+        <DialogActions>
+          <Button
+            onClick={onCloseDeleteConfirmingDialog}
+          >
+            OK
+          </Button>
+        </DialogActions>
+
+        </Dialog>
+        
     </Stack>
 
   );

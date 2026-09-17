@@ -239,8 +239,7 @@ export default function BatchesPage() {
     onSuccess: async (newBatch) => {
       setSelectedId(newBatch.batchId);
       setSelectedBatch(newBatch);
-      setRowSelectionModel({type: 'include', ids: new Set() })
-      reset(batchInputDefaultValues);
+      setRowSelectionModel({type: 'include', ids: new Set() });
       await queryClient.invalidateQueries({
         queryKey: ["batches"],
       });
@@ -263,12 +262,6 @@ export default function BatchesPage() {
     mutationFn: async () => await deleteBatch(Number(selectedId)),
     onSuccess: async () => {
       onOpenDeleteConfirmingDialog();
-      setSelectedId("");
-      setSelectedBatch(undefined);
-      setRowSelectionModel({
-        type: 'include',
-        ids: new Set(),
-      })
       reset(batchInputDefaultValues);
       await queryClient.invalidateQueries({queryKey: ["batches"]})
       
@@ -281,10 +274,10 @@ export default function BatchesPage() {
     setOpenDeleteWarningDialog(false);
   }
   const onOpenDeleteConfirmingDialog = () => {
-    setOpenDeleteWarningDialog(true);
+    setOpenDeleteConfirmingDialog(true);
   }
   const onCloseDeleteConfirmingDialog = () => {
-    setOpenDeleteWarningDialog(false);
+    setOpenDeleteConfirmingDialog(false);
   }
 
   return (
@@ -603,7 +596,16 @@ export default function BatchesPage() {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={onCloseDeleteConfirmingDialog}
+            onClick={() => {
+              onCloseDeleteConfirmingDialog();
+              setSelectedId("");
+              setSelectedBatch(undefined);
+              reset(batchInputDefaultValues);
+              setRowSelectionModel({
+                type: 'include',
+                ids: new Set(),
+              });
+            }}
           >
             OK
           </Button>

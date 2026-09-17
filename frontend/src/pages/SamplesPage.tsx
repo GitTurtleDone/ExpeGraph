@@ -230,13 +230,6 @@ export default function SamplesPage() {
     mutationFn: async () => await deleteSample(Number(selectedId)),
     onSuccess: async () => {
       onOpenDeleteConfirmingDialog();
-      setSelectedId("");
-      setSelectedSample(undefined);
-      setRowSelectionModel({
-        type: 'include', 
-        ids: new Set()
-      })
-      reset(sampleInputDefaultValues);
       await queryClient.invalidateQueries({queryKey: ["samples"]});
       
     }
@@ -467,7 +460,7 @@ export default function SamplesPage() {
                 })
               })}
             >
-              {onUpdateBatch.isPending ? "Updating ..." : "Update"}
+              {onUpdateSample.isPending ? "Updating ..." : "Update"}
             </Button>
             <Button
               variant="contained"
@@ -515,16 +508,24 @@ export default function SamplesPage() {
           onClose={onCloseDeleteConfirmingDialog}
         >
         <DialogTitle>Confirming Delete Sample</DialogTitle>
-        <DialogContent>Sample {selectedId} was deleted</DialogContent>
+        <DialogContent>Sample {selectedId} was deleted.</DialogContent>
         <DialogActions>
           <Button
-            onClick={onCloseDeleteConfirmingDialog}
+            onClick={() => {
+              onCloseDeleteConfirmingDialog();
+              setSelectedId("");
+              setSelectedSample(undefined);
+              setRowSelectionModel({
+                type: 'include', 
+                ids: new Set()
+              });
+              reset(sampleInputDefaultValues);
+            }}
           >
             OK
           </Button>
         </DialogActions>
         </Dialog> 
     </Stack>
-
   );
 }

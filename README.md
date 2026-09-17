@@ -31,8 +31,9 @@ The database schema can be seen [here](https://github.com/GitTurtleDone/ExpeGrap
 
 ## Implemented features:
 
-- Currently, handling Batch page.
-- Implemented features can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/implemented_features/ImplementedFeatures.pdf)
+- Currently, writing a general component to apply to simple CRUD operations.
+- Have just completed Sample page. Added rowSelectionModel and dialogs when handling deleting.
+- All implemented features can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/implemented_features/ImplementedFeatures.pdf)
 
 ## Running the app:
 

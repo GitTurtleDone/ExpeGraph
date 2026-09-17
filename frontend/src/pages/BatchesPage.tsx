@@ -24,9 +24,8 @@ import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 
 
-import { useForm } from "react-hook-form";
+import { useForm, type Path} from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
-import type { Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import * as z from "zod";
@@ -40,20 +39,18 @@ import {
 
 import {
   getAllBatches,
-  getBatchById,
   createBatch,
   updateBatch,
   deleteBatch,
   type BatchQuery,
 } from "../api/batch";
 
-
+// For displaying in a GridData
 type BatchInputElementLayout = {
   label: string;
   optional: boolean;
   type: string;
   elementKey: Path<BatchInput>;
-  disabled: boolean;
   multiline?: Boolean | undefined;
 };
 
@@ -71,8 +68,6 @@ type SearchCheckboxes = {
   labIdChb: boolean;
 };
 
-// Raw text of the advanced-search inputs. Kept as strings because that is what
-// <OutlinedInput> gives back; converted to numbers only in buildSearchFilters().
 type SearchFields = {
   minId: string;
   maxId: string;
@@ -83,11 +78,12 @@ type SearchFields = {
 };
 
 export default function BatchesPage() {
-  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  // useStates
   const [selectedId, setSelectedId] = useState<string | number>("");
   const [selectedBatch, setSelectedBatch] = useState<Batch | undefined>(undefined);
+    // searching
   const [searchText, setSearchText] = useState("");
-  const [filters, setFilters] = useState<BatchQuery>({});
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [searchCheckboxes, setSearchCheckboxes] = useState<SearchCheckboxes>({
     idRangeChb: false,
     fabricationDateRangeChb: false,
@@ -102,6 +98,7 @@ export default function BatchesPage() {
     projectId: "",
     labId: "",
   });
+  const [filters, setFilters] = useState<BatchQuery>({});
   const [enableSearch, setEnableSearch] = useState(false);
   const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel> ({
     type: 'include',
@@ -109,6 +106,47 @@ export default function BatchesPage() {
   });
   const [openDeleteWarningDialog, setOpenDeleteWarningDialog] = useState(false);
   const [openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog] = useState(false);
+  
+  //Right panel parameters
+  const batchInputElementLayout: BatchInputElementLayout[] = [
+    {
+      label: "Batch Name",
+      optional: false,
+      type: "string",
+      elementKey: "batchName",
+    },
+    {
+      label: "Description",
+      optional: true,
+      type: "string",
+      elementKey: "description",
+    },
+    {
+      label: "Fabrication Date",
+      optional: false,
+      type: "Date",
+      elementKey: "fabricationDate",
+    },
+    {
+      label: "Treatment",
+      optional: true,
+      type: "string",
+      elementKey: "treatment",
+      multiline: true,
+    },
+    {
+      label: "Project ID",
+      optional: true,
+      type: "string",
+      elementKey: "projectId",
+    },
+    {
+      label: "Lab ID",
+      optional: true,
+      type: "string",
+      elementKey: "labId",
+    },
+  ];
   const batchInputDefaultValues = {
     batchName: "IrOxNewSM",
     description: "IrOx SBDs using new milled shadow masks",
@@ -128,63 +166,12 @@ export default function BatchesPage() {
     defaultValues: batchInputDefaultValues,
   });
 
-  const batchInputElementLayout: BatchInputElementLayout[] = [
-    {
-      label: "Batch Name",
-      optional: false,
-      type: "string",
-      elementKey: "batchName",
-      disabled: false,
-    },
-    {
-      label: "Description",
-      optional: true,
-      type: "string",
-      elementKey: "description",
-      disabled: false,
-    },
-    {
-      label: "Fabrication Date",
-      optional: false,
-      type: "Date",
-      elementKey: "fabricationDate",
-      disabled: false,
-    },
-    {
-      label: "Treatment",
-      optional: true,
-      type: "string",
-      elementKey: "treatment",
-      disabled: false,
-      multiline: true,
-    },
-    {
-      label: "Project ID",
-      optional: true,
-      type: "string",
-      elementKey: "projectId",
-      disabled: false,
-    },
-    {
-      label: "Lab ID",
-      optional: true,
-      type: "string",
-      elementKey: "labId",
-      disabled: false,
-    },
-  ];
-
-
-  
-  // const addBatch = (data: BatchInput) => onCreateBatch.mutate(data);
-  
   const batchColumns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 70 },
     { field: "batchName", headerName: "Batch Name", width: 140 },
     { field: "fabricationDate", headerName: "Fabrication Date", width: 150 },
     { field: "description", headerName: "Description", width: 100 },
   ];
-
 
   // GET
   const allBatches = useQuery({
@@ -208,7 +195,6 @@ export default function BatchesPage() {
       [event.target.name]: event.target.checked,
     }));
   };
-
   const handleSearchField = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchFields((prev) => ({
       ...prev,
@@ -239,7 +225,6 @@ export default function BatchesPage() {
 
     return f;
   };
-
   // Setting "filters" changes the queryKey, which is what makes TanStack refetch.
   const runSearch = () => {
     setFilters(buildSearchFilters());
@@ -251,16 +236,15 @@ export default function BatchesPage() {
   // CREATE
   const onCreateBatch = useMutation({
     mutationFn: createBatch,
-    onSuccess: async (newSample) => {
-      setSelectedId(newSample.batchId);
-      setSelectedBatch(newSample);
+    onSuccess: async (newBatch) => {
+      setSelectedId(newBatch.batchId);
+      setSelectedBatch(newBatch);
       setRowSelectionModel({type: 'include', ids: new Set() })
       reset(batchInputDefaultValues);
       await queryClient.invalidateQueries({
         queryKey: ["batches"],
       });
-      
-    },
+    }
   });
 
   // UPDATE
@@ -323,7 +307,7 @@ export default function BatchesPage() {
               size="small"
             />
             <IconButton onClick={runSearch}>
-              <SearchOutlinedIcon fontSize="large"></SearchOutlinedIcon>
+              <SearchOutlinedIcon fontSize="large"/>
             </IconButton>
           </Box>
           <Stack>
@@ -438,16 +422,16 @@ export default function BatchesPage() {
             </Collapse>
           </Stack>
 
-          {/* <Typography variant="h4" sx={{mt: 3}}>List of batches</Typography> */}
           <Paper sx={{ height: "80%", width: "100%" }}>
             <DataGrid
-              rows={batchRows}
               columns={batchColumns}
+              rows={batchRows}
               loading={allBatches.isFetching}
               initialState={{
                 pagination: {
                   paginationModel: {
                     pageSize: 5,
+                    page: 0
                   },
                 },
               }}
@@ -506,14 +490,13 @@ export default function BatchesPage() {
               sx={{ gap: 4, alignItems: "center", pt: 2 }}
             >
               <Typography variant="h5" mb={2}>
-                {e.label} {e.optional ? " " : " * "}
+                {e.label} {e.optional ? "" : " * "}
               </Typography>
               <Stack>
                 <OutlinedInput
                   {...register(e.elementKey)}
                   type={e.type}
                   size="small"
-                  disabled={e.disabled}
                   multiline={e.multiline}
                   minRows={e.multiline ? 3 : 0}
                 />
@@ -530,14 +513,13 @@ export default function BatchesPage() {
               </Stack>
             </Box>
           ))}
-          <Typography variant="h6" pt={2}>
+          <Typography variant="h6" pt={2} mb={3}>
             {" "}
             * = Required
           </Typography>
           <Box sx={{ display: "flex", gap: 5 }}>
             <Button
               variant="contained"
-              sx={{ mt: 3 }}
               size="large"
               onClick={() => {
                 reset(batchInputDefaultValues);
@@ -546,13 +528,12 @@ export default function BatchesPage() {
                 setRowSelectionModel({type: 'include', ids: new Set()})
               }}
             >
-              {" "}
               New
             </Button>
             <Button
               variant="contained"
-              sx={{ mt: 3 }}
               size="large"
+              disabled={isSubmitting ? true : false}
               onClick={handleSubmit((formData) => {
                 onCreateBatch.mutate(formData);  
               })}
@@ -561,7 +542,6 @@ export default function BatchesPage() {
             </Button>
             <Button
               variant="contained"
-              sx={{ mt: 3 }}
               size="large"
               disabled={selectedId ? false : true}
               onClick={handleSubmit((formData) =>
@@ -575,14 +555,12 @@ export default function BatchesPage() {
             </Button>
             <Button
               variant="contained"
-              sx={{ mt: 3 }}
               size="large"
               color="error"
               disabled={selectedId ? false : true}
               onClick={onOpenDeleteWarningDialog}
             >
-              {" "}
-              Delete{" "}
+              Delete
             </Button>
           </Box>
           {/* Right Panel */}
@@ -601,14 +579,12 @@ export default function BatchesPage() {
         </DialogContent>
         <DialogActions>
           <Button
-            type="outlined"
             onClick={onCloseDeleteWarningDialog}
             autoFocus
           >
             No
           </Button>
           <Button
-            type="outlined"
             onClick={() => {
               onCloseDeleteWarningDialog();
               onDeleteBatch.mutate();
@@ -627,7 +603,6 @@ export default function BatchesPage() {
         </DialogContent>
         <DialogActions>
           <Button
-            type="outlined"
             onClick={onCloseDeleteConfirmingDialog}
           >
             OK

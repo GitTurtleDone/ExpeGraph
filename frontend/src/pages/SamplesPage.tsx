@@ -2,7 +2,21 @@ import React, { useState } from "react";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Typography, Collapse, Stack, IconButton, Box, Checkbox, OutlinedInput, Button, Paper, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import {
+  Typography,
+  Collapse,
+  Stack,
+  Box,
+  Checkbox,
+  OutlinedInput,
+  Button,
+  IconButton,
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
@@ -11,15 +25,24 @@ import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 
 
 
-import { useForm} from "react-hook-form";
-import type { Path } from "react-hook-form";
+import { useForm, type Path} from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import * as z from "zod";
-import { sampleSchema, sampleInputSchema, type Sample, type SampleInput  } from "../types/samples";
+import { 
+  sampleSchema, 
+  sampleInputSchema, 
+  type Sample, 
+  type SampleInput  
+} from "../types/samples";
 
-import { getAllSamples, createSample, updateSample, deleteSample } from "../api/sample";
+import { 
+  getAllSamples, 
+  createSample, 
+  updateSample, 
+  deleteSample 
+} from "../api/sample";
 import type { SampleQuery } from "../api/sample";
 import { isNumber } from "@mui/x-data-grid/internals";
 
@@ -33,17 +56,19 @@ type SampleInputElementLayout = {
   multiline?: boolean | undefined;
 };
 
-type SearchCheckboxes = {
-  idRangeChb: boolean,
-  batchIdChb: boolean
-}
-
+// For displaying in a GridData
 type SampleRow = {
   id: number,
   sampleName: string,
   description: string,
   batchId: number
 }
+
+type SearchCheckboxes = {
+  idRangeChb: boolean,
+  batchIdChb: boolean
+}
+
 type SearchFields = {
   minId: string,
   maxId: string,
@@ -51,12 +76,64 @@ type SearchFields = {
 }
 
 export default function SamplesPage() {
+  // useStates
+  const [selectedId, setSelectedId] = useState<number | undefined>();
+  const [selectedSample, setSelectedSample] = useState<Sample | undefined>();
+    // seaching
+  const [searchText, setSearchText] = useState("");
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [searchCheckboxes, setSearchCheckboxes] = useState<SearchCheckboxes>({
+    idRangeChb: false,
+    batchIdChb: false
+  })
+  const [searchFilters, setSearchFilters] = useState<SearchFields>({
+    minId: "",
+    maxId: "",
+    batchId: ""
+  })
+  const [filters, setFilters] = useState<SampleQuery>({})
+  const [enableSearch, setEnableSearch] = useState(false);
+  const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>({ 
+    type: 'include', ids: new Set()
+  })
+  const [openDeleteWarningDialog, setOpenDeleteWarningDialog] = useState(false);
+  const [openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog] = useState(false);
+
+  //Right panel parameters
   const sampleInputElementLayout: SampleInputElementLayout[] = [
-    { label: "Name", optional: false, type: "string", elementKey: "sampleName", disabled: false},
-    { label: "Description", optional: true, type: "string", elementKey: "description", disabled: false, multiline: true},
-    { label: "Treatment", optional: true, type: "string", elementKey: "treatment", disabled: false, multiline: true},
-    { label: "Properties", optional: true, type: "unknown", elementKey: "properties", disabled: false},
-    { label: "Batch ID", optional: true, type: "number", elementKey: "batchId", disabled: false}
+    { 
+      label: "Name", 
+      optional: false, 
+      type: "string", 
+      elementKey: "sampleName", 
+      disabled: false
+    },
+    { 
+      label: "Description", 
+      optional: true, 
+      type: "string", 
+      elementKey: "description", 
+      disabled: false, 
+      multiline: true
+    },
+    { 
+      label: "Treatment", 
+      optional: true, type: "string", 
+      elementKey: "treatment", 
+      disabled: false, 
+      multiline: true},
+    { 
+      label: "Properties", 
+      optional: true, 
+      type: "unknown", 
+      elementKey: "properties", 
+      disabled: false},
+    { 
+      label: "Batch ID", 
+      optional: true, 
+      type: "number", 
+      elementKey: "batchId", 
+      disabled: false}
   ] 
   const sampleInputDefaultValues: SampleInput =  {
     sampleName: "Dev07",
@@ -65,25 +142,13 @@ export default function SamplesPage() {
     properties: "",
     batchId: 1
   }
-  const [selectedId, setSelectedId] = useState<number | undefined>();
-  const [selectedSample, setSelectedSample] = useState<Sample | undefined>();
-  const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>({ type: 'include', ids: new Set()})
-  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
-  const [searchCheckboxes, setSearchCheckboxes] = useState<SearchCheckboxes>({
-    idRangeChb: false,
-    batchIdChb: false
-  })
-  const [searchText, setSearchText] = useState("");
-  const [searchFilters, setSearchFilters] = useState<SearchFields>({
-    minId: "",
-    maxId: "",
-    batchId: ""
-  })
-  const [filters, setFilters] = useState<SampleQuery>({})
-  const [enableSearch, setEnableSearch] = useState(false);
-  const [openDeleteWarningDialog, setOpenDeleteWarningDialog] = useState(false);
-  const [openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog] = useState(false);
-  const {register, handleSubmit, reset, formState:{ errors, isSubmitting}} = useForm<SampleInput>({
+  
+  const {
+    register, 
+    handleSubmit, 
+    reset, 
+    formState:{ errors, isSubmitting},
+  } = useForm<SampleInput>({
     resolver: zodResolver(sampleInputSchema),
     defaultValues: sampleInputDefaultValues,
   }); 
@@ -94,18 +159,9 @@ export default function SamplesPage() {
     { field: "description", headerName: "Description", width: 250},
     { field: "batchId", headerName: "Batch ID", width: 75}
   ]
+
   // GET
-  const buildSearchFilters = ():SampleQuery => {
-    const f: SampleQuery = {};
-    if (searchText.trim()) f.search = searchText.trim();
-    if (searchCheckboxes.idRangeChb) {
-      if (searchFilters.minId !== "") f.minId = Number(searchFilters.minId);
-      if (searchFilters.maxId !== "") f.maxId = Number(searchFilters.maxId);
-    }
-    if (searchCheckboxes.batchIdChb && searchFilters.batchId !== "") 
-      f.batchId = Number(searchFilters.batchId);
-    return f;
-  };
+  
   
   const allSamples = useQuery({
     queryKey: ["samples", filters],
@@ -128,22 +184,35 @@ export default function SamplesPage() {
       ...prev, 
       [event.target.name]: event.target.value
     }))
-
   }
+  const buildSearchFilters = ():SampleQuery => {
+    const f: SampleQuery = {};
+    if (searchText.trim()) f.search = searchText.trim();
+    if (searchCheckboxes.idRangeChb) {
+      if (searchFilters.minId !== "") f.minId = Number(searchFilters.minId);
+      if (searchFilters.maxId !== "") f.maxId = Number(searchFilters.maxId);
+    }
+    if (searchCheckboxes.batchIdChb && searchFilters.batchId !== "") 
+      f.batchId = Number(searchFilters.batchId);
+    return f;
+  };
   const runSearch = () => {
     setFilters(buildSearchFilters());
     setEnableSearch(true);
   }
 
-  // CREATE
   const queryClient = useQueryClient()
+  
+  // CREATE
   const onCreateSample = useMutation({
-    mutationFn: (data: SampleInput) => createSample(data),
+    mutationFn: createSample,
     onSuccess: async (newSample) =>{
       setSelectedSample(newSample);
       setSelectedId(newSample.sampleId);
       setRowSelectionModel({type: 'include', ids: new Set()})
-      await queryClient.invalidateQueries({queryKey: ["samples"]});
+      await queryClient.invalidateQueries({
+        queryKey: ["samples"]
+      });
     }
   }) 
 
@@ -151,37 +220,20 @@ export default function SamplesPage() {
   const onUpdateSample = useMutation({
     mutationFn: ({ id, data}: {id: number, data: SampleInput}) => updateSample(id, data),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({queryKey: ["samples"]});
+      await queryClient.invalidateQueries({
+        queryKey: ["samples"]
+      });
     }
   })
   
-  // DELETE
-  // const onDeleteSample = async () => {
-  //   if (selectedId && Number.isInteger(selectedId)){
-  //     onOpenDeleteDialog();
-  //     // deleteSample(selectedId);
-  //   } else {
-  //     onOpenDeleteDialog();
-  //   }
   const onDeleteSample = useMutation({
     mutationFn: async () => await deleteSample(Number(selectedId)),
     onSuccess: async () => {
       onOpenDeleteConfirmingDialog();
-      setSelectedId("");
-      setSelectedSample(undefined);
-      setRowSelectionModel({type: 'include', ids: new Set()})
-      reset(sampleInputDefaultValues);
       await queryClient.invalidateQueries({queryKey: ["samples"]});
       
     }
   })
-  // const handleDeleteSample = () => {
-  //   if (Number.isInteger(selectedId)) {
-  //       onOpenDeleteWarningDialog();  
-  //   } else {
-
-  //   }
-  // }
   const onOpenDeleteWarningDialog = () => {
     setOpenDeleteWarningDialog(true);
   }
@@ -203,39 +255,43 @@ export default function SamplesPage() {
       <Box sx={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5}}>
         {/* -- Lef panel--*/}
         <Stack gap={2}>
-          <Box sx={{display:"grid", gridTemplateColumns: "9fr 1fr", gap: 1}}>
+          <Box sx={{display:"flex", gap: 1}}>
             <OutlinedInput 
-              name="searchText"
-              size="small" 
-              placeholder="Search samples" 
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") runSearch();
               }}
+              sx={{width: "80%"}}
+              placeholder="Search samples" 
+              size="small" 
             />
             <IconButton onClick={runSearch}>
               <SearchOutlinedIcon fontSize="large"/>
             </IconButton>
           </Box>
           <Stack>
-            <Box sx={{display:"flex", alignItems: "center", mt: 2}}>
-              {showAdvancedSearch ? (
-                <IconButton onClick={() => setShowAdvancedSearch(false)}>
-                  <ExpandLessOutlinedIcon fontSize="large"/>
-                </IconButton>
-                
-                ): (
-                  <IconButton onClick={() => setShowAdvancedSearch(true)}>
-                    <ChevronRightOutlinedIcon fontSize="large"/>
-                  </IconButton>
-              )}
+            <Box sx={{display:"flex", alignItems: "center"}}>
+              <IconButton
+                onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+              >
+                {showAdvancedSearch ? (
+                  <ExpandLessOutlinedIcon fontSize="large" />
+                ) : (
+                  <ChevronRightOutlinedIcon fontSize="large" />
+                )}
+              </IconButton>
               <Typography> Advanced Search</Typography>
             </Box>
             <Collapse
               in={showAdvancedSearch}
             >
-              <Box sx={{display: "grid", gridTemplateColumns: "1fr 3fr 1fr 3fr 1fr 3fr", alignItems: "center", gap: "5px 5px"}}>
+              <Box sx={{
+                display: "grid", 
+                gridTemplateColumns: "1fr 3fr 1fr 3fr 1fr 3fr", 
+                alignItems: "center", 
+                gap: "5px 5px"
+              }}>
                 <Checkbox 
                   name="idRangeChb" 
                   checked={searchCheckboxes.idRangeChb}
@@ -244,19 +300,22 @@ export default function SamplesPage() {
                 <Typography sx={{fontWeight: "bold"}}>Id Range</Typography>
                 <Typography>from</Typography>
                 <OutlinedInput 
+                  size="small"
+                  type="number"
                   name="minId" 
                   value={searchFilters.minId} 
-                  size="small"
                   onChange={handleSearchField}
+                  disabled={!searchCheckboxes.idRangeChb}
                 />
-                <Typography>to</Typography>
+                <Typography sx={{ marginLeft: 1.5 }}>to</Typography>
                 <OutlinedInput 
+                  size="small"
+                  type="number"
                   name="maxId" 
                   value={searchFilters.maxId} 
-                  size="small"
                   onChange={handleSearchField}
+                  disabled={!searchCheckboxes.batchIdChb}
                 />
-
                 <Checkbox 
                   name="batchIdChb" 
                   checked={searchCheckboxes.batchIdChb}
@@ -265,22 +324,29 @@ export default function SamplesPage() {
                 <Typography sx={{fontWeight: "bold"}}>Batch Id</Typography>
                 <Typography></Typography>
                 <OutlinedInput 
+                  size="small"
+                  type="number"
                   name="batchId"
                   value={searchFilters.batchId} 
                   onChange={handleSearchField}
-                  size="small"/>
+                  disabled={!searchCheckboxes.batchIdChb}
+                  />
                 <Typography></Typography>
                 <Typography></Typography>  
               </Box>
             </Collapse>
           </Stack>
-          <Paper>
+          <Paper sx={{ height: "80%", width: "100%" }}>
             <DataGrid 
               columns={sampleColumns}
               rows={sampleRows}
+              loading={allSamples.isFetching}
               initialState={{
                 pagination: {
-                  paginationModel: {pageSize: 5, page: 0}
+                  paginationModel: {
+                    pageSize: 5, 
+                    page: 0
+                  }
                 }
               }}
               pageSizeOptions={[5, 10, 100, {value: -1, label: "All"}]}
@@ -289,8 +355,9 @@ export default function SamplesPage() {
               label="List of found samples"
               onRowClick={(params) => {
                 setSelectedId(params.row.id)
-                const sample = allSamples.data?.find((s) => s.sampleId === params.row.id)
-                // setSelectedSample(sample)
+                const sample = allSamples.data?.find(
+                  (s) => s.sampleId === params.row.id
+                );
                 if (!sample) return;
                 reset({
                   sampleName: sample.sampleName,
@@ -300,43 +367,75 @@ export default function SamplesPage() {
                   batchId: sample.batchId ?? undefined,
                 })
               }}
+              rowSelectionModel={rowSelectionModel}
               onRowSelectionModelChange={(newRowSelectionModel) => {
                 setRowSelectionModel(newRowSelectionModel)
               }}
-              rowSelectionModel={rowSelectionModel}
-
-              
             />
           </Paper>  
         </Stack>
         {/* -- Right panel -- */}
         <Stack>
-          <Box key="sampleId" display="grid" gridTemplateColumns="1fr 2fr" sx={{ gap: 4, alignItems: "center", pt:2}}>
-            <Typography variant="h5">ID</Typography>
-            <OutlinedInput type="number" size="small" disabled value={selectedId}></OutlinedInput>
+          <Box 
+            key="sampleId" 
+            display="grid" 
+            gridTemplateColumns="1fr 2fr" 
+            sx={{ gap: 4, alignItems: "center", pt:2}}
+          >
+            <Typography variant="h5"> 
+              Sample ID
+            </Typography>
+            <OutlinedInput 
+              type="number" 
+              size="small" 
+              disabled 
+              value={selectedId}
+              />
           </Box>
-            {sampleInputElementLayout.map((e) =>  
-              <Box key={e.label} display="grid" gridTemplateColumns="1fr 2fr" sx={{ gap: 4, alignItems: "center", pt: 2}}>
-                <Typography variant="h5">{e.label}{!e.optional ? "*": ""}</Typography>
-                <Stack>
-                  <OutlinedInput type={e.type} size="small" {...register(e.elementKey)}></OutlinedInput>
-                  <ErrorMessage
-                    errors={errors}
-                    name={e.elementKey}
-                    render={({message}) => <Typography variant="caption" color="error">{message}</Typography>}
-                  />
-                </Stack>
-                
-              </Box>
-            )}
-          <Typography variant="h6" mt={2} mb={3}>* = Required</Typography>
-          <Box sx={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 4 }}>
+          {sampleInputElementLayout.map((e) =>  
+            <Box 
+              key={e.label} 
+              display="grid" 
+              gridTemplateColumns="1fr 2fr" 
+              sx={{ gap: 4, alignItems: "center", pt: 2}}
+            >
+              <Typography variant="h5" mb={2}>
+                {e.label}{e.optional ? "": "*"}
+              </Typography>
+              <Stack>
+                <OutlinedInput 
+                  {...register(e.elementKey)} 
+                  type={e.type} 
+                  size="small" 
+                  multiline={e.multiline}
+                  minRows={e.multiline ? 3 : 0}
+                />
+                <ErrorMessage
+                  errors={errors}
+                  name={e.elementKey}
+                  render={({message}) => 
+                    <Typography variant="caption" color="error">
+                      {message}
+                    </Typography>}
+                />
+              </Stack>
+              
+            </Box>
+          )}
+          <Typography variant="h6" pt={2} mb={3} >
+            {" "}
+            * = Required
+          </Typography>
+          <Box sx={{display: "flex", gap: 5 }}>
             <Button
               variant="contained"
               size="large"
               onClick={() => {
-                setSelectedId("")
-                reset(sampleInputDefaultValues)}}
+                reset(sampleInputDefaultValues);
+                setSelectedId("");
+                setSelectedSample(undefined);
+                setRowSelectionModel({type: 'include', ids: new Set()});
+              }}  
             >
               New
             </Button>
@@ -348,9 +447,8 @@ export default function SamplesPage() {
                 onCreateSample.mutate(formData)
               })}
             >
-              {isSubmitting ? "Adding new sample" : "Add"}
+              {onCreateSample.isPending ? "Adding ..." : "Add"}
             </Button>
-            
             <Button
               variant="contained"
               size="large"
@@ -362,7 +460,7 @@ export default function SamplesPage() {
                 })
               })}
             >
-              Update
+              {onUpdateSample.isPending ? "Updating ..." : "Update"}
             </Button>
             <Button
               variant="contained"
@@ -374,6 +472,7 @@ export default function SamplesPage() {
               Delete
             </Button>
           </Box>
+          {/* Right Panel */}
         </Stack>
       </Box>
       <Dialog
@@ -381,7 +480,7 @@ export default function SamplesPage() {
           onClose={onCloseDeleteWarningDialog}
         >
           <DialogTitle>
-            Delete sample?
+            Delete Sample?
           </DialogTitle>
           <DialogContent>
             Do you really want to delete sample {selectedId} ?
@@ -389,14 +488,12 @@ export default function SamplesPage() {
           
           <DialogActions>
             <Button
-              type="outlined"
               onClick={onCloseDeleteWarningDialog} 
               autoFocus
             >
             No
             </Button>
             <Button
-              type="outlined"
               onClick={() => {
                 onCloseDeleteWarningDialog();
                 onDeleteSample.mutate();
@@ -411,18 +508,24 @@ export default function SamplesPage() {
           onClose={onCloseDeleteConfirmingDialog}
         >
         <DialogTitle>Confirming Delete Sample</DialogTitle>
-        <DialogContent>Sample {selectedId} was deleted</DialogContent>
+        <DialogContent>Sample {selectedId} was deleted.</DialogContent>
         <DialogActions>
           <Button
-            onClick={onCloseDeleteConfirmingDialog}
+            onClick={() => {
+              onCloseDeleteConfirmingDialog();
+              setSelectedId("");
+              setSelectedSample(undefined);
+              setRowSelectionModel({
+                type: 'include', 
+                ids: new Set()
+              });
+              reset(sampleInputDefaultValues);
+            }}
           >
             OK
           </Button>
         </DialogActions>
-
-        </Dialog>
-        
+        </Dialog> 
     </Stack>
-
   );
 }

@@ -381,7 +381,7 @@ export default function SamplesPage() {
           onClose={onCloseDeleteWarningDialog}
         >
           <DialogTitle>
-            Delete sample?
+            Delete Sample?
           </DialogTitle>
           <DialogContent>
             Do you really want to delete sample {selectedId} ?

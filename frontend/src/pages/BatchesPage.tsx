@@ -12,12 +12,16 @@ import {
   Button,
   IconButton,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { DataGrid } from "@mui/x-data-grid";
-import type { GridColDef } from "@mui/x-data-grid";
+import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 
 
 import { useForm } from "react-hook-form";
@@ -81,6 +85,7 @@ type SearchFields = {
 export default function BatchesPage() {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [selectedId, setSelectedId] = useState<string | number>("");
+  const [selectedBatch, setSelectedBatch] = useState<Batch | undefined>(undefined);
   const [searchText, setSearchText] = useState("");
   const [filters, setFilters] = useState<BatchQuery>({});
   const [searchCheckboxes, setSearchCheckboxes] = useState<SearchCheckboxes>({
@@ -97,8 +102,13 @@ export default function BatchesPage() {
     projectId: "",
     labId: "",
   });
-
   const [enableSearch, setEnableSearch] = useState(false);
+  const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel> ({
+    type: 'include',
+    ids: new Set(),
+  });
+  const [openDeleteWarningDialog, setOpenDeleteWarningDialog] = useState(false);
+  const [openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog] = useState(false);
   const batchInputDefaultValues = {
     batchName: "IrOxNewSM",
     description: "IrOx SBDs using new milled shadow masks",
@@ -163,31 +173,9 @@ export default function BatchesPage() {
       disabled: false,
     },
   ];
-  const queryClient = useQueryClient();
-  const allBatches = useQuery({
-    queryKey: ["batches", filters],
-    queryFn: () => getAllBatches(filters),
-    enabled: enableSearch,
-  });
-  const onCreateBatch = useMutation({
-    mutationFn: createBatch,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["batches"],
-      });
-      reset(batchInputDefaultValues);
-    },
-  });
 
-  const onUpdateBatch = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: BatchInput }) =>
-      updateBatch(id, data),
-    onSuccess: async () => {
-      queryClient.invalidateQueries({
-        queryKey: ["batches"],
-      });
-    },
-  });
+
+  
   // const addBatch = (data: BatchInput) => onCreateBatch.mutate(data);
   
   const batchColumns: GridColDef[] = [
@@ -196,6 +184,14 @@ export default function BatchesPage() {
     { field: "fabricationDate", headerName: "Fabrication Date", width: 150 },
     { field: "description", headerName: "Description", width: 100 },
   ];
+
+
+  // GET
+  const allBatches = useQuery({
+    queryKey: ["batches", filters],
+    queryFn: () => getAllBatches(filters),
+    enabled: enableSearch,
+  });
 
   // Grid rows are derived straight from the query result: the server already
   // applied "filters", so there is nothing left to filter on the client.
@@ -248,6 +244,63 @@ export default function BatchesPage() {
   const runSearch = () => {
     setFilters(buildSearchFilters());
     setEnableSearch(true);
+  }
+
+  const queryClient = useQueryClient();
+
+  // CREATE
+  const onCreateBatch = useMutation({
+    mutationFn: createBatch,
+    onSuccess: async (newSample) => {
+      setSelectedId(newSample.batchId);
+      setSelectedBatch(newSample);
+      setRowSelectionModel({type: 'include', ids: new Set() })
+      reset(batchInputDefaultValues);
+      await queryClient.invalidateQueries({
+        queryKey: ["batches"],
+      });
+      
+    },
+  });
+
+  // UPDATE
+  const onUpdateBatch = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: BatchInput }) =>
+      updateBatch(id, data),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({
+        queryKey: ["batches"],
+      });
+    },
+  });
+
+  // DELETE
+  const onDeleteBatch = useMutation({
+    mutationFn: async () => await deleteBatch(Number(selectedId)),
+    onSuccess: async () => {
+      onOpenDeleteConfirmingDialog();
+      setSelectedId("");
+      setSelectedBatch(undefined);
+      setRowSelectionModel({
+        type: 'include',
+        ids: new Set(),
+      })
+      reset(batchInputDefaultValues);
+      await queryClient.invalidateQueries({queryKey: ["batches"]})
+      
+    }
+   })
+  const onOpenDeleteWarningDialog = () => {
+    setOpenDeleteWarningDialog(true);
+  }
+  const onCloseDeleteWarningDialog = () => {
+    setOpenDeleteWarningDialog(false);
+  }
+  const onOpenDeleteConfirmingDialog = () => {
+    setOpenDeleteWarningDialog(true);
+  }
+  const onCloseDeleteConfirmingDialog = () => {
+    setOpenDeleteWarningDialog(false);
   }
 
   return (
@@ -417,6 +470,10 @@ export default function BatchesPage() {
                   labId: batch.labId ?? undefined,
                 });
               }}
+              rowSelectionModel={rowSelectionModel}
+              onRowSelectionModelChange={(newRowSelectionModel) => {
+                setRowSelectionModel(newRowSelectionModel)
+              }}
               sx={{ border: 0 }}
             />
           </Paper>
@@ -485,6 +542,8 @@ export default function BatchesPage() {
               onClick={() => {
                 reset(batchInputDefaultValues);
                 setSelectedId("");
+                setSelectedBatch(undefined);
+                setRowSelectionModel({type: 'include', ids: new Set()})
               }}
             >
               {" "}
@@ -520,6 +579,7 @@ export default function BatchesPage() {
               size="large"
               color="error"
               disabled={selectedId ? false : true}
+              onClick={onOpenDeleteWarningDialog}
             >
               {" "}
               Delete{" "}
@@ -529,20 +589,51 @@ export default function BatchesPage() {
         </Stack>
       </Box>
 
-      {/*  Add a batch */}
-      {/* <Box sx={{display: "flex", alignItems: "center"}}>
-        <IconButton
-          onClick={() => setShowAddBatch(!showAddBatch)}
-        >
-          {showAddBatch 
-            ? <ExpandLessOutlinedIcon fontSize="large"/>
-            : <ChevronRightOutlinedIcon fontSize="large"/>
-          }
-        </IconButton>
-        <Typography variant="h4"> Add a batch</Typography>
-      </Box> */}
-
-      {/* Find a batch by Fabrication Date, Treatment, ProjectId, Keyword */}
+      <Dialog
+        open={openDeleteWarningDialog}
+        onClose={onCloseDeleteWarningDialog}
+      >
+        <DialogTitle>
+          Delete Batch?
+        </DialogTitle>
+        <DialogContent>
+          Do you really want to delete batch {selectedId} ?
+        </DialogContent>
+        <DialogActions>
+          <Button
+            type="outlined"
+            onClick={onCloseDeleteWarningDialog}
+            autoFocus
+          >
+            No
+          </Button>
+          <Button
+            type="outlined"
+            onClick={() => {
+              onCloseDeleteWarningDialog();
+              onDeleteBatch.mutate();
+            }}
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openDeleteConfirmingDialog}
+        onClose={onCloseDeleteConfirmingDialog}
+      >
+        <DialogContent>
+          Batch {selectedId} was deleted.
+        </DialogContent>
+        <DialogActions>
+          <Button
+            type="outlined"
+            onClick={onCloseDeleteConfirmingDialog}
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Stack>
   );
 }

@@ -37,14 +37,14 @@ public class SamplesController: ControllerBase
 		if (q.MaxId is not null) query = query.Where(s => s.SampleId <= q.MaxId);
 		if (q.BatchId is not null) query = query.Where(s => s.BatchId == q.BatchId);
 
-		var desc = string.Equals(q.Order, "desc", StringComparison.OrdinalIgnoreCase);
-		query = (q.Sort?.ToLowerInvariant(),desc) switch
-		{
-			("samplename", false) => query.OrderBy(s => s.SampleName).ThenBy(s => s.SampleId),
-			("samplename", true) => query.OrderByDescending(s => s.SampleName).ThenBy(s => s.SampleId),
-			(_, true) => query.OrderByDescending(s => s.SampleId),
-			_ => query.OrderBy(s => s.SampleId),
-		};
+		// var desc = string.Equals(q.Order, "desc", StringComparison.OrdinalIgnoreCase);
+		// query = (q.Sort?.ToLowerInvariant(),desc) switch
+		// {
+		// 	("samplename", false) => query.OrderBy(s => s.SampleName).ThenBy(s => s.SampleId),
+		// 	("samplename", true) => query.OrderByDescending(s => s.SampleName).ThenBy(s => s.SampleId),
+		// 	(_, true) => query.OrderByDescending(s => s.SampleId),
+		// 	_ => query.OrderBy(s => s.SampleId),
+		// };
 		
 		return Ok(await query
 			.Select(s => new SampleResponse(

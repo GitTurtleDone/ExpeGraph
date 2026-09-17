@@ -5,8 +5,8 @@ export type SampleQuery = {
   minId?: number;
   maxId?: number;
   batchId?: number;
-  sort?: "sampleName";
-  order?: "asc" | "desc";
+  // sort?: "sampleName";
+  // order?: "asc" | "desc";
 };
 
 const BASE = "http://localhost:5174";

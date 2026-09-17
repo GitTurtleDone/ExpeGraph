@@ -57,7 +57,7 @@ type BatchRow = {
   id: number;
   batchName: string;
   fabricationDate: string;
-  treatment?: string;
+  description?: string;
 };
 
 type SearchCheckboxes = {
@@ -99,7 +99,7 @@ export default function BatchesPage() {
   });
 
   const [enableSearch, setEnableSearch] = useState(false);
-  const batchDefaultValues = {
+  const batchInputDefaultValues = {
     batchName: "IrOxNewSM",
     description: "IrOx SBDs using new milled shadow masks",
     fabricationDate: "2024-12-01", // ISO demands YYYY-MM-DD
@@ -115,7 +115,7 @@ export default function BatchesPage() {
     formState: { errors, isSubmitting },
   } = useForm<BatchInput>({
     resolver: zodResolver(batchInputSchema),
-    defaultValues: batchDefaultValues,
+    defaultValues: batchInputDefaultValues,
   });
 
   const batchInputElementLayout: BatchInputElementLayout[] = [
@@ -171,30 +171,30 @@ export default function BatchesPage() {
   });
   const onCreateBatch = useMutation({
     mutationFn: createBatch,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["batches"],
       });
-      reset(batchDefaultValues);
+      reset(batchInputDefaultValues);
     },
   });
 
   const onUpdateBatch = useMutation({
     mutationFn: ({ id, data }: { id: number; data: BatchInput }) =>
       updateBatch(id, data),
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({
         queryKey: ["batches"],
       });
     },
   });
-  const addBatch = (data: BatchInput) => onCreateBatch.mutate(data);
+  // const addBatch = (data: BatchInput) => onCreateBatch.mutate(data);
   
   const batchColumns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 70 },
     { field: "batchName", headerName: "Batch Name", width: 140 },
     { field: "fabricationDate", headerName: "Fabrication Date", width: 150 },
-    { field: "treatment", headerName: "Treatment", width: 100 },
+    { field: "description", headerName: "Description", width: 100 },
   ];
 
   // Grid rows are derived straight from the query result: the server already
@@ -203,7 +203,7 @@ export default function BatchesPage() {
     id: b.batchId,
     batchName: b.batchName,
     fabricationDate: b.fabricationDate,
-    treatment: b.treatment,
+    description: b.description,
   }));
 
   const handleSearchChb = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -483,7 +483,7 @@ export default function BatchesPage() {
               sx={{ mt: 3 }}
               size="large"
               onClick={() => {
-                reset(batchDefaultValues);
+                reset(batchInputDefaultValues);
                 setSelectedId("");
               }}
             >
@@ -494,7 +494,9 @@ export default function BatchesPage() {
               variant="contained"
               sx={{ mt: 3 }}
               size="large"
-              onClick={handleSubmit(addBatch)}
+              onClick={handleSubmit((formData) => {
+                onCreateBatch.mutate(formData);  
+              })}
             >
               {onCreateBatch.isPending ? "Adding ..." : "Add"}
             </Button>
@@ -502,7 +504,7 @@ export default function BatchesPage() {
               variant="contained"
               sx={{ mt: 3 }}
               size="large"
-              disabled={selectedId === ""}
+              disabled={selectedId ? false : true}
               onClick={handleSubmit((formData) =>
                 onUpdateBatch.mutate({
                   id: Number(selectedId),
@@ -517,6 +519,7 @@ export default function BatchesPage() {
               sx={{ mt: 3 }}
               size="large"
               color="error"
+              disabled={selectedId ? false : true}
             >
               {" "}
               Delete{" "}

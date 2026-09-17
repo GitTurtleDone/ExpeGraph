@@ -7,7 +7,8 @@ import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { DataGrid } from "@mui/x-data-grid";
-import type { GridColDef, GridEventListener } from "@mui/x-data-grid";
+import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
+
 
 
 import { useForm} from "react-hook-form";
@@ -40,7 +41,7 @@ type SearchCheckboxes = {
 type SampleRow = {
   id: number,
   sampleName: string,
-  treatment: string,
+  description: string,
   batchId: number
 }
 type SearchFields = {
@@ -57,15 +58,16 @@ export default function SamplesPage() {
     { label: "Properties", optional: true, type: "unknown", elementKey: "properties", disabled: false},
     { label: "Batch ID", optional: true, type: "number", elementKey: "batchId", disabled: false}
   ] 
-  const sampleInputDefaultValue: SampleInput =  {
+  const sampleInputDefaultValues: SampleInput =  {
     sampleName: "Dev07",
     description: "3000 um in diameter diode",
     treatment: "Standard treatment",
     properties: "",
     batchId: 1
   }
-  const [selectedId, setSelectedId] = useState(undefined);
-  // const [selectedSample, setSelectedSample] = useState<Sample>();
+  const [selectedId, setSelectedId] = useState<number | undefined>();
+  const [selectedSample, setSelectedSample] = useState<Sample | undefined>();
+  const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>({ type: 'include', ids: new Set()})
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [searchCheckboxes, setSearchCheckboxes] = useState<SearchCheckboxes>({
@@ -82,15 +84,13 @@ export default function SamplesPage() {
   const [enableSearch, setEnableSearch] = useState(false);
   const {register, handleSubmit, reset, formState:{ errors, isSubmitting}} = useForm<SampleInput>({
     resolver: zodResolver(sampleInputSchema),
-    defaultValues: sampleInputDefaultValue,
+    defaultValues: sampleInputDefaultValues,
     
   }); 
-  const onAddSample = async (data: SampleInput): Promise<Sample> => {
-    createSample(data);
-  } 
-  const onUpdateSample = async (id: number, data: SampleInput): Promise<Sample> => {
-    updateSample(id, data);
-  }
+  
+  // const onUpdateSample = async (id: number, data: SampleInput): Promise<Sample> => {
+  //   updateSample(id, data);
+  // }
   const onDeleteSample = async () => {
     if (selectedId && Number.isInteger(selectedId)){
       deleteSample(selectedId);
@@ -128,10 +128,10 @@ export default function SamplesPage() {
    
 
   const sampleColumns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 70},
-    { field: "sampleName", headerName: "Sample Name", width: 140 },
-    { field: "treatment", headerName: "Treatment", width: 140},
-    { field: "batchId", headerName: "Batch ID", width: 70}
+    { field: "id", headerName: "ID", width: 50},
+    { field: "sampleName", headerName: "Sample Name", width: 100},
+    { field: "description", headerName: "Description", width: 300},
+    { field: "batchId", headerName: "Batch ID", width: 50}
   ]
 
   const buildSearchFilters = ():SampleQuery => {
@@ -152,10 +152,34 @@ export default function SamplesPage() {
     enabled: enableSearch
   })
 
+  const queryClient = useQueryClient()
+  const onCreateSample = useMutation({
+    mutationFn: (data: SampleInput) => createSample(data),
+    onSuccess: async (newSample) =>{
+      setSelectedSample(newSample);
+      setSelectedId(newSample.sampleId);
+      setRowSelectionModel({type: 'include', ids: new Set()})
+      await queryClient.invalidateQueries({queryKey: ["samples"]});
+    }
+  })
+  // const addSample = async (data: SampleInput): Promise<Sample> => {
+  //   onCreateSample.mutate(data);
+  // } 
+
+  const onUpdateSample = useMutation({
+    mutationFn: ({ id, data}: {id: number, data: SampleInput}) => updateSample(id, data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({queryKey: ["samples"]});
+    }
+  })
+  // const updateSample = ({ id, data}: {id: number, data: SampleInput}): Promise<Sample> => {
+  //   onUpdateSample.mutate(id, data);
+  //   setSelectedSample(onUpdateSample.data);
+  // }
   const sampleRows: SampleRow[] = (allSamples.data ?? []).map((s) => ({
     id: s.sampleId, 
     sampleName: s.sampleName, 
-    treatment: s.treatment, 
+    description: s.description, 
     batchId: s.batchId}))
 
   const handleSearchChb = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,7 +197,6 @@ export default function SamplesPage() {
 
   }
   const runSearch = () => {
-    // build Search Filters
     setFilters(buildSearchFilters());
     setEnableSearch(true);
   }
@@ -282,8 +305,13 @@ export default function SamplesPage() {
                   properties: sample.properties ?? undefined,
                   batchId: sample.batchId ?? undefined,
                 })
-
               }}
+              onRowSelectionModelChange={(newRowSelectionModel) => {
+                setRowSelectionModel(newRowSelectionModel)
+              }}
+              rowSelectionModel={rowSelectionModel}
+
+              
             />
           </Paper>  
         </Stack>
@@ -312,7 +340,9 @@ export default function SamplesPage() {
             <Button
               variant="contained"
               size="large"
-              onClick={() => reset(sampleInputDefaultValue)}
+              onClick={() => {
+                setSelectedId("")
+                reset(sampleInputDefaultValues)}}
             >
               New
             </Button>
@@ -320,7 +350,9 @@ export default function SamplesPage() {
               variant="contained" 
               size="large" 
               disabled={isSubmitting ? true : false}
-              onClick={handleSubmit(onAddSample)}
+              onClick={handleSubmit((formData) => {
+                onCreateSample.mutate(formData)
+              })}
             >
               {isSubmitting ? "Adding new sample" : "Add"}
             </Button>
@@ -329,7 +361,12 @@ export default function SamplesPage() {
               variant="contained"
               size="large"
               disabled= {selectedId ? false: true}
-              onClick={handleSubmit(onUpdateSample)}
+              onClick={handleSubmit((formData) => {
+                onUpdateSample.mutate({
+                  id: Number(selectedId),
+                  data: formData
+                })
+              })}
             >
               Update
             </Button>

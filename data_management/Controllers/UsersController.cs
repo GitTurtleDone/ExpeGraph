@@ -4,6 +4,8 @@ using DataManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.ComponentModel.DataAnnotations;
 
 namespace DataManagement.Controllers;
 
@@ -18,13 +20,38 @@ public class UsersController : ControllerBase
     }
     
     //GET users/
-    [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await _db.Users
-                .Select(u => new UserResponse(
-                    u.UserId, u.Username, u.Email, u.FirstName, u.LastName,
-                    u.IsActive, u.CreatedAt, u.LastLoginAt))
-                .ToListAsync());
+    // [HttpGet]
+    // public async Task<IActionResult> GetAll([FromQuery] UserQuery q) => 
+    //     {
+    //         // q: query from the frontend request
+    //         // query: request from the backend to database
+    //         var searchTxt = q.SearchTxt;
+    //         if (searchTxt != null) searchTxt = '%{searchTxt.trim()}%';
+    //         var q = _db.AsNoTrack();
+    //         q = await _db.Users.find(
+    //             WHERE Username Ilike searchTxt ||
+    //                     Email ILike searchTxt ||
+    //                     FirstName Ilike searchTxt ||
+    //                     LastName Ilike seachTxt ||
+    //         )
+
+    //         if (r.minId != null) q.WHERE(q.UserId >= r.minId);
+    //         if (r.maxId != null) q.WHERE(q.UserId <= r.maxId);
+            
+
+    //         return new UserResponse (
+    //             q.UserId, q.Username, q.Email, q.FirstName, q.LastName,
+    //             q.IsActive, q.CreatedAt, q.LastLoginAt)
+    //             .ToListAsync          )
+
+    //     }
+
+        
+        // Ok(await _db.Users
+        //         .Select(u => new UserResponse(
+        //             u.UserId, u.Username, u.Email, u.FirstName, u.LastName,
+        //             u.IsActive, u.CreatedAt, u.LastLoginAt))
+        //         .ToListAsync());
     
     //GET users/id
     [HttpGet("{id:int}")]

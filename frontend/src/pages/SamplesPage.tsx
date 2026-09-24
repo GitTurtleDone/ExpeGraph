@@ -314,7 +314,7 @@ export default function SamplesPage() {
                   name="maxId" 
                   value={searchFilters.maxId} 
                   onChange={handleSearchField}
-                  disabled={!searchCheckboxes.batchIdChb}
+                  disabled={!searchCheckboxes.idRangeChb}
                 />
                 <Checkbox 
                   name="batchIdChb" 
@@ -418,8 +418,7 @@ export default function SamplesPage() {
                       {message}
                     </Typography>}
                 />
-              </Stack>
-              
+              </Stack> 
             </Box>
           )}
           <Typography variant="h6" pt={2} mb={3} >

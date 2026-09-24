@@ -3,7 +3,7 @@ import type { Batch, BatchInput } from "../types/batches";
 // Every field is optional. An absent key means "don't filter on this".
 // The checkboxes in the UI decide which keys get set; see buildFilters() in BatchesPage.
 export type BatchQuery = {
-    search?: string,
+    searchTxt?: string,
     minId?: number,
     maxId?: number,
     fabricatedFrom?: string, //"YYYY-MM-DD"

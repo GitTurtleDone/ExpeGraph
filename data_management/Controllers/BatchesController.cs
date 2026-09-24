@@ -29,9 +29,9 @@ public class BatchesController : ControllerBase
         //Skip snapshoting
         var query = _db.Batches.AsNoTracking();
 
-        if (!string.IsNullOrWhiteSpace(q.Search))
+        if (!string.IsNullOrWhiteSpace(q.SearchTxt))
         {
-            var search_words = $"%{q.Search.Trim()}%";
+            var search_words = $"%{q.SearchTxt.Trim()}%";
             query = query.Where(b =>
                 EF.Functions.ILike(b.BatchName, search_words) ||
                 EF.Functions.ILike(b.Description, search_words) || 

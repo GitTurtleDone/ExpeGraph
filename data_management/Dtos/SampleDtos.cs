@@ -28,7 +28,7 @@ public record UpdateSampleRequest(
 
 public record SampleQuery
 {
-    public string? Search { get; init; }
+    public string? SearchTxt { get; init; }
     public int? MinId { get; init; }
     public int? MaxId { get; init; }
     public int? BatchId { get; init; }

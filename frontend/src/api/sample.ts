@@ -1,7 +1,7 @@
 // import { PostAdd } from "@mui/icons-material";
 import type { Sample, SampleInput } from "../types/samples";
 export type SampleQuery = {
-  search?: string;
+  searchTxt?: string;
   minId?: number;
   maxId?: number;
   batchId?: number;

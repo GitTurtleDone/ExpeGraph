@@ -22,9 +22,9 @@ public class SamplesController: ControllerBase
 	{
 		var query = _db.Samples.AsNoTracking();
 		// use search_words in SampleName, Description, Treatment
-		if (!string.IsNullOrWhiteSpace(q.Search))
+		if (!string.IsNullOrWhiteSpace(q.SearchTxt))
 		{
-			var search_words = $"%{q.Search.Trim()}%";
+			var search_words = $"%{q.SearchTxt.Trim()}%";
 			query = query.Where(s =>
 				EF.Functions.ILike(s.SampleName, search_words) ||
 				EF.Functions.ILike(s.Description, search_words) ||

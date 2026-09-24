@@ -24,3 +24,29 @@ public record UpdateUserRequest(
     string? FirstName,
     string? LastName,
     bool IsActive);
+
+public record UserQuery(
+    string? Search,
+    int? MinId,
+    int? MaxId,
+    bool? IsActive,
+    DateTime? LastLoginFrom,
+    DateTime? LastLoginTo
+);
+
+public record DiodeResponse(
+    int DiodeId,
+    string GeometryType,
+    float? AnodeWidthUm,
+    float? AnodeLengthUm,
+    float? ChamferRadiusUm,
+    float? AnodeRadiusUm,
+    Dictionary<string, object>? GeometryProperties,
+    float? BarrierHeightEv,
+    float? IdealityFactor,
+    float? RecRatio,
+    float? BuiltInPotentialV,
+    double? CarrierConcentration,
+    float? MaxCurrentA,
+    float? VoltageAtMaxCurrentV,
+    float? BreakdownVoltageV);

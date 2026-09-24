@@ -1,27 +1,33 @@
 namespace DataManagement.Dtos;
 
-public record SampleResponse(
+public record SampleResponse
+(
     int SampleId,
     string SampleName,
     string? Description,
     string? Treatment,
     Dictionary<string, object>? Properties,
     int? BatchId,
-    DateTime CreatedAt);
+    DateTime CreatedAt
+);
 
-public record CreateSampleRequest(
+public record CreateSampleRequest
+(
     string SampleName,
     string? Description,
     string? Treatment,
     Dictionary<string, object>? Properties,
-    int? BatchId);
+    int? BatchId
+);
 
-public record UpdateSampleRequest(
+public record UpdateSampleRequest
+(
     string SampleName,
     string? Description,
     string? Treatment,
     Dictionary<string, object>? Properties,
-    int? BatchId);
+    int? BatchId
+);
 
 // for filtering a query from the frontend
 // when searching for samples

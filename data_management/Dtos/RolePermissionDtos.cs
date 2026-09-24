@@ -1,4 +1,18 @@
 namespace DataManagement.Dtos;
 
-public record RolePermissionResponse(int RoleId, int PermissionId);
-public record CreateRolePermissionRequest(int RoleId, int PermissionId);
+public record RolePermissionResponse
+(
+    int RoleId, 
+    int PermissionId
+);
+public record CreateRolePermissionRequest
+(
+    int RoleId, 
+    int PermissionId
+);
+
+public record RolePermissionQuery
+{	
+    public int? RoleId { get; init;}
+    public int? PermissionId { get; init;}
+};

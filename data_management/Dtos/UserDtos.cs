@@ -1,6 +1,7 @@
 namespace DataManagement.Dtos;
 
-public record UserResponse(
+public record UserResponse
+(
     int UserId,
     string Username,
     string Email,
@@ -8,45 +9,33 @@ public record UserResponse(
     string? LastName,
     bool IsActive,
     DateTime CreatedAt,
-    DateTime? LastLoginAt);
+    DateTime? LastLoginAt
+);
 
-public record CreateUserRequest(
+public record CreateUserRequest
+(
     string Username,
     string Email,
     string Password,
     string? FirstName,
     string? LastName);
 
-public record UpdateUserRequest(
+public record UpdateUserRequest
+(
     string Username,
     string Email,
     string? Password,
     string? FirstName,
     string? LastName,
-    bool IsActive);
-
-public record UserQuery(
-    string? Search,
-    int? MinId,
-    int? MaxId,
-    bool? IsActive,
-    DateTime? LastLoginFrom,
-    DateTime? LastLoginTo
+    bool IsActive
 );
 
-public record DiodeResponse(
-    int DiodeId,
-    string GeometryType,
-    float? AnodeWidthUm,
-    float? AnodeLengthUm,
-    float? ChamferRadiusUm,
-    float? AnodeRadiusUm,
-    Dictionary<string, object>? GeometryProperties,
-    float? BarrierHeightEv,
-    float? IdealityFactor,
-    float? RecRatio,
-    float? BuiltInPotentialV,
-    double? CarrierConcentration,
-    float? MaxCurrentA,
-    float? VoltageAtMaxCurrentV,
-    float? BreakdownVoltageV);
+public record UserQuery
+{	
+	public string? SearchTxt { get; init;}
+    public int? MinId { get; init;}
+    public int? MaxId { get; init;}
+    public bool? IsActive { get; init;}
+    public DateTime? LastLoginFrom { get; init;}
+    public DateTime? LastLoginTo { get; init;}
+};

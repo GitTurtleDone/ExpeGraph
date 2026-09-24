@@ -1,6 +1,7 @@
 namespace DataManagement.Dtos;
 
-public record DiodeResponse(
+public record DiodeResponse
+(
     int DiodeId,
     string GeometryType,
     float? AnodeWidthUm,
@@ -15,9 +16,11 @@ public record DiodeResponse(
     double? CarrierConcentration,
     float? MaxCurrentA,
     float? VoltageAtMaxCurrentV,
-    float? BreakdownVoltageV);
+    float? BreakdownVoltageV
+);
 
-public record CreateDiodeRequest(
+public record CreateDiodeRequest
+(
     int DiodeId,
     string GeometryType,
     float? AnodeWidthUm = null,
@@ -32,9 +35,11 @@ public record CreateDiodeRequest(
     double? CarrierConcentration = null,
     float? MaxCurrentA = null,
     float? VoltageAtMaxCurrentV = null,
-    float? BreakdownVoltageV = null);
+    float? BreakdownVoltageV = null
+);
 
-public record UpdateDiodeRequest(
+public record UpdateDiodeRequest
+(
     string GeometryType,
     float? AnodeWidthUm,
     float? AnodeLengthUm,
@@ -48,37 +53,37 @@ public record UpdateDiodeRequest(
     double? CarrierConcentration,
     float? MaxCurrentA,
     float? VoltageAtMaxCurrentV,
-    float? BreakdownVoltageV);
+    float? BreakdownVoltageV
+);
 
 public record DiodeQuery
 {
     public string? SearchTxt { get; init;}
-    public int? MinId { get; set;}
-    public int? MaxId { get; set;}
-    public string? GeometryType { get; set;}
-    public float? AnodeWidthUmFrom { get; set;}
-    public float? AnodeWidthUmTo { get; set;}
-    float? AnodeLengthUmFrom { get; set;}
-    public float? AnodeLengthUmTo { get; set;}
-    float? AnodeRadiusUmFrom { get; set;}
-    float? AnodeRadiusUmTo { get; set;}
-    float? ChamferRadiusUmFrom { get; set;}
-    float? ChamferRadiusUmTo { get; set;}
-    
-    float? BarrierHeightEvFrom { get; set;}
-    float? BarrierHeightEvTo { get; set;}
-    float? IdealityFactorFrom { get; set;}
-    float? IdealityFactorTo { get; set;}
-    float? RecRatioFrom { get; set;}
-    float? RecRatioTo { get; set;}
-    float? BuiltInPotentialVFrom { get; set;}
-    float? BuiltInPotentialVTo { get; set;}
-    double? CarrierConcentrationFrom { get; set;}
-    double? CarrierConcentrationTo { get; set;}
-    float? MaxCurrentAFrom { get; set;}
-    float? MaxCurrentATo { get; set;}
-    float? VoltageAtMaxCurrentVFrom { get; set;}
-    float? VoltageAtMaxCurrentVTo { get; set;}
-    float? BreakdownVoltageVFrom { get; set;}
-    float? BreakdownVoltageVTo { get; set;}
+    public int? MinId { get; init;}
+    public int? MaxId { get; init;}
+    public string? GeometryType { get; init;}
+    public float? MinAnodeWidthUm { get; init;}
+    public float? MaxAnodeWidthUm { get; init;}
+    float? MinAnodeLengthUm { get; init;}
+    public float? MaxAnodeLengthUm { get; init;}
+    float? MinAnodeRadiusUm { get; init;}
+    float? MaxAnodeRadiusUm { get; init;}
+    float? MinChamferRadiusUm { get; init;}
+    float? MaxChamferRadiusUm { get; init;}
+    float? MinBarrierHeightEv { get; init;}
+    float? MaxBarrierHeightEv { get; init;}
+    float? MinIdealityFactor { get; init;}
+    float? MaxIdealityFactor { get; init;}
+    float? MinRecRatio { get; init;}
+    float? MaxRecRatio { get; init;}
+    float? MinBuiltInPotentialV { get; init;}
+    float? MaxBuiltInPotentialV { get; init;}
+    double? MinCarrierConcentration { get; init;}
+    double? MaxCarrierConcentration { get; init;}
+    float? MinMaxCurrentA { get; init;}
+    float? MaxMaxCurrentA { get; init;}
+    float? MinVoltageAtMaxCurrentV { get; init;}
+    float? MaxVoltageAtMaxCurrentV { get; init;}
+    float? MinBreakdownVoltageV { get; init;}
+    float? MaxBreakdownVoltageV { get; init;}
 };

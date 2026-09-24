@@ -1,18 +1,32 @@
 namespace DataManagement.Dtos;
-public record LabResponse(
-
+public record LabResponse
+(
     int LabId,
     string LabName,
     string? Description,
     int? LabLeaderId,
-    DateTime CreatedAt);
+    DateTime CreatedAt
+);
 
-public record CreateLabRequest(
+public record CreateLabRequest
+(
     string LabName,
     string? Description,
-    int? LabLeaderId);
+    int? LabLeaderId
+);
 
-public record UpdateLabRequest(
+public record UpdateLabRequest
+(
     string LabName,
     string? Description,
-    int? LabLeaderId);
+    int? LabLeaderId
+);
+
+public record LabQuery
+{
+    public string? SearchTxt { get; init;}
+    public int? MinId { get; init;}
+    public int? MaxId { get; init;}
+    public int? LabLeaderId { get; init;}
+
+};

@@ -1,6 +1,7 @@
 namespace DataManagement.Dtos;
 
-public record BatchResponse(
+public record BatchResponse
+(
     int BatchId,
     string BatchName,
     string? Description,
@@ -8,23 +9,28 @@ public record BatchResponse(
     string? Treatment,
     int? ProjectId,
     int? LabId,
-    DateTime CreatedAt);
+    DateTime CreatedAt
+);
 
-public record CreateBatchRequest(
+public record CreateBatchRequest
+(
     string BatchName,
     DateOnly FabricationDate,
     string? Description,
     string? Treatment,
     int? ProjectId,
-    int? LabId);
+    int? LabId
+);
 
-public record UpdateBatchRequest(
+public record UpdateBatchRequest
+(
     string BatchName,
     DateOnly FabricationDate,
     string? Description,
     string? Treatment,
     int? ProjectId,
-    int? LabId);
+    int? LabId
+);
 
 // filtering a query from the frontend
 public record BatchQuery 

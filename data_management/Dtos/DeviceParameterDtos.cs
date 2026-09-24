@@ -8,7 +8,7 @@ public record DeviceParameterResponse
 (
     int DeviceParameterId, 
     int DeviceId, 
-    string Key, 
+    string? Key, 
     string? Value
 );
 public record CreateDeviceParameterRequest

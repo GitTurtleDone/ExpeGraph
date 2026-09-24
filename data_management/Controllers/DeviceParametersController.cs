@@ -14,11 +14,23 @@ public class DeviceParametersController : ControllerBase
     public DeviceParametersController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult> GetAll() =>
-        Ok(await _db.DeviceParameters.Select(dp => new DeviceParameterResponse(
-            dp.DeviceParameterId, dp.DeviceId, dp.Key, dp.Value)).ToListAsync());
+    public async Task<ActionResult> GetAll([FromQuery] DeviceParameterQuery q) 
+    {
+        var query = _db.DeviceParameters.AsNoTracking();
+        if (q.MinId is not null) query = query.Where(dp => dp.DeviceParameterId >= q.MinId);
+        if (q.MaxId is not null) query = query.Where(dp => dp.DeviceParameterId <= q.MaxId);
+        if (q.DeviceId is not null) query = query.Where(dp => dp.DeviceId == q.DeviceId);
+        query = query.OrderBy(dp => dp.DeviceParameterId);
+        return Ok(await query
+            .Select(dp => new DeviceParameterResponse(
+                dp.DeviceParameterId, dp.DeviceId, dp.Key, dp.Value
+            ))
+            .ToListAsync());
+    }
+        // Ok(await _db.DeviceParameters.Select(dp => new DeviceParameterResponse(
+        //     dp.DeviceParameterId, dp.DeviceId, dp.Key, dp.Value)).ToListAsync());
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult> GetById(int id)
     {
         var dp = await _db.DeviceParameters.FindAsync(id);
@@ -45,7 +57,7 @@ public class DeviceParametersController : ControllerBase
             new DeviceParameterResponse(dp.DeviceParameterId, dp.DeviceId, dp.Key, dp.Value));
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<ActionResult> Update(int id, UpdateDeviceParameterRequest req)
     {
         var dp = await _db.DeviceParameters.FindAsync(id);
@@ -55,7 +67,7 @@ public class DeviceParametersController : ControllerBase
         return Ok(new DeviceParameterResponse(dp.DeviceParameterId, dp.DeviceId, dp.Key, dp.Value));
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<ActionResult> Delete(int id)
     {
         var dp = await _db.DeviceParameters.FindAsync(id);

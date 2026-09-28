@@ -1,7 +1,6 @@
 namespace DataManagement.Dtos;
 
-public record MeasurementResponse
-(
+public record MeasurementResponse(
 	int MeasurementId,
 	int? DeviceId,
 	int? SampleId,
@@ -12,11 +11,9 @@ public record MeasurementResponse
 	float? TemperatureK,
 	float? HumidityPercent,
 	string? Notes,
-	string DataFilePath
-);
+	string DataFilePath);
 
-public record CreateMeasurementRequest
-(
+public record CreateMeasurementRequest(
 	int? DeviceId,
 	int? SampleId,
 	int? EquipmentId,
@@ -26,8 +23,7 @@ public record CreateMeasurementRequest
 	float? TemperatureK,
 	float? HumidityPercent,
 	string? Notes,
-	string DataFilePath
-);
+	string DataFilePath);
 
 public record UpdateMeasurementRequest
 (

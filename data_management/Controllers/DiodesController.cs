@@ -16,12 +16,51 @@ public class DiodesController : ControllerBase
     public DiodesController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult> GetAll() =>
-        Ok(await _db.Diodes.Select(d => new DiodeResponse(
-            d.DiodeId, d.GeometryType, d.AnodeWidthUm, d.AnodeLengthUm, d.ChamferRadiusUm,
-            d.AnodeRadiusUm, d.GeometryProperties, d.BarrierHeightEv, d.IdealityFactor, d.RecRatio,
-            d.BuiltInPotentialV, d.CarrierConcentration, d.MaxCurrentA, d.VoltageAtMaxCurrentV, d.BreakdownVoltageV))
+    public async Task<ActionResult> GetAll([FromQuery] DiodeQuery q)
+    {
+        var query = _db.Diodes.AsNoTracking();
+        
+        if (q.MinId is not null) query = query.Where(d => d.DiodeId >= q.MinId);
+        if (q.MaxId is not null) query = query.Where(d => d.DiodeId <= q.MaxId);
+        if (q.GeometryType is not null) query = query.Where(d => d.GeometryType == q.GeometryType);
+        if (q.MinAnodeWidthUm is not null) query = query.Where(d => d.AnodeWidthUm >= q.MinAnodeWidthUm);
+        if (q.MaxAnodeWidthUm is not null) query = query.Where(d => d.AnodeWidthUm <= q.MaxAnodeWidthUm);
+        if (q.MinAnodeLengthUm is not null) query = query.Where(d => d.AnodeLengthUm >= q.MinAnodeLengthUm);
+        if (q.MaxAnodeLengthUm is not null) query = query.Where(d => d.AnodeLengthUm <= q.MaxAnodeLengthUm);
+        if (q.MinAnodeRadiusUm is not null) query = query.Where(d => d.AnodeRadiusUm >= q.MinAnodeRadiusUm);
+        if (q.MaxAnodeRadiusUm is not null) query = query.Where(d => d.AnodeRadiusUm <= q.MaxAnodeRadiusUm);
+        if (q.MinChamferRadiusUm is not null) query = query.Where(d => d.ChamferRadiusUm >= q.MinChamferRadiusUm);
+        if (q.MaxChamferRadiusUm is not null) query = query.Where(d => d.ChamferRadiusUm <= q.MaxChamferRadiusUm);
+        if (q.MinBarrierHeightEv is not null) query = query.Where(d => d.BarrierHeightEv >= q.MinBarrierHeightEv);
+        if (q.MaxBarrierHeightEv is not null) query = query.Where(d => d.BarrierHeightEv <= q.MaxBarrierHeightEv);
+        if (q.MinIdealityFactor is not null) query = query.Where(d => d.IdealityFactor >= q.MinIdealityFactor);
+        if (q.MaxIdealityFactor is not null) query = query.Where(d => d.IdealityFactor <= q.MaxIdealityFactor);
+        if (q.MinRecRatio is not null) query = query.Where(d => d.RecRatio >= q.MinRecRatio);
+        if (q.MaxRecRatio is not null) query = query.Where(d => d.RecRatio <= q.MaxRecRatio);
+        if (q.MinBuiltInPotentialV is not null) query = query.Where(d => d.BuiltInPotentialV >= q.MinBuiltInPotentialV);
+        if (q.MaxBuiltInPotentialV is not null) query = query.Where(d => d.BuiltInPotentialV <= q.MaxBuiltInPotentialV);
+        if (q.MinCarrierConcentration is not null) query = query.Where(d => d.CarrierConcentration >= q.MinCarrierConcentration);
+        if (q.MaxCarrierConcentration is not null) query = query.Where(d => d.CarrierConcentration <= q.MaxCarrierConcentration);
+        if (q.MinMaxCurrentA is not null) query = query.Where(d => d.MaxCurrentA >= q.MinMaxCurrentA);
+        if (q.MaxMaxCurrentA is not null) query = query.Where(d => d.MaxCurrentA <= q.MaxMaxCurrentA);
+        if (q.MinVoltageAtMaxCurrentV is not null) query = query.Where(d => d.VoltageAtMaxCurrentV >= q.MinVoltageAtMaxCurrentV);
+        if (q.MaxVoltageAtMaxCurrentV is not null) query = query.Where(d => d.VoltageAtMaxCurrentV <= q.MaxVoltageAtMaxCurrentV);
+        if (q.MinBreakdownVoltageV is not null) query = query.Where(d => d.BreakdownVoltageV >= q.MinBreakdownVoltageV);
+        if (q.MaxBreakdownVoltageV is not null) query = query.Where(d => d.BreakdownVoltageV <= q.MaxBreakdownVoltageV);
+        query = query.OrderBy(d => d.DiodeId);
+        return Ok(await query
+        .Select(d => new DiodeResponse(
+            d.DiodeId, d.GeometryType, d.AnodeWidthUm, d.AnodeLengthUm, d.ChamferRadiusUm, d.AnodeRadiusUm,
+            d.GeometryProperties, d.BarrierHeightEv, d.IdealityFactor, d.RecRatio, d.BuiltInPotentialV,
+            d.CarrierConcentration, d.MaxCurrentA, d.VoltageAtMaxCurrentV, d.BreakdownVoltageV))
         .ToListAsync());
+    }
+        
+        // Ok(await _db.Diodes.Select(d => new DiodeResponse(
+        //     d.DiodeId, d.GeometryType, d.AnodeWidthUm, d.AnodeLengthUm, d.ChamferRadiusUm,
+        //     d.AnodeRadiusUm, d.GeometryProperties, d.BarrierHeightEv, d.IdealityFactor, d.RecRatio,
+        //     d.BuiltInPotentialV, d.CarrierConcentration, d.MaxCurrentA, d.VoltageAtMaxCurrentV, d.BreakdownVoltageV))
+        // .ToListAsync());
 
     [HttpGet("{deviceId}")]
     public async Task<ActionResult> GetById(int deviceId)

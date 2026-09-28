@@ -4,23 +4,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace DataManagement.Dtos;
 
-public record DeviceParameterResponse
-(
+public record DeviceParameterResponse(
     int DeviceParameterId, 
     int DeviceId, 
     string? Key, 
-    string? Value
-);
-public record CreateDeviceParameterRequest
-(
+    string? Value);
+public record CreateDeviceParameterRequest(
     int DeviceId, 
     string Key, 
-    string? Value
-);
-public record UpdateDeviceParameterRequest
-(
-    string? Value
-);
+    string? Value);
+public record UpdateDeviceParameterRequest(
+    string? Value);
 public record DeviceParameterQuery
 {
     public int? MinId { get; init;}

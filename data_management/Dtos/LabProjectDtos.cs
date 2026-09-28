@@ -1,15 +1,11 @@
 namespace DataManagement.Dtos;
 
-public record LabProjectResponse
-(
+public record LabProjectResponse(
     int LabId, 
-    int ProjectId
-);
-public record CreateLabProjectRequest
-(
+    int ProjectId);
+public record CreateLabProjectRequest(
     int LabId, 
-    int ProjectId
-);
+    int ProjectId);
 
 public record LabProjectQuery
 {

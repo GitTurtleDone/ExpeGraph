@@ -1,21 +1,15 @@
 namespace DataManagement.Dtos;
 
-public record PermissionResponse
-(
+public record PermissionResponse(
     int PermissionId, 
     string PermissionName, 
-    string? Description
-);
-public record CreatePermissionRequest
-(
+    string? Description);
+public record CreatePermissionRequest(
     string PermissionName, 
-    string? Description
-);
-public record UpdatePermissionRequest
-(
+    string? Description);
+public record UpdatePermissionRequest(
     string PermissionName, 
-    string? Description
-);
+    string? Description);
 
 public record PermissionQuery
 {	

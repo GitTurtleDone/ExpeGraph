@@ -18,14 +18,28 @@ public class UserProjectsController : ControllerBase
 
     // GET userprojects/
     [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await _db.UserProjects
+    public async Task<IActionResult> GetAll([FromQuery] UserProjectQuery q)
+    {
+        var query = _db.UserProjects.AsNoTracking();
+        if (q.UserId is not null) query = query.Where(up => up.UserId == q.UserId);
+        if (q.ProjectId is not null) query = query.Where(up => up.ProjectId == q.ProjectId);
+        if (q.Role is not null) query = query.Where(up => up.Role == q.Role);
+        if (q.JoinedAtFrom is not null) query = query.Where(up => up.JoinedAt >= q.JoinedAtFrom);
+        if (q.JoinedAtTo is not null) query = query.Where(up => up.JoinedAt <= q.JoinedAtTo);
+        query = query.OrderBy(up => up.UserId);
+        return Ok(await query
                 .Select(up => new UserProjectResponse(
-                    up.UserId,
-                    up.ProjectId,
-                    up.Role,
-                    up.JoinedAt))
+                    up.UserId, up.ProjectId, up.Role, up.JoinedAt
+                ))
                 .ToListAsync());
+    }
+    // Ok(await _db.UserProjects
+    //             .Select(up => new UserProjectResponse(
+    //                 up.UserId,
+    //                 up.ProjectId,
+    //                 up.Role,
+    //                 up.JoinedAt))
+    //             .ToListAsync());
 
     // GET userprojects/{userId}/{projectId}
     [HttpGet("{userId:int}/{projectId:int}")]

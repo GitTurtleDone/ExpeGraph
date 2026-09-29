@@ -18,11 +18,25 @@ public class UserLabsController : ControllerBase
     }
     //GET userlabs/
     [HttpGet]
-    public async Task<ActionResult> GetAll() =>
-        Ok(await _db.UserLabs
-                .Select(ul => new UserLabResponse(
-                    ul.UserId, ul.LabId, ul.Role, ul.JoinedAt))
+    public async Task<ActionResult> GetAll([FromQuery] UserLabQuery q)
+    {
+        var query = _db.UserLabs.AsNoTracking();
+        if (q.UserId is not null) query = query.Where(ul => ul.UserId == q.UserId);
+        if (q.LabId is not null) query = query.Where(ul => ul.LabId == q.LabId);
+        if (q.Role is not null) query = query.Where(ul => ul.Role == q.Role);
+        if (q.JoinedAtFrom is not null) query = query.Where(ul => ul.JoinedAt >= q.JoinedAtFrom);
+        if (q.JoinedAtTo is not null) query = query.Where(ul => ul.JoinedAt == q.JoinedAtTo);
+        query = query.OrderBy(ul => ul.UserId);
+        return Ok(await query
+                .Select(ul=> new UserLabResponse(
+                    ul.UserId, ul.LabId, ul.Role, ul.JoinedAt
+                ))
                 .ToListAsync());
+    } 
+        // Ok(await _db.UserLabs
+        //         .Select(ul => new UserLabResponse(
+        //             ul.UserId, ul.LabId, ul.Role, ul.JoinedAt))
+        //         .ToListAsync());
     //GET userlabs/{userId}/{LabId}
     [HttpGet("{userId:int}/{labId:int}")]
     public async Task<ActionResult> GetById(int userId, int labId)

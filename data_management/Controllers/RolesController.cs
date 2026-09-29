@@ -14,8 +14,27 @@ public class RolesController : ControllerBase
     public RolesController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult> GetAll() =>
-        Ok(await _db.Roles.Select(r => new RoleResponse(r.RoleId, r.RoleName, r.Description)).ToListAsync());
+    public async Task<ActionResult> GetAll([FromQuery] RoleQuery q)
+    {
+        var query = _db.Roles.AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(q.SearchTxt))
+        {
+            var search_words = $"%{q.SearchTxt}%";
+            query = query.Where(r =>
+                EF.Functions.ILike(r.RoleName, search_words) ||
+                EF.Functions.ILike(r.Description, search_words));
+        }
+        if (q.MinId is not null) query = query.Where(r => r.RoleId >= q.MinId);
+        if (q.MaxId is not null) query = query.Where(r => r.RoleId <= q.MaxId);
+        query = query.OrderBy(r => r.RoleId);
+        return Ok(await query
+                .Select(r => new RoleResponse(
+                    r.RoleId, r.RoleName, r.Description
+                ))
+                .ToListAsync());
+        
+    } 
+        // Ok(await _db.Roles.Select(r => new RoleResponse(r.RoleId, r.RoleName, r.Description)).ToListAsync());
 
     [HttpGet("{id}")]
     public async Task<ActionResult> GetById(int id)

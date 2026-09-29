@@ -16,10 +16,29 @@ public class TlmsController : ControllerBase
     public TlmsController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult> GetAll() =>
-        Ok(await _db.Tlms.Select(t => new TlmResponse(
-            t.TlmId, t.GeometryType, t.SheetResistanceOhmSq, t.ContactResistanceOhm, t.TransferLengthCm))
-        .ToListAsync());
+    public async Task<ActionResult> GetAll([FromQuery] TlmQuery q)
+    {
+        var query = _db.Tlms.AsNoTracking();
+        if (q.MinId is not null) query = query.Where(t => t.TlmId >= q.MinId);
+        if (q.MaxId is not null) query = query.Where(t => t.TlmId <= q.MaxId);
+        if (q.GeometryType is not null) query = query.Where(t => t.GeometryType == q.GeometryType);
+        if (q.MinSheetResistanceOhmSq is not null) query = query.Where(t => t.SheetResistanceOhmSq >= q.MinSheetResistanceOhmSq);
+        if (q.MaxSheetResistanceOhmSq is not null) query = query.Where(t => t.SheetResistanceOhmSq <= q.MaxSheetResistanceOhmSq);
+        if (q.MinContactResistanceOhm is not null) query = query.Where(t => t.ContactResistanceOhm >= q.MinContactResistanceOhm);
+        if (q.MaxContactResistanceOhm is not null) query = query.Where(t => t.ContactResistanceOhm <= q.MaxContactResistanceOhm);
+        if (q.MinTransferLengthCm is not null) query = query.Where(t => t.TransferLengthCm >= q.MinTransferLengthCm);
+        if (q.MaxTransferLengthCm is not null) query = query.Where(t => t.TransferLengthCm <= q.MaxTransferLengthCm);
+        query = query.OrderBy(t => t.TlmId);
+        return Ok(await query
+                .Select(t => new TlmResponse(
+                    t.TlmId, t.GeometryType, t.SheetResistanceOhmSq,
+                    t.ContactResistanceOhm, t.TransferLengthCm
+                ))
+                .ToListAsync());
+    }    
+        // Ok(await _db.Tlms.Select(t => new TlmResponse(
+        //     t.TlmId, t.GeometryType, t.SheetResistanceOhmSq, t.ContactResistanceOhm, t.TransferLengthCm))
+        // .ToListAsync());
 
     [HttpGet("{id}")]
     public async Task<ActionResult> GetById(int id)

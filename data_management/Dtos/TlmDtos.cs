@@ -13,13 +13,11 @@ public record CreateTlmRequest(
     float? ContactResistanceOhm,
     float? TransferLengthCm);
 
-public record UpdateTlmRequest
-(
+public record UpdateTlmRequest(
     string GeometryType,
     float? SheetResistanceOhmSq,
     float? ContactResistanceOhm,
-    float? TransferLengthCm
-);
+    float? TransferLengthCm);
 
 public record TlmQuery
 {	

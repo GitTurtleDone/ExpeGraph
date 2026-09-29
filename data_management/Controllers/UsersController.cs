@@ -19,32 +19,35 @@ public class UsersController : ControllerBase
         _db = db;
     }
     
-    //GET users/
-    // [HttpGet]
-    // public async Task<IActionResult> GetAll([FromQuery] UserQuery q) => 
-    //     {
-    //         // q: query from the frontend request
-    //         // query: request from the backend to database
-    //         var searchTxt = q.SearchTxt;
-    //         if (searchTxt != null) searchTxt = '%{searchTxt.trim()}%';
-    //         var q = _db.AsNoTrack();
-    //         q = await _db.Users.find(
-    //             WHERE Username Ilike searchTxt ||
-    //                     Email ILike searchTxt ||
-    //                     FirstName Ilike searchTxt ||
-    //                     LastName Ilike seachTxt ||
-    //         )
+    // GET users/
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] UserQuery q)  
+    {
+        // q: query from the frontend request
+        // query: request from the backend to database
+        var query = _db.Users.AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(q.SearchTxt))
+        {
+            var search_words = $"%{q.SearchTxt}%";
+            query = query.Where(u => 
+                EF.Functions.ILike(u.Username, search_words) ||
+                EF.Functions.ILike(u.Email, search_words) ||
+                EF.Functions.ILike(u.FirstName, search_words) ||
+                EF.Functions.ILike(u.LastName, search_words));
+        }
+        if (q.MinId is not null) query = query.Where(u => u.UserId >= q.MinId);
+        if (q.MaxId is not null) query = query.Where(u => u.UserId <= q.MaxId);
+        if (q.IsActive is not null) query = query.Where(u => u.IsActive == q.IsActive);
+        if (q.LastLoginFrom is not null) query = query.Where(u => u.LastLoginAt >= q.LastLoginFrom);
+        if (q.LastLoginTo is not null) query = query.Where(u => u.LastLoginAt <= q.LastLoginTo);
+        query = query.OrderBy(u => u.UserId);
+        return Ok(await query
+                .Select(u => new UserResponse (
+                    u.UserId, u.Username, u.Email, u.FirstName, u.LastName,
+                    u.IsActive, u.CreatedAt, u.LastLoginAt))
+                .ToListAsync());
 
-    //         if (r.minId != null) q.WHERE(q.UserId >= r.minId);
-    //         if (r.maxId != null) q.WHERE(q.UserId <= r.maxId);
-            
-
-    //         return new UserResponse (
-    //             q.UserId, q.Username, q.Email, q.FirstName, q.LastName,
-    //             q.IsActive, q.CreatedAt, q.LastLoginAt)
-    //             .ToListAsync          )
-
-    //     }
+    }
 
         
         // Ok(await _db.Users

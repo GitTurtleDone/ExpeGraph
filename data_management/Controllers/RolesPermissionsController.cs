@@ -14,8 +14,21 @@ public class RolesPermissionsController : ControllerBase
     public RolesPermissionsController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult> GetAll() =>
-        Ok(await _db.RolePermissions.Select(rp => new RolePermissionResponse(rp.RoleId, rp.PermissionId)).ToListAsync());
+    public async Task<ActionResult> GetAll([FromQuery] RolePermissionQuery q)
+    {
+        var query = _db.RolePermissions.AsNoTracking();
+        if (q.RoleId is not null) query = query.Where(rp => rp.RoleId == q.RoleId);
+        if (q.PermissionId is not null) query = query.Where(rp => rp.PermissionId == q.PermissionId);
+        query = query.OrderBy(rp => rp.RoleId);
+        return Ok(await query
+                .Select(rp => new RolePermissionResponse(
+                    rp.RoleId, rp.PermissionId
+                ))
+                .ToListAsync()
+                );
+
+    }
+        // Ok(await _db.RolePermissions.Select(rp => new RolePermissionResponse(rp.RoleId, rp.PermissionId)).ToListAsync());
 
     [HttpGet("{roleId:int}/{permissionId:int}")]
     public async Task<ActionResult> GetById(int roleId, int permissionId)

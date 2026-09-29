@@ -14,8 +14,23 @@ public class UsersRolesController : ControllerBase
     public UsersRolesController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult> GetAll() =>
-        Ok(await _db.UserRoles.Select(ur => new UserRoleResponse(ur.UserId, ur.RoleId, ur.RoleStartDate, ur.RoleEndDate)).ToListAsync());
+    public async Task<ActionResult> GetAll([FromQuery] UserRoleQuery q)
+    {
+        var query = _db.UserRoles.AsNoTracking();
+        if (q.UserId is not null) query = query.Where(ur => ur.UserId == q.UserId);
+        if (q.RoleId is not null) query = query.Where(ur => ur.RoleId == q.RoleId);
+        if (q.RoleStartDateFrom is not null) query = query.Where(ur => ur.RoleStartDate >= q.RoleStartDateFrom);
+        if (q.RoleStartDateTo is not null) query = query.Where(ur => ur.RoleStartDate <= q.RoleStartDateTo);
+        if (q.RoleEndDateFrom is not null) query = query.Where(ur => ur.RoleEndDate >= q.RoleEndDateFrom);
+        if (q.RoleEndDateTo is not null) query = query.Where(ur => ur.RoleEndDate <= q.RoleEndDateTo);
+        query = query.OrderBy(ur => ur.UserId);
+        return Ok(await query
+                .Select(ur => new UserRoleResponse(
+                    ur.UserId, ur.RoleId, ur.RoleStartDate, ur.RoleEndDate
+                ))
+                .ToListAsync());
+    }
+        // Ok(await _db.UserRoles.Select(ur => new UserRoleResponse(ur.UserId, ur.RoleId, ur.RoleStartDate, ur.RoleEndDate)).ToListAsync());
 
     [HttpGet("{userId:int}/{roleId:int}")]
     public async Task<ActionResult> GetById(int userId, int roleId)

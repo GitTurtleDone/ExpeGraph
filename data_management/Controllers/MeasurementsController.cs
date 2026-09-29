@@ -17,13 +17,38 @@ public class MeasurementsController: ControllerBase
 		_db = db;
 	}
 	[HttpGet]
-	public async Task<IActionResult> GetAll() =>
-			Ok(await _db.Measurements
-                    .Select(m => new MeasurementResponse(
-					    m.MeasurementId, m.DeviceId, m.SampleId, m.EquipmentId, m.UserId,
-					    m.MeasurementType, m.MeasuredAt, m.TemperatureK, m.HumidityPercent,
-					    m.Notes, m.DataFilePath))
-					.ToListAsync());
+	public async Task<IActionResult> GetAll([FromQuery] MeasurementQuery q)
+	{
+		var query = _db.Measurements.AsNoTracking();
+		if (q.MinId is not null) query = query.Where(m => m.MeasurementId >= q.MinId);
+		if (q.MaxId is not null) query = query.Where(m => m.MeasurementId <= q.MaxId);
+		if (q.DeviceId is not null) query = query.Where(m => m.DeviceId == q.DeviceId);
+		if (q.SampleId is not null) query = query.Where(m => m.SampleId == q.SampleId);
+		if (q.EquipmentId is not null) query = query.Where(m => m.EquipmentId == q.EquipmentId);
+		if (q.UserId is not null) query = query.Where(m => m.UserId == q.UserId);
+		if (q.MeasurementType is not null) query = query.Where(m => m.MeasurementType == q.MeasurementType);
+		if (q.MeasuredAtFrom is not null) query = query.Where(m => m.MeasuredAt >= q.MeasuredAtFrom);
+		if (q.MeasuredAtTo is not null) query = query.Where(m => m.MeasuredAt <= q.MeasuredAtTo);
+		if (q.MinTemperatureK is not null) query = query.Where(m => m.TemperatureK >= q.MinTemperatureK);
+		if (q.MaxTemperatureK is not null) query = query.Where(m => m.TemperatureK <= q.MaxTemperatureK);
+		if (q.MinHumidityPercent is not null) query = query.Where(m => m.HumidityPercent >= q.MinHumidityPercent);
+		if (q.MaxHumidityPercent is not null) query = query.Where(m => m.HumidityPercent <= q.MaxHumidityPercent);
+		query = query.OrderBy(m => m.MeasurementId);
+		return Ok(await query
+				.Select(m => new MeasurementResponse(
+					m.MeasurementId, m.DeviceId, m.SampleId, m.EquipmentId, m.UserId,
+					m.MeasurementType, m.MeasuredAt, m.TemperatureK, m.HumidityPercent,
+					m.Notes, m.DataFilePath
+				))
+				.ToListAsync());
+		
+	}
+	 		// Ok(await _db.Measurements
+            //         .Select(m => new MeasurementResponse(
+			// 		    m.MeasurementId, m.DeviceId, m.SampleId, m.EquipmentId, m.UserId,
+			// 		    m.MeasurementType, m.MeasuredAt, m.TemperatureK, m.HumidityPercent,
+			// 		    m.Notes, m.DataFilePath))
+			// 		.ToListAsync());
 
 	[HttpGet("{id:int}")]
 	public async Task<IActionResult> GetById(int id)

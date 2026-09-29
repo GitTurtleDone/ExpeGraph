@@ -19,10 +19,30 @@ public class LabsController : ControllerBase
 
     //GET labs/
     [HttpGet]
-    public async Task<ActionResult> GetAll() => 
-        Ok(await _db.Labs.Select(l => new LabResponse(
-            l.LabId, l.LabName, l.Description, l.LabLeaderId, l.CreatedAt))
+    public async Task<ActionResult> GetAll([FromQuery] LabQuery q)
+    {
+        var query = _db.Labs.AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(q.SearchTxt))
+        {
+            var search_words = $"%{q.SearchTxt}%";
+            query = query.Where(l => 
+                EF.Functions.ILike(l.LabName,search_words) ||
+                EF.Functions.ILike(l.Description, search_words)
+            );    
+        }
+        if (q.MinId is not null) query = query.Where(l => l.LabId >= q.MinId);
+        if (q.MaxId is not null) query = query.Where(l => l.LabId <= q.MaxId);
+        if (q.LabLeaderId is not null) query = query.Where(l => l.LabLeaderId == q.LabLeaderId);
+        query = query.OrderBy(l => l.LabId);
+        return Ok(await  query
+        .Select(l => new LabResponse(
+            l.LabId, l.LabName, l.Description, l.LabLeaderId, l.CreatedAt
+        ))
         .ToListAsync());
+    }  
+        // Ok(await _db.Labs.Select(l => new LabResponse(
+        //     l.LabId, l.LabName, l.Description, l.LabLeaderId, l.CreatedAt))
+        // .ToListAsync());
 
     [HttpGet("{id}")]
     public async Task<ActionResult> GetById(int id)

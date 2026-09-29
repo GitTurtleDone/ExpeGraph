@@ -1,7 +1,6 @@
 namespace DataManagement.Dtos;
 
-public record ResistorResponse
-(
+public record ResistorResponse(
     int ResistorId,
     string GeometryType,
     float? WidthUm,
@@ -10,11 +9,9 @@ public record ResistorResponse
     float? OuterRadiusUm,
     Dictionary<string, object>? GeometryProperties,
     float? ResistanceOhm,
-    int? TlmId
-);
+    int? TlmId);
 
-public record CreateResistorRequest
-(
+public record CreateResistorRequest(
     int ResistorId,
     string GeometryType,
     float? WidthUm = null,
@@ -25,8 +22,7 @@ public record CreateResistorRequest
     float? ResistanceOhm = null,
     int? TlmId = null);
 
-public record UpdateResistorRequest
-(
+public record UpdateResistorRequest(
     string GeometryType,
     float? WidthUm,
     float? GapUm,
@@ -34,8 +30,7 @@ public record UpdateResistorRequest
     float? OuterRadiusUm,
     Dictionary<string, object>? GeometryProperties,
     float? ResistanceOhm,
-    int? TlmId
-);
+    int? TlmId);
 
 public record ResistorQuery
 {	

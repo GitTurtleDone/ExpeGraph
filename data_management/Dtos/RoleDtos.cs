@@ -1,21 +1,15 @@
 namespace DataManagement.Dtos;
 
-public record RoleResponse
-(
+public record RoleResponse(
     int RoleId, 
     string RoleName, 
-    string? Description
-);
-public record CreateRoleRequest
-(
+    string? Description);
+public record CreateRoleRequest(
     string RoleName, 
-    string? Description
-);
-public record UpdateRoleRequest
-(
+    string? Description);
+public record UpdateRoleRequest(
     string RoleName, 
-    string? Description
-);
+    string? Description);
 
 public record RoleQuery
 {	

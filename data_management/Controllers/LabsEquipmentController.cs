@@ -3,6 +3,7 @@ using DataManagement.Dtos;
 using DataManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.ObjectPool;
 
 namespace DataManagement.Controllers;
 
@@ -14,8 +15,19 @@ public class LabsEquipmentController : ControllerBase
     public LabsEquipmentController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult> GetAll() =>
-        Ok(await _db.LabEquipments.Select(le => new LabEquipmentResponse(le.LabId, le.EquipmentId)).ToListAsync());
+    public async Task<ActionResult> GetAll([FromQuery] LabEquipmentQuery q)
+    {
+        var query = _db.LabEquipments.AsNoTracking();
+        if (q.LabId is not null) query = query.Where(le => le.LabId == q.LabId);
+        if (q.EquipmentId is not null) query = query.Where(le => le.EquipmentId == q.EquipmentId);
+        query = query.Order(lp => lp.LabId);
+        return Ok (await query
+            .Select(lp => new LabEquipmentResponse(
+                lp.LabId, lp.EquipmentId
+            ))
+            .ToListAsync());
+    } 
+        // Ok(await _db.LabEquipments.Select(le => new LabEquipmentResponse(le.LabId, le.EquipmentId)).ToListAsync());
 
     [HttpGet("{labId:int}/{equipmentId:int}")]
     public async Task<ActionResult> GetById(int labId, int equipmentId)

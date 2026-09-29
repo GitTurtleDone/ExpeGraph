@@ -40,7 +40,6 @@ public record UpdateMeasurementRequest
 );
 public record MeasurementQuery
 {	
-	public string? SearchTxt { get; init;}
     public int? MinId { get; init;}
     public int? MaxId { get; init;}
 	public int? DeviceId { get; init;}
@@ -50,8 +49,8 @@ public record MeasurementQuery
 	public string? MeasurementType { get; init;}
 	public DateTime? MeasuredAtFrom { get; init;}
 	public DateTime? MeasuredAtTo { get; init;}
-	float? MinTemperatureK { get; init;}
-	float? MaxTemperatureK { get; init;}
-	float? MinHumidityPercent { get; init;}
-	float? MaxHumidityPercent { get; init;}
+	public float? MinTemperatureK { get; init;}
+	public float? MaxTemperatureK { get; init;}
+	public float? MinHumidityPercent { get; init;}
+	public float? MaxHumidityPercent { get; init;}
 }

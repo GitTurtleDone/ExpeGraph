@@ -3,6 +3,7 @@ using DataManagement.Dtos;
 using DataManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace DataManagement.Controllers;
 
@@ -16,11 +17,36 @@ public class ResistorsController : ControllerBase
     public ResistorsController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult> GetAll() =>
-        Ok(await _db.Resistors.Select(r => new ResistorResponse(
-            r.ResistorId, r.GeometryType, r.WidthUm, r.GapUm,
-            r.InnerRadiusUm, r.OuterRadiusUm, r.GeometryProperties, r.ResistanceOhm, r.TlmId))
-        .ToListAsync());
+    public async Task<ActionResult> GetAll([FromQuery] ResistorQuery q)
+    {
+        var query = _db.Resistors.AsNoTracking();
+        if (q.MinWidthUm is not null) query = query.Where(r => r.ResistorId >= q.MinId);
+        if (q.MaxWidthUm is not null) query = query.Where(r => r.ResistorId <= q.MaxId);
+        if (q.GeometryType is not null) query = query.Where(r => r.GeometryType == q.GeometryType);
+        if (q.MinId is not null) query = query.Where(r => r.WidthUm >= q.MinWidthUm);
+        if (q.MaxId is not null) query = query.Where(r => r.WidthUm <= q.MaxWidthUm);
+        if (q.MinGapUm is not null) query = query.Where(r => r.GapUm >= q.MinGapUm);
+        if (q.MaxGapUm is not null) query = query.Where(r => r.GapUm <= q.MaxGapUm);
+        if (q.MinInnerRadiusUm is not null) query = query.Where(r => r.InnerRadiusUm >= q.MinInnerRadiusUm);
+        if (q.MaxInnerRadiusUm is not null) query = query.Where(r => r.InnerRadiusUm <= q.MaxInnerRadiusUm);
+        if (q.MinOuterRadiusUm is not null) query = query.Where(r => r.OuterRadiusUm >= q.MinOuterRadiusUm);
+        if (q.MaxOuterRadiusUm is not null) query = query.Where(r => r.OuterRadiusUm <= q.MaxOuterRadiusUm);
+        if (q.MinResistanceOhm is not null) query = query.Where(r => r.ResistanceOhm >= q.MinResistanceOhm);
+        if (q.MaxResistanceOhm is not null) query = query.Where(r => r.ResistanceOhm <= q.MaxResistanceOhm);
+        if (q.TlmId is not null) query = query.Where(r => r.TlmId == q.TlmId);
+        query = query.OrderBy(r => r.ResistorId);
+        return Ok(await query
+                .Select(r => new ResistorResponse(
+                    r.ResistorId, r.GeometryType, r.WidthUm, 
+                    r.GapUm, r.InnerRadiusUm, r.OuterRadiusUm, r.GeometryProperties,
+                    r.ResistanceOhm, r.TlmId
+                ))
+                .ToListAsync());
+    }
+        // Ok(await _db.Resistors.Select(r => new ResistorResponse(
+        //     r.ResistorId, r.GeometryType, r.WidthUm, r.GapUm,
+        //     r.InnerRadiusUm, r.OuterRadiusUm, r.GeometryProperties, r.ResistanceOhm, r.TlmId))
+        // .ToListAsync());
 
     [HttpGet("{deviceId}")]
     public async Task<ActionResult> GetById(int deviceId)

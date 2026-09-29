@@ -14,8 +14,18 @@ public class LabsProjectsController : ControllerBase
     public LabsProjectsController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult> GetAll() =>
-        Ok(await _db.LabProjects.Select(lp => new LabProjectResponse(lp.LabId, lp.ProjectId)).ToListAsync());
+    public async Task<ActionResult> GetAll([FromQuery] LabProjectQuery q)
+    {
+        var query = _db.LabProjects.AsNoTracking();
+        if (q.LabId is not null) query = query.Where(lp => lp.LabId == q.LabId);
+        if (q.ProjectId is not null) query = query.Where(lp => lp.ProjectId == q.ProjectId);
+        query.Order(lp => lp.LabId);
+        return Ok(await query
+            .Select(lp => new LabProjectResponse(
+                lp.LabId, lp.ProjectId))
+            .ToListAsync());
+    } 
+        // Ok(await _db.LabProjects.Select(lp => new LabProjectResponse(lp.LabId, lp.ProjectId)).ToListAsync());
 
     [HttpGet("{labId:int}/{projectId:int}")]
     public async Task<ActionResult> GetById(int labId, int projectId)

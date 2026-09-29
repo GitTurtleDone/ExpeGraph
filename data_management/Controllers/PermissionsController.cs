@@ -14,8 +14,27 @@ public class PermissionsController : ControllerBase
     public PermissionsController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult> GetAll() =>
-        Ok(await _db.Permissions.Select(p => new PermissionResponse(p.PermissionId, p.PermissionName, p.Description)).ToListAsync());
+    public async Task<ActionResult> GetAll([FromQuery] PermissionQuery q)
+    {
+        var query = _db.Permissions.AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(q.SearchTxt)) 
+        {
+            var search_words = $"%{q.SearchTxt}%";
+            query = query.Where(p =>
+                EF.Functions.ILike(p.PermissionName, search_words) ||
+                EF.Functions.ILike(p.Description, search_words)
+            );
+        }
+        if (q.MinId is not null) query = query.Where(p => p.PermissionId >= q.MinId);
+        if (q.MaxId is not null) query = query.Where(p => p.PermissionId <= q.MaxId);
+        query = query.OrderBy(p => p.PermissionId);
+        return Ok(await query
+                .Select(p => new PermissionResponse(
+                    p.PermissionId, p.PermissionName, p.Description
+                ))
+                .ToListAsync());
+    }
+        // Ok(await _db.Permissions.Select(p => new PermissionResponse(p.PermissionId, p.PermissionName, p.Description)).ToListAsync());
 
     [HttpGet("{id}")]
     public async Task<ActionResult> GetById(int id)

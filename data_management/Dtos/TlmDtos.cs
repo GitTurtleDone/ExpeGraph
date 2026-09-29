@@ -1,21 +1,17 @@
 namespace DataManagement.Dtos;
 
-public record TlmResponse
-(
+public record TlmResponse(
     int TlmId,
     string GeometryType,
     float? SheetResistanceOhmSq,
     float? ContactResistanceOhm,
-    float? TransferLengthCm
-);
+    float? TransferLengthCm);
 
-public record CreateTlmRequest
-(
+public record CreateTlmRequest(
     string GeometryType,
     float? SheetResistanceOhmSq,
     float? ContactResistanceOhm,
-    float? TransferLengthCm
-);
+    float? TransferLengthCm);
 
 public record UpdateTlmRequest
 (

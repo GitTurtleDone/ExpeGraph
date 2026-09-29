@@ -17,12 +17,36 @@ public class ProjectsController : ControllerBase
 	}
 	//GET projects/
 	[HttpGet]
-	public async Task<IActionResult> GetAll() =>
-        Ok(await _db.Projects
-                .Select(p => new ProjectResponse(
-                    p.ProjectId, p.ProjectName, p.Description, p.Funding,
-                    p.StartDate, p.EndDate, p.CreatedAt))
-                .ToListAsync());
+	public async Task<IActionResult> GetAll([FromQuery] ProjectQuery q)
+	{
+		var query = _db.Projects.AsNoTracking();
+		if (!string.IsNullOrWhiteSpace(q.SearchTxt))
+		{
+			var search_words = $"%{q.SearchTxt}%";
+			query = query.Where(p =>
+				EF.Functions.ILike(p.ProjectName, search_words) ||
+				EF.Functions.ILike(p.Description, search_words) ||
+				EF.Functions.ILike(p.Funding, search_words));
+		}
+		if (q.MinId is not null) query = query.Where(p => p.ProjectId >= q.MinId);
+        if (q.MaxId is not null) query = query.Where(p => p.ProjectId <= q.MaxId);
+		if (q.StartDateFrom is not null) query = query.Where(p => p.StartDate >= q.StartDateFrom);
+        if (q.StartDateTo is not null) query = query.Where(p => p.StartDate <= q.StartDateTo);
+		if (q.EndDateFrom is not null) query = query.Where(p => p.EndDate >= q.EndDateFrom);
+        if (q.EndDateTo is not null) query = query.Where(p => p.EndDate <= q.EndDateTo);
+		query = query.OrderBy(p => p.ProjectId);
+		return Ok(await query
+				.Select(p => new ProjectResponse(
+					p.ProjectId, p.ProjectName, p.Description, p.Funding,
+					p.StartDate, p.EndDate, p.CreatedAt
+				))
+				.ToListAsync());
+	}
+        // Ok(await _db.Projects
+        //         .Select(p => new ProjectResponse(
+        //             p.ProjectId, p.ProjectName, p.Description, p.Funding,
+        //             p.StartDate, p.EndDate, p.CreatedAt))
+        //         .ToListAsync());
 	
 	//GET projects/id
 	[HttpGet("{id:int}")]

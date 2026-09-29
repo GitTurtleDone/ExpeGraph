@@ -1,7 +1,6 @@
 namespace DataManagement.Dtos;
 
-public record TransistorResponse
-(
+public record TransistorResponse(
     int TransistorId,
     string GeometryType,
     float? GateWidthUm,
@@ -15,11 +14,9 @@ public record TransistorResponse
     float? ThresholdVoltageV,
     float? SubthresholdSwingMvDec,
     float? SgGapUm,
-    float? DgGapUm
-);
+    float? DgGapUm);
 
-public record CreateTransistorRequest
-(
+public record CreateTransistorRequest(
     int TransistorId,
     string GeometryType,
     float? GateWidthUm = null,
@@ -33,11 +30,9 @@ public record CreateTransistorRequest
     float? ThresholdVoltageV = null,
     float? SubthresholdSwingMvDec = null,
     float? SgGapUm = null,
-    float? DgGapUm = null
-);
+    float? DgGapUm = null);
 
-public record UpdateTransistorRequest
-(
+public record UpdateTransistorRequest(
     string GeometryType,
     float? GateWidthUm,
     float? GateLengthUm,
@@ -50,8 +45,7 @@ public record UpdateTransistorRequest
     float? ThresholdVoltageV,
     float? SubthresholdSwingMvDec,
     float? SgGapUm,
-    float? DgGapUm
-);
+    float? DgGapUm);
 
 public record TransistorQuery
 {	

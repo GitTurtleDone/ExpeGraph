@@ -20,7 +20,7 @@ public class LabsEquipmentController : ControllerBase
         var query = _db.LabEquipments.AsNoTracking();
         if (q.LabId is not null) query = query.Where(le => le.LabId == q.LabId);
         if (q.EquipmentId is not null) query = query.Where(le => le.EquipmentId == q.EquipmentId);
-        query = query.Order(lp => lp.LabId);
+        query = query.OrderBy(lp => lp.LabId);
         return Ok (await query
             .Select(lp => new LabEquipmentResponse(
                 lp.LabId, lp.EquipmentId

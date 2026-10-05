@@ -2,25 +2,19 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace DataManagement.Dtos;
 
-public record DeviceResponse
-(	
+public record DeviceResponse(	
 	int DeviceId,
 	string DeviceName,
 	string DeviceType,
-	int SampleId
-);
-public record CreateDeviceRequest
-( 
+	int SampleId);
+public record CreateDeviceRequest( 
 	string DeviceName,
 	string DeviceType,
-	int SampleId
-);
-public record UpdateDeviceRequest
-(
+	int SampleId);
+public record UpdateDeviceRequest(
 	string DeviceName,
 	string DeviceType,
-	int SampleId
-);
+	int SampleId);
 
 public record DeviceQuery 
 {

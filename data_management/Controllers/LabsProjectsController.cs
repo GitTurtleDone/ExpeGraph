@@ -19,7 +19,7 @@ public class LabsProjectsController : ControllerBase
         var query = _db.LabProjects.AsNoTracking();
         if (q.LabId is not null) query = query.Where(lp => lp.LabId == q.LabId);
         if (q.ProjectId is not null) query = query.Where(lp => lp.ProjectId == q.ProjectId);
-        query.Order(lp => lp.LabId);
+        query.OrderBy(lp => lp.LabId);
         return Ok(await query
             .Select(lp => new LabProjectResponse(
                 lp.LabId, lp.ProjectId))

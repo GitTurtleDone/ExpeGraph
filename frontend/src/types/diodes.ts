@@ -20,7 +20,7 @@ export const diodeSchema = z.object({
             }
         }, z.record(
                     z.string(), z.unknown(), 
-                    {"error": 'Properties must be a JSON object, e.g. {"Max current density, A/cm2": 140}'})
+                    {"error": 'Properties must be a JSON object, e.g. {"Max current density, A/cm2": 100}'})
             .optional()),
     barrierHeightEv: z.number().positive().optional(),
     idealityFactor: z.number().positive().optional(),

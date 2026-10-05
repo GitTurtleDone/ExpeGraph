@@ -6,11 +6,11 @@ export const sampleSchema = z.object({
   treatment: z.string().optional(),
   properties: z.preprocess(
    (v) => {
-      if (typeof v !== "string") return v;
+      if (typeof v !== "string") return v; // if v is already an object -> return v
       const trimmed = v.trim();
-      if ( trimmed === "") return undefined;
+      if ( trimmed === "") return undefined; // return undefined if is an empty string
       try {
-        return JSON.parse(trimmed);   
+        return JSON.parse(trimmed);  // try to parse trimmed  
       } catch {
         return v;
       }

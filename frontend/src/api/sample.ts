@@ -23,6 +23,12 @@ export async function getAllSamples(q: SampleQuery = {}): Promise<Sample[]> {
   return res.json();
 }
 
+export async function getSampleById(id: number): Promise<Sample> {
+  const res = await fetch(`${BASE}/Samples/${id}`);
+  if (!res.ok) throw new Error(`Failed to get sample ${id}: ${res.status}`);
+  return res.json();
+}
+
 export async function createSample(data: SampleInput): Promise<Sample> {
   // console.log(data);
   const res = await fetch(`${BASE}/Samples`, {
@@ -44,7 +50,8 @@ export async function updateSample(
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) throw new Error(`Failed to update the sample ${id}: ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Failed to update the sample ${id}: ${res.status}`);
   return res.json();
 }
 

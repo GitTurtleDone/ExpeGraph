@@ -31,11 +31,9 @@ export async function getAllBatches(q: BatchQuery = {}): Promise<Batch[]> {
 }
 
 export async function getBatchById(id: number): Promise<Batch> {
-    const res = await fetch(`${BASE}/Batches`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json"},
-    })
-    if (!res.ok) throw new Error
+    const res = await fetch(`${BASE}/Batches/${id}`);
+    if (!res.ok) throw new Error(`Failed to get batch ${id}: ${res.status}`);
+    return res.json();
 } 
 
 export async function createBatch(

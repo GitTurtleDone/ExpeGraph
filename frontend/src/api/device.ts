@@ -23,6 +23,12 @@ export async function getAllDevices(q: DeviceQuery = {}): Promise<Device[]> {
   return res.json();
 }
 
+export async function getDeviceById(id: number) : Promise<Device> {
+    const res = await fetch(`${BASE}/Devices/${id}`);
+    if (!res.ok) throw new Error(`Failed to get device ${id}: ${res.status}`);
+    return res.json();
+} 
+
 export async function createDevice(data: DeviceInput): Promise<Device> {
   const res = await fetch(`${BASE}/Devices`, {
     method: "POST",

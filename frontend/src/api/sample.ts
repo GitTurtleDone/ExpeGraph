@@ -19,18 +19,18 @@ export async function getAllSamples(q: SampleQuery = {}): Promise<Sample[]> {
   }
   const qs = params.toString();
   const res = await fetch(`${BASE}/Samples${qs ? `?${qs}` : ""}`);
-  if (!res.ok) throw new Error("Failed to fetch samples");
+  if (!res.ok) throw new Error(`Failed to fetch samples: ${res.status}`);
   return res.json();
 }
 
 export async function createSample(data: SampleInput): Promise<Sample> {
-  console.log(data);
+  // console.log(data);
   const res = await fetch(`${BASE}/Samples`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to create a new Sample");
+  if (!res.ok) throw new Error(`Failed to create a new sample: ${res.status}`);
   return res.json();
 }
 
@@ -44,7 +44,7 @@ export async function updateSample(
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) throw new Error(`Failed to update the sample ${id}`);
+  if (!res.ok) throw new Error(`Failed to update the sample ${id}: ${res.status}`);
   return res.json();
 }
 
@@ -53,5 +53,5 @@ export async function deleteSample(id: number) {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
   });
-  if (!res.ok) throw new Error(`Failed to delete sample ${id}`);
+  if (!res.ok) throw new Error(`Failed to delete sample ${id}: ${res.status}`);
 }

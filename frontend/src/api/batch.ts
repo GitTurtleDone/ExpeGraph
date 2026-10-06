@@ -48,8 +48,7 @@ export async function createBatch(
         body: JSON.stringify(data)
     })
     if (!res.ok) {
-        const  message = await res.text() ;
-        throw new Error(message || "Failed to create a batch");
+        throw new Error(`Failed to create a new batch: ${res.status}`);
     }
     
     return res.json();

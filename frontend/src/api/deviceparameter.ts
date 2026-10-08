@@ -16,7 +16,7 @@ export async function getAllDeviceParameters(
 ): Promise<DeviceParameter[]> {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(q)) {
-    if (value !== undefined && value !== null && typeof value !== "number")
+    if (value !== undefined && value !== null)
       params.append(key, String(value));
   }
   const qs = params.toString();
@@ -65,7 +65,6 @@ export async function updateDeviceParameter(
 export async function deleteDeviceParameter(id: number) {
   const res = await fetch(`${BASE}/DeviceParameters/{id}`, {
     method: "DELETE",
-    headers: { "Content-Type": "application/json" },
   });
   if (!res.ok)
     throw new Error(`Failed to delete deviceParameter ${id}: ${res.status}`);

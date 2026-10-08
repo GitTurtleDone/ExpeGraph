@@ -58,7 +58,6 @@ export async function updateSample(
 export async function deleteSample(id: number) {
   const res = await fetch(`${BASE}/Samples/${id}`, {
     method: "DELETE",
-    headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) throw new Error(`Failed to delete sample ${id}: ${res.status}`);
 }

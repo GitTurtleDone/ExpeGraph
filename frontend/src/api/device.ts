@@ -1,4 +1,3 @@
-import { keyframes } from "@emotion/react";
 import type { Device, DeviceInput } from "../types/devices";
 
 const BASE = "http://localhost:5174";
@@ -23,11 +22,11 @@ export async function getAllDevices(q: DeviceQuery = {}): Promise<Device[]> {
   return res.json();
 }
 
-export async function getDeviceById(id: number) : Promise<Device> {
-    const res = await fetch(`${BASE}/Devices/${id}`);
-    if (!res.ok) throw new Error(`Failed to get device ${id}: ${res.status}`);
-    return res.json();
-} 
+export async function getDeviceById(id: number): Promise<Device> {
+  const res = await fetch(`${BASE}/Devices/${id}`);
+  if (!res.ok) throw new Error(`Failed to get device ${id}: ${res.status}`);
+  return res.json();
+}
 
 export async function createDevice(data: DeviceInput): Promise<Device> {
   const res = await fetch(`${BASE}/Devices`, {
@@ -57,7 +56,6 @@ export async function updateDevice(
 export async function deleteDevice(id: number) {
   const res = await fetch(`${BASE}/Devices/${id}`, {
     method: "DELETE",
-    headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) throw new Error(`Failed to delete device ${id}: ${res.status}`);
 }

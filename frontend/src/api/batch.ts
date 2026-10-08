@@ -48,7 +48,6 @@ export async function createBatch(
     if (!res.ok) {
         throw new Error(`Failed to create a new batch: ${res.status}`);
     }
-    
     return res.json();
 }
 
@@ -59,11 +58,12 @@ export async function updateBatch(
     const res = await fetch(`${BASE}/Batches/${id}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
     })
     if (!res.ok) {
-        const message = await res.text();
-        throw new Error(message || `Failed to update batch ${id}.`);
+        //const message = await res.text();
+        //throw new Error(message || `Failed to update batch ${id}.`);
+        throw new Error(`Failed to update batch ${id}: ${res.status}`);
     }
     return res.json();
 }

@@ -1,10 +1,10 @@
-import { QuizSharp } from "@mui/icons-material";
 import type { Measurement, MeasurementInput } from "../types/measurements";
 
 type MeasurementQuery = {
   minId?: number;
   maxId?: number;
   deviceId?: number;
+  sampleId?: number;
   equipmentId?: number;
   userId?: number;
   measurementType?: string;

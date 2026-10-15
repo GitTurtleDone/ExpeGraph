@@ -19,7 +19,9 @@ export const measurementSchema = z.object({
         z.number().int().positive().optional()
     ),
     measurementType: z.string().min(1, "Measurement type is required"),
-    measuredAt: z.string().min(1, "Measurement time is required"),
+    measuredAt: z.coerce
+                .date({ error: "Measurement time is requred"})
+                .transform((d) => d.toISOString()),
     temperatureK: z.preprocess((v) => v === "" ? undefined: Number(v), z.number().optional()),
     humidityPercent: z.preprocess((v) => v === "" ? undefined: Number(v), z.number().optional()),
     notes: z.string().optional(),

@@ -13,7 +13,7 @@ export async function getAllPermissions(
 ): Promise<Permission[]> {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(q))
-    if (value != undefined && value !== null && value !== "")
+    if (value !== undefined && value !== null && value !== "")
       params.append(key, String(value));
   const qs = params.toString();
   const res = await fetch(`${BASE}/Permissions${qs ? `?${qs}` : ""}`);

@@ -18,4 +18,10 @@ export const userRoleSchema = z
     },
   );
 
+export const userRoleInputSchema = userRoleSchema.omit({
+  userId: true,
+  roleId: true
+});
+
 export type UserRole = z.infer<typeof userRoleSchema>;
+export type UserRoleInput = z.infer<typeof userRoleInputSchema>;

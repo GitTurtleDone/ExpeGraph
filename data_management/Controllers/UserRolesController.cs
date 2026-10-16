@@ -8,10 +8,10 @@ namespace DataManagement.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UsersRolesController : ControllerBase
+public class UserRolesController : ControllerBase
 {
     private readonly AppDbContext _db;
-    public UsersRolesController(AppDbContext db) => _db = db;
+    public UserRolesController(AppDbContext db) => _db = db;
 
     [HttpGet]
     public async Task<ActionResult> GetAll([FromQuery] UserRoleQuery q)

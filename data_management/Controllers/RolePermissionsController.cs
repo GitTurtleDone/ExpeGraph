@@ -8,10 +8,10 @@ namespace DataManagement.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class RolesPermissionsController : ControllerBase
+public class RolePermissionsController : ControllerBase
 {
     private readonly AppDbContext _db;
-    public RolesPermissionsController(AppDbContext db) => _db = db;
+    public RolePermissionsController(AppDbContext db) => _db = db;
 
     [HttpGet]
     public async Task<ActionResult> GetAll([FromQuery] RolePermissionQuery q)

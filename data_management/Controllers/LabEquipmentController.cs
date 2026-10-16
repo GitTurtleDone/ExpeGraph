@@ -9,10 +9,10 @@ namespace DataManagement.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class LabsEquipmentController : ControllerBase
+public class LabEquipmentController : ControllerBase
 {
     private readonly AppDbContext _db;
-    public LabsEquipmentController(AppDbContext db) => _db = db;
+    public LabEquipmentController(AppDbContext db) => _db = db;
 
     [HttpGet]
     public async Task<ActionResult> GetAll([FromQuery] LabEquipmentQuery q)

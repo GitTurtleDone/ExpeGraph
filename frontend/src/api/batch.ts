@@ -31,11 +31,9 @@ export async function getAllBatches(q: BatchQuery = {}): Promise<Batch[]> {
 }
 
 export async function getBatchById(id: number): Promise<Batch> {
-    const res = await fetch(`${BASE}/Batches`, {
-        method: "GET",
-        headers: {"Content-Type": "application/json"},
-    })
-    if (!res.ok) throw new Error
+    const res = await fetch(`${BASE}/Batches/${id}`);
+    if (!res.ok) throw new Error(`Failed to get batch ${id}: ${res.status}`);
+    return res.json();
 } 
 
 export async function createBatch(
@@ -48,10 +46,8 @@ export async function createBatch(
         body: JSON.stringify(data)
     })
     if (!res.ok) {
-        const  message = await res.text() ;
-        throw new Error(message || "Failed to create a batch");
+        throw new Error(`Failed to create a new batch: ${res.status}`);
     }
-    
     return res.json();
 }
 
@@ -62,11 +58,12 @@ export async function updateBatch(
     const res = await fetch(`${BASE}/Batches/${id}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
     })
     if (!res.ok) {
-        const message = await res.text();
-        throw new Error(message || `Failed to update batch ${id}.`);
+        //const message = await res.text();
+        //throw new Error(message || `Failed to update batch ${id}.`);
+        throw new Error(`Failed to update batch ${id}: ${res.status}`);
     }
     return res.json();
 }

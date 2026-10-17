@@ -15,6 +15,8 @@ export const userInputSchema = userSchema
   .omit({
     userId: true,
     createdAt: true,
+    isActive: true,
+    lastLoginAt: true,
   })
   .extend({
     password: z.preprocess(
@@ -23,12 +25,14 @@ export const userInputSchema = userSchema
         if (v === "") return undefined;
         return v.trim();
       },
-      z.string().regex(re).min(
-        8,
-        "Password must have at least 8 characters \
-        and include at least one number, one uppercase letter, one lowercase letter, and one of special \
+      z
+        .string()
+        .regex(
+          re,
+          "Password must include at least one number, one uppercase letter, one lowercase letter, and one of special \
         characters ~!@#$%^&*",
-      ),
+        )
+        .min(8, "Password must have at least 8 characters."),
     ),
   });
 

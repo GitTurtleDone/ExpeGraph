@@ -3,7 +3,7 @@ import React, {useState} from "react";
 import LeftPanel from "./LeftPanel";
 import RightPanel from "./RightPanel";
 
-export default function ({pageTitle, righPanelProps}) {
+export default function ({pageTitle}) {
     return (
         
         <Stack>
@@ -14,6 +14,7 @@ export default function ({pageTitle, righPanelProps}) {
                 {/*-- Left Panel --*/}
                 <LeftPanel />
                 {/*-- Right Panel --*/}
+                <RightPanel />
                 {/* <RightPanel props = rightPanelProps /> */}
             </Box>
             

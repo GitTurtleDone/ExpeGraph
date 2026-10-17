@@ -8,18 +8,40 @@ import { userSchema, userInputSchema } from "../../../types/users";
 import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
 
 import { Stack, Typography, Box, OutlinedInput, Button } from "@mui/material";
-import { createUser } from "../../../api/user";
+import { createUser, deleteUser, updateUser } from "../../../api/user";
 import type { SampleInput } from "../../../types/samples";
 
-
-type FieldLayout = {
+type InputLayout = {
   label: string;
-  fieldName: keyof UserInput;
+  inputKey: keyof UserInput; // Name
+  required?: boolean; // The input that is required
   type: string;
-  disabled: boolean;
-  required?: boolean;
+  multiline?: boolean;
 };
-const userInputDefaultValues: UserInput = {
+
+
+const userLayout: InputLayout[] = [
+  {
+    label: "User Name",
+    inputKey: "userName",
+    type: "string",
+    required: true,
+  },
+  { label: "Email", inputKey: "email", type: "string" },
+  { label: "Password", inputKey: "password", type: "string" },
+  {
+    label: "First Name",
+    inputKey: "firstName",
+    type: "string",
+  },
+  {
+    label: "Last Name",
+    inputKey: "lastName",
+    type: "string",
+  },
+];
+
+const entryDefaultValues: UserInput = {
   userName: "gtd19",
   email: "giang.dang@canterbury.ac.nz",
   firstName: "Giang",
@@ -27,47 +49,44 @@ const userInputDefaultValues: UserInput = {
   password: "HoangAnhGialai!19",
 };
 
-const userLayout: FieldLayout[] = [
-  {
-    label: "User Name",
-    fieldName: "userName",
-    type: "string",
-    disabled: false,
-    required: true,
-  },
-  { label: "Email", fieldName: "email", type: "string", disabled: false },
-  { label: "Password", fieldName: "password", type: "string", disabled: false },
-  {
-    label: "First Name",
-    fieldName: "firstName",
-    type: "string",
-    disabled: false,
-  },
-  {
-    label: "Last Name",
-    fieldName: "lastName",
-    type: "string",
-    disabled: false,
-  },
-];
-
 export default function () {
-  //   const {selectedItem, setSelectedItem} = useState<boolean>(false);
+  const {selectedEntry, setSelectedEntry} = useState<User | undefined>(undefined);
+  const { selectedId, setSelectedId} = useState<number | undefined> (undefined);
   const {
     register,
     handleSubmit,
     reset,
-    formState: { isSubmitting, errors },
+    formState: { errors, isSubmitting },
   } = useForm<UserInput>({
-    defaultValues: userInputDefaultValues,
+    defaultValues: entryDefaultValues,
     resolver: zodResolver(userInputSchema),
   });
   const queryClient = new QueryClient();
-  const onCreate = useMutation({
+  const onAddEntry = useMutation({
     mutationFn: createUser,
-    onSuccess: () => {queryClient.invalidateQueries({queryKey:["users"]})},
+    onSuccess: async (newEntry) => {
+      setSelectedEntry(newEntry);
+      setSelectedId(newEntry.userId)
+      await queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
   });
-  const onAdd = async (data: SampleInput) => onCreate.mutate(data);
+  const onUpdateEntry = useMutation({
+    mutationFn: ({id, data}: {id: number, data: UserInput}) => updateUser(id, data),
+    onSuccess: async (updatedEntry) => {
+      setSelectedEntry(updatedEntry);
+      setSelectedId(updatedEntry.userId);
+      await queryClient.invalidateQueries({
+        queryKey: ["users"]
+      })
+    }
+  });
+  const onDeleteEntry = useMutation({
+    mutationFn: (id: number) => deleteUser(id),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({queryKey: ["users"]})
+    }
+  })
+
   return (
     <Stack sx={{ gap: 2 }}>
       <Typography>Right Panel</Typography>
@@ -83,14 +102,13 @@ export default function () {
           <Typography>{f.label}</Typography>
           <Stack>
             <OutlinedInput
-              {...register(f.fieldName)}
+              {...register(f.inputKey)}
               type={f.type}
-              disabled={f.disabled}
             />
 
             <ErrorMessage
               errors={errors}
-              name={f.fieldName}
+              name={f.inputKey}
               render={({ message }) => (
                 <Typography variant="caption" color="error">
                   {message}
@@ -107,13 +125,13 @@ export default function () {
           gap: "10%",
         }}
       >
-        <Button variant="contained" onClick={() => {}}>
+        <Button variant="contained" onClick={() => reset(entryDefaultValues)}>
           New
         </Button>
-        <Button variant="contained" onClick={handleSubmit(onAdd)}>
+        <Button variant="contained" onClick={handleSubmit((data) => onAddEntry.mutate(data))}>
           Add
         </Button>
-        <Button variant="contained" onClick={() => {}} disabled={true}>
+        <Button variant="contained" onClick={handleSubmit((data) => onUpdateEntry.mutate(selectedId, data))} disabled={true}>
           Update
         </Button>
         <Button

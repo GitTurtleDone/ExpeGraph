@@ -23,44 +23,8 @@ import {
 import { createUser, deleteUser, updateUser } from "../../../api/user";
 import type { SampleInput } from "../../../types/samples";
 
-type InputLayout = {
-  label: string;
-  inputKey: keyof UserInput; // Name
-  required?: boolean; // The input that is required
-  type: string;
-  multiline?: boolean;
-};
-
-const userLayout: InputLayout[] = [
-  {
-    label: "User Name",
-    inputKey: "userName",
-    type: "string",
-    required: true,
-  },
-  { label: "Email", inputKey: "email", type: "string" },
-  { label: "Password", inputKey: "password", type: "string" },
-  {
-    label: "First Name",
-    inputKey: "firstName",
-    type: "string",
-  },
-  {
-    label: "Last Name",
-    inputKey: "lastName",
-    type: "string",
-  },
-];
-
-const entryDefaultValues: UserInput = {
-  userName: "gtd19",
-  email: "giang.dang@canterbury.ac.nz",
-  firstName: "Giang",
-  lastName: "Dang",
-  password: "HoangAnhGialai!19",
-};
-
-export default function () {
+export default function ({ rightPanelProps }) {
+  const {inputLayout, inputDefaultValues} = {...rightPanelProps};
   const { selectedEntry, setSelectedEntry } = useState<User | undefined>(
     undefined,
   );
@@ -75,7 +39,7 @@ export default function () {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<UserInput>({
-    defaultValues: entryDefaultValues,
+    defaultValues: inputDefaultValues,
     resolver: zodResolver(userInputSchema),
   });
   const queryClient = new QueryClient();
@@ -120,7 +84,7 @@ export default function () {
         <Typography>User ID</Typography>
         <OutlinedInput type="number" disabled={true} />
       </Box>
-      {userLayout.map((f) => (
+      {inputLayout.map((f) => (
         <Box
           key={f.label}
           sx={{ display: "grid", gridTemplateColumns: "1fr 2fr" }}
@@ -197,11 +161,12 @@ export default function () {
       >
         <DialogTitle>Deletion Confirmation</DialogTitle>
         <DialogContent>
-          <DialogContentText>The entry table{selectedEntry}?</DialogContentText>
+          <DialogContentText>
+            The entry {selectedEntry} was deleted.
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => onDeleteEntry.mutate(selectedId)}>Yes</Button>
-          <Button onClick={onCloseDeleteWarningDialog}>No</Button>
+          <Button onClick={onCloseDeleteConfirmingDialog}>OK</Button>
         </DialogActions>
       </Dialog>
     </Stack>

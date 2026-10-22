@@ -22,23 +22,24 @@ import {
 
 import { createUser, deleteUser, updateUser } from "../../../api/user";
 import type { SampleInput } from "../../../types/samples";
+import type { RightPanelProps } from "../../../types/basic";
 
-export default function ({ rightPanelProps }) {
-  const {inputLayout, inputDefaultValues} = {...rightPanelProps};
-  const { selectedEntry, setSelectedEntry } = useState<User | undefined>(
+export default function RightPanel<RightPanelProps>({ rightPanelProps}) { 
+  const { inputLayout, inputDefaultValues} = {...rightPanelProps}
+  const [ selectedEntry, setSelectedEntry ] = useState<TInput | undefined>(
     undefined,
   );
-  const { selectedId, setSelectedId } = useState<number | undefined>(undefined);
-  const { openDeleteWarningDialog, setOpenDeleteWarningDialog } =
+  const [ selectedId, setSelectedId ] = useState<number | undefined>(undefined);
+  const [ openDeleteWarningDialog, setOpenDeleteWarningDialog ] =
     useState(false);
-  const { openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog } =
+  const [ openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog ] =
     useState(false);
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<UserInput>({
+  } = useForm<TInput>({
     defaultValues: inputDefaultValues,
     resolver: zodResolver(userInputSchema),
   });

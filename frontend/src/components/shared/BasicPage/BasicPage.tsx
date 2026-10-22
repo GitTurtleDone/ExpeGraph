@@ -2,8 +2,10 @@ import { Typography, Stack, Box } from "@mui/material";
 import React, {useState} from "react";
 import LeftPanel from "./LeftPanel";
 import RightPanel from "./RightPanel";
+import type { RightPanelProps } from "../../../types/basic";
+import type { BasicPageProps } from "../../../types/basic";
 
-export default function ({pageTitle, rightPanelProps}) {
+export default function BasicPage<BasicPageProps>({pageTitle, rightPanelProps}) {
     return (
         
         <Stack>

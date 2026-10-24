@@ -3,7 +3,9 @@ import { Stack } from "@mui/material";
 import BasicPage from "../components/shared/BasicPage/BasicPage";
 import type { InputLayout, RightPanelProps } from "../types/basic";
 import { userInputSchema, type User, type UserInput } from "../types/users";
+import type { UserQuery } from "../api/user";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { getAllUsers, getUserById, createUser, updateUser, deleteUser } from "../api/user";
 
 
 const userLayout: InputLayout<UserInput>[] = [
@@ -32,13 +34,18 @@ const userDefaultValues: UserInput = {
   email: "giang.dang@canterbury.ac.nz",
   firstName: "Giang",
   lastName: "Dang",
-  password: "HoangAnhGialai!19",
+  password: "!HoangAnhGialai19",
 };
 
 const rightPanelProps : RightPanelProps<User, UserInput>= {
   inputLayout: userLayout,
   inputDefaultValues: userDefaultValues,
   resolver: zodResolver(userInputSchema),
+  // getAllEntities: getAllUsers,
+  // getEntityById: getUserById,
+  createEntity: createUser,
+  updateEntity: updateUser,
+  deleteEntity: deleteUser,
 }
 
 export default function UsersPage() {

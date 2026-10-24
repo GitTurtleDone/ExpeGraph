@@ -7,6 +7,7 @@ import type { User, UserInput } from "../../../types/users";
 import { userSchema, userInputSchema } from "../../../types/users";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
+
 import {
   Stack,
   Typography,
@@ -24,15 +25,27 @@ import { createUser, deleteUser, updateUser } from "../../../api/user";
 import type { SampleInput } from "../../../types/samples";
 import type { RightPanelProps } from "../../../types/basic";
 import type { FieldValues } from "react-hook-form";
-export default function RightPanel<TEntity, TEntityInput extends FieldValues> ({ rightPanelProps}) { 
-  const { inputLayout, inputDefaultValues, resolver} = {...rightPanelProps}
-  const [ selectedEntry, setSelectedEntry ] = useState<TEntity | undefined> (
-    undefined
+export default function RightPanel<
+  TEntity,
+  TEntityInput extends FieldValues,
+  // TEntityQuery extends FieldValues,
+>({ rightPanelProps }) {
+  const {
+    inputLayout,
+    inputDefaultValues,
+    resolver,
+    getAllEntities,
+    getEntityById,
+    createEntity,
+    updateEntity,
+    deleteEntity,
+  } = { ...rightPanelProps };
+  const [selectedEntry, setSelectedEntry] = useState<TEntity | undefined>(
+    undefined,
   );
-  const [ selectedId, setSelectedId ] = useState<number | undefined>(undefined);
-  const [ openDeleteWarningDialog, setOpenDeleteWarningDialog ] =
-    useState(false);
-  const [ openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog ] =
+  const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
+  const [openDeleteWarningDialog, setOpenDeleteWarningDialog] = useState(false);
+  const [openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog] =
     useState(false);
   const {
     register,
@@ -43,9 +56,9 @@ export default function RightPanel<TEntity, TEntityInput extends FieldValues> ({
     defaultValues: inputDefaultValues,
     resolver: resolver,
   });
-  const queryClient = new useQueryClient();
+  const queryClient = useQueryClient();
   const onAddEntry = useMutation({
-    mutationFn: createUser,
+    mutationFn: createEntity,
     onSuccess: async (newEntry) => {
       setSelectedEntry(newEntry);
       setSelectedId(newEntry.userId);
@@ -54,7 +67,7 @@ export default function RightPanel<TEntity, TEntityInput extends FieldValues> ({
   });
   const onUpdateEntry = useMutation({
     mutationFn: ({ id, data }: { id: number; data: TEntityInput }) =>
-      updateUser(id, data),
+      updateEntity(id, data),
     onSuccess: async (updatedEntry) => {
       setSelectedEntry(updatedEntry);
       setSelectedId(updatedEntry.userId);
@@ -64,7 +77,7 @@ export default function RightPanel<TEntity, TEntityInput extends FieldValues> ({
     },
   });
   const onDeleteEntry = useMutation({
-    mutationFn: (id: number) => deleteUser(id),
+    mutationFn: (id: number) => deleteEntity(id),
     onSuccess: async () => {
       (setOpenDeleteConfirmingDialog(true),
         queryClient.invalidateQueries({ queryKey: ["users"] }));

@@ -35,6 +35,6 @@ export const userInputSchema = userSchema
         .min(8, "Password must have at least 8 characters."),
     ),
   });
-
+  
 export type User = z.infer<typeof userSchema>;
 export type UserInput = z.infer<typeof userInputSchema>;

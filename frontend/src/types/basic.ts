@@ -7,11 +7,18 @@ export type InputLayout<TEntityInput extends FieldValues> = {
   multiline?: boolean;
 };
 
+export type LeftPanelProps<TEntity, TEntityQuery extends FieldValues> = {
+  
+  getAllEntities: (q: TEntityQuery) => Promise<TEntity[]>; 
+  getEntityById?: (id1?: number, id2?: number) => Promise<TEntity>;
+}
 export type RightPanelProps<TEntity, TEntityInput extends FieldValues> = {
   inputLayout?: InputLayout<TEntityInput>[];
   inputDefaultValues: TEntityInput; 
   resolver: Resolver<TEntityInput>;
-  createEntity: async function (data: TEntityInput): Promise<TEntity>;
+  createEntity: (data: TEntityInput) => Promise<TEntity>;
+  updateEntity: (id: number, data: TEntityInput) => Promise<TEntity>;
+  deleteEntity: (id: number) => void;
 };
 
 export type BasicPageProps<TEntity, TEntityInput extends FieldValues> = {

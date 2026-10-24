@@ -93,7 +93,7 @@ export default function RightPanel<
 
   return (
     <Stack sx={{ gap: 2 }}>
-      <Typography>Right Panel</Typography>
+      <Typography>{`Right Panel ${typeof TEntity}`} </Typography>
       <Box sx={{ display: "grid", gridTemplateColumns: "1fr 2fr" }}>
         <Typography>User ID</Typography>
         <OutlinedInput type="number" disabled={true} />

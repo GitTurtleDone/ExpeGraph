@@ -1,7 +1,7 @@
 import { Stack } from "@mui/material";
 
 import BasicPage from "../components/shared/BasicPage/BasicPage";
-import type { InputLayout, RightPanelProps } from "../types/basic";
+import type { InputLayout, LeftPanelProps, RightPanelProps } from "../types/basic";
 import { userInputSchema, type User, type UserInput } from "../types/users";
 import type { UserQuery } from "../api/user";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,12 +48,18 @@ const rightPanelProps : RightPanelProps<User, UserInput>= {
   deleteEntity: deleteUser,
 }
 
+const leftPanelProps: LeftPanelProps<User, UserQuery> = {
+  getAllEntities: getAllUsers,
+  getEntityById: getUserById,
+}
+
 export default function UsersPage() {
   return (
     <Stack>
       <BasicPage 
         pageTitle="Users"
-        rightPanelProps={rightPanelProps} />
+        leftPanelProps= {leftPanelProps}
+        rightPanelProps= {rightPanelProps} />
     </Stack>
     
   )

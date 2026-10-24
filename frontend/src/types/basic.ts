@@ -1,18 +1,20 @@
 import type { FieldValues, FieldPath, Resolver, } from "react-hook-form";
-export type InputLayout<TInput extends FieldValues> = {
+export type InputLayout<TEntityInput extends FieldValues> = {
   label: string;
-  inputKey: FieldPath<TInput>; // Name
+  inputKey: FieldPath<TEntityInput>; // Name
   required?: boolean; // The input that is required
   type: string;
   multiline?: boolean;
 };
 
-export type RightPanelProps<TInput extends FieldValues> = {
-  inputLayout?: InputLayout[];
-  inputDefaultValues: TInput; 
-}
+export type RightPanelProps<TEntity, TEntityInput extends FieldValues> = {
+  inputLayout?: InputLayout<TEntityInput>[];
+  inputDefaultValues: TEntityInput; 
+  resolver: Resolver<TEntityInput>;
+  createEntity: async function (data: TEntityInput): Promise<TEntity>;
+};
 
-export type BasicPageProps<RightPanelProps> = {
+export type BasicPageProps<TEntity, TEntityInput extends FieldValues> = {
   pageTitle: string;
-  rightPanelProps: RightPanelProps;
-}
+  rightPanelProps: RightPanelProps<TEntity, TEntityInput>;
+};

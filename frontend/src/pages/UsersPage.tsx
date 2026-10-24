@@ -1,10 +1,12 @@
 import { Stack } from "@mui/material";
 
 import BasicPage from "../components/shared/BasicPage/BasicPage";
-import type { InputLayout } from "../types/basic";
-import type { UserInput } from "../types/users";
+import type { InputLayout, RightPanelProps } from "../types/basic";
+import { userInputSchema, type User, type UserInput } from "../types/users";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-const userLayout: InputLayout[] = [
+
+const userLayout: InputLayout<UserInput>[] = [
   {
     label: "User Name",
     inputKey: "userName",
@@ -33,12 +35,18 @@ const userDefaultValues: UserInput = {
   password: "HoangAnhGialai!19",
 };
 
+const rightPanelProps : RightPanelProps<User, UserInput>= {
+  inputLayout: userLayout,
+  inputDefaultValues: userDefaultValues,
+  resolver: zodResolver(userInputSchema),
+}
+
 export default function UsersPage() {
   return (
     <Stack>
       <BasicPage 
         pageTitle="Users"
-        rightPanelProps={{inputLayout: userLayout, inputDefaultValues: userDefaultValues}} />
+        rightPanelProps={rightPanelProps} />
     </Stack>
     
   )

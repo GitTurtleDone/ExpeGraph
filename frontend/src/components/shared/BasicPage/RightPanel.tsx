@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import type { User, UserInput } from "../../../types/users";
 import { userSchema, userInputSchema } from "../../../types/users";
-import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
   Stack,
@@ -23,11 +23,11 @@ import {
 import { createUser, deleteUser, updateUser } from "../../../api/user";
 import type { SampleInput } from "../../../types/samples";
 import type { RightPanelProps } from "../../../types/basic";
-
-export default function RightPanel<RightPanelProps>({ rightPanelProps}) { 
-  const { inputLayout, inputDefaultValues} = {...rightPanelProps}
-  const [ selectedEntry, setSelectedEntry ] = useState<TInput | undefined>(
-    undefined,
+import type { FieldValues } from "react-hook-form";
+export default function RightPanel<TEntity, TEntityInput extends FieldValues> ({ rightPanelProps}) { 
+  const { inputLayout, inputDefaultValues, resolver} = {...rightPanelProps}
+  const [ selectedEntry, setSelectedEntry ] = useState<TEntity | undefined> (
+    undefined
   );
   const [ selectedId, setSelectedId ] = useState<number | undefined>(undefined);
   const [ openDeleteWarningDialog, setOpenDeleteWarningDialog ] =
@@ -39,11 +39,11 @@ export default function RightPanel<RightPanelProps>({ rightPanelProps}) {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<TInput>({
+  } = useForm<TEntityInput>({
     defaultValues: inputDefaultValues,
-    resolver: zodResolver(userInputSchema),
+    resolver: resolver,
   });
-  const queryClient = new QueryClient();
+  const queryClient = new useQueryClient();
   const onAddEntry = useMutation({
     mutationFn: createUser,
     onSuccess: async (newEntry) => {
@@ -53,7 +53,7 @@ export default function RightPanel<RightPanelProps>({ rightPanelProps}) {
     },
   });
   const onUpdateEntry = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UserInput }) =>
+    mutationFn: ({ id, data }: { id: number; data: TEntityInput }) =>
       updateUser(id, data),
     onSuccess: async (updatedEntry) => {
       setSelectedEntry(updatedEntry);
@@ -113,7 +113,7 @@ export default function RightPanel<RightPanelProps>({ rightPanelProps}) {
           gap: "10%",
         }}
       >
-        <Button variant="contained" onClick={() => reset(entryDefaultValues)}>
+        <Button variant="contained" onClick={() => reset(inputDefaultValues)}>
           New
         </Button>
         <Button

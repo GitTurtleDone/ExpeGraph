@@ -34,7 +34,7 @@ const userDefaultValues: UserInput = {
   email: "giang.dang@canterbury.ac.nz",
   firstName: "Giang",
   lastName: "Dang",
-  password: "!HoangAnhGialai19",
+  password: "",
 };
 
 const rightPanelProps : RightPanelProps<User, UserInput>= {

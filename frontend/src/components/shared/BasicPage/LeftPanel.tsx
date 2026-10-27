@@ -9,7 +9,7 @@ import { gridAdditionalRowGroupsSelector } from "@mui/x-data-grid/internals";
 
 
 export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({leftPanelProps}) {
-    
+    const {entityName, getAllEntities, getEntityById} = {...leftPanelProps};
     return (
         <Stack>
             <Typography>
@@ -18,7 +18,7 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({le
             <Box sx={{display: "grid", gridTemplateColumns: "8fr 2fr"}}>
                 <OutlinedInput 
                 type="string"
-                placeholder={`Type to search for ${typeof TEntity} `} ></OutlinedInput>
+                placeholder={`Type to search for ${entityName}s`} ></OutlinedInput>
             </Box>
             
         </Stack>

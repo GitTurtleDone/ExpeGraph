@@ -49,6 +49,7 @@ const rightPanelProps : RightPanelProps<User, UserInput>= {
 }
 
 const leftPanelProps: LeftPanelProps<User, UserQuery> = {
+  entityName: "user",
   getAllEntities: getAllUsers,
   getEntityById: getUserById,
 }

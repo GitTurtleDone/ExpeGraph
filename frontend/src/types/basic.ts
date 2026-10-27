@@ -8,7 +8,7 @@ export type InputLayout<TEntityInput extends FieldValues> = {
 };
 
 export type LeftPanelProps<TEntity, TEntityQuery extends FieldValues> = {
-  
+  entityName: string;     
   getAllEntities: (q: TEntityQuery) => Promise<TEntity[]>; 
   getEntityById?: (id1?: number, id2?: number) => Promise<TEntity>;
 }

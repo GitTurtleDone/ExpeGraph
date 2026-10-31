@@ -10,6 +10,13 @@ export const userSchema = z.object({
   createdAt: z.string(),
   lastLoginAt: z.string().optional(),
 });
+
+// to display rows in a grid
+export const userRowSchema = userSchema.omit({
+  isActive: true,
+  createdAt: true,  
+})
+
 const re = /^(?=[a-zA-Z])(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/;
 export const userInputSchema = userSchema
   .omit({
@@ -37,4 +44,26 @@ export const userInputSchema = userSchema
   });
   
 export type User = z.infer<typeof userSchema>;
+// for left panels
+export type UserDisplayedColumns = z.infer<typeof userRowSchema>;
+// checkboxes in advanced search
+export type UserAdvancedSearchCheckboxes = {
+  idRangeChb: boolean,
+  isActiveChb: boolean,
+  lastLoginRangeChb: boolean,
+}
+// search fields included in advanced search
+export type UserAdvancedSearchFields = {
+  minId: string,
+  maxId: string,
+  isActive: boolean,
+  lastLoginFrom: string,
+  lastLoginTo: string,
+}
+
+export const userAdvancedSearchFieldSchema = {
+  minId: z.string,
+  maxId: z.string(),
+}
+// for right panels
 export type UserInput = z.infer<typeof userInputSchema>;

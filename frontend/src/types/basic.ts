@@ -7,8 +7,16 @@ export type InputLayout<TEntityInput extends FieldValues> = {
   multiline?: boolean;
 };
 
-export type LeftPanelProps<TEntity, TEntityQuery extends FieldValues> = {
+export type LeftPanelProps<
+  TEntity, 
+  TEntityAdvancedSearchCheckboxes, 
+  TEntityAdvancedSearchFields, 
+  TEntityDislayedColums, 
+  TEntityQuery extends FieldValues> = {
   entityName: string;     
+  entityAdvancedSearchCheckboxes: TEntityAdvancedSearchCheckboxes, 
+  entityAdvancedSearchFields: TEntityAdvancedSearchFields, 
+  entityDislayedColums: TEntityDislayedColums ,
   getAllEntities: (q: TEntityQuery) => Promise<TEntity[]>; 
   getEntityById?: (id1?: number, id2?: number) => Promise<TEntity>;
 }

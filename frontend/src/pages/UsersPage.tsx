@@ -1,13 +1,65 @@
 import { Stack } from "@mui/material";
 
 import BasicPage from "../components/shared/BasicPage/BasicPage";
-import type { InputLayout, LeftPanelProps, RightPanelProps } from "../types/basic";
-import { userInputSchema, type User, type UserInput } from "../types/users";
+import type {
+  InputLayout,
+  LeftPanelProps,
+  RightPanelProps,
+} from "../types/basic";
+import { userInputSchema } from "../types/users";
+import type {
+  User,
+  UserAdvancedSearchCheckboxes,
+  UserAdvancedSearchFields,
+  UserDisplayedColumns,
+  UserInput,
+} from "../types/users";
 import type { UserQuery } from "../api/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { getAllUsers, getUserById, createUser, updateUser, deleteUser } from "../api/user";
+import {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+} from "../api/user";
 
+const userAdvancedSearchCheckboxes: UserAdvancedSearchCheckboxes = {
+  idRangeChb: false,
+  isActiveChb: false,
+  lastLoginRangeChb: false,
+}
 
+const userDisplayedColumns: UserDisplayedColumns = {
+  userId: 1,
+  userName: "",
+  email: "",
+  firstName: "",
+  lastName: "",
+  lastLoginAt: "",
+}
+
+const userAdvancedSearchFields: UserAdvancedSearchFields = {
+  minId: "",
+  maxId: "",
+  isActive: false,
+  lastLoginFrom: "",
+  lastLoginTo: "",
+}
+const leftPanelProps: LeftPanelProps<
+  User,
+  UserAdvancedSearchCheckboxes,
+  UserAdvancedSearchFields,
+  UserDisplayedColumns,
+  UserQuery
+> = {
+  entityName: "user",
+  entityAdvancedSearchCheckboxes: userAdvancedSearchCheckboxes,
+  entityAdvancedSearchFields: userAdvancedSearchFields,
+  entityDislayedColumns: userDisplayedColumns,
+  getAllEntities: getAllUsers,
+  getEntityById: getUserById,
+};
 const userLayout: InputLayout<UserInput>[] = [
   {
     label: "User Name",
@@ -37,7 +89,7 @@ const userDefaultValues: UserInput = {
   password: "",
 };
 
-const rightPanelProps : RightPanelProps<User, UserInput>= {
+const rightPanelProps: RightPanelProps<User, UserInput> = {
   inputLayout: userLayout,
   inputDefaultValues: userDefaultValues,
   resolver: zodResolver(userInputSchema),
@@ -46,23 +98,18 @@ const rightPanelProps : RightPanelProps<User, UserInput>= {
   createEntity: createUser,
   updateEntity: updateUser,
   deleteEntity: deleteUser,
-}
+};
 
-const leftPanelProps: LeftPanelProps<User, UserQuery> = {
-  entityName: "user",
-  getAllEntities: getAllUsers,
-  getEntityById: getUserById,
-}
+
 
 export default function UsersPage() {
   return (
     <Stack>
-      <BasicPage 
+      <BasicPage
         pageTitle="Users"
-        leftPanelProps= {leftPanelProps}
-        rightPanelProps= {rightPanelProps} />
+        leftPanelProps={leftPanelProps}
+        rightPanelProps={rightPanelProps}
+      />
     </Stack>
-    
-  )
-  
+  );
 }

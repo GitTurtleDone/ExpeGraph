@@ -24,12 +24,24 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 
-export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
-  leftPanelProps,
-}) {
-  const [expandAdvancedSearch, setExpandAdvancedSearch] =
-    useState<boolean>(false);
-  const { entityName, getAllEntities, getEntityById } = { ...leftPanelProps };
+export default function LeftPanel<
+  TEntity,
+  TEntityAdvancedSearchCheckboxes,
+  TEntityAdvancedSearchFields,
+  TEntityDisplayedColumns,
+  TEntityQuery extends FieldValues,
+>({ leftPanelProps }) {
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState<boolean>(false);
+  const {
+    entityName,
+    entityAdnvacedSearchCheckboxes,
+    entityAdvancedSearchFields,
+    entityDislayedColumns,
+    getAllEntities,
+    getEntityById,
+  } = { ...leftPanelProps };
+  console.log(entityAdnvacedSearchCheckboxes);
+  console.log(entityName);
   return (
     <Stack>
       <Typography>Left Panel</Typography>
@@ -49,8 +61,8 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
         </IconButton>
       </Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        <IconButton onClick={() => setExpandAdvancedSearch((prev) => !prev)}>
-          {expandAdvancedSearch ? (
+        <IconButton onClick={() => setShowAdvancedSearch((prev) => !prev)}>
+          {showAdvancedSearch ? (
             <ExpandLessOutlinedIcon></ExpandLessOutlinedIcon>
           ) : (
             <ChevronRightOutlinedIcon></ChevronRightOutlinedIcon>
@@ -58,6 +70,7 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
         </IconButton>
 
         <Typography>Advanced Search</Typography>
+        <Collapse in={showAdvancedSearch}></Collapse>
       </Box>
     </Stack>
   );

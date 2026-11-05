@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogActions,
   Icon,
+  keyframes,
 } from "@mui/material";
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
@@ -24,6 +25,7 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 
+// <TEntity, TEntityAdvancedSearchCheckboxes, TEntityAdvancedSearchFields,TEntityDisplayedColumns, TEntityQuery extends FieldValues>
 export default function LeftPanel<
   TEntity,
   TEntityAdvancedSearchCheckboxes,
@@ -34,13 +36,13 @@ export default function LeftPanel<
   const [showAdvancedSearch, setShowAdvancedSearch] = useState<boolean>(false);
   const {
     entityName,
-    entityAdnvacedSearchCheckboxes,
+    entityAdvancedSearchCheckboxes,
     entityAdvancedSearchFields,
     entityDislayedColumns,
     getAllEntities,
     getEntityById,
   } = { ...leftPanelProps };
-  console.log(entityAdnvacedSearchCheckboxes);
+  console.log(entityAdvancedSearchCheckboxes);
   console.log(entityName);
   return (
     <Stack>
@@ -70,8 +72,26 @@ export default function LeftPanel<
         </IconButton>
 
         <Typography>Advanced Search</Typography>
-        <Collapse in={showAdvancedSearch}></Collapse>
       </Box>
+      <Collapse in={showAdvancedSearch}>
+        <Typography>{String(entityAdvancedSearchFields.isActive)}</Typography>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 3fr 1fr 3fr 1fr 3fr",
+            alignItems: "center",
+            gap: "5px 5px",
+          }}
+        >
+          {Object.entries(entityAdvancedSearchCheckboxes).map(
+            ([key, _]) =>
+              key === "idRangeChb" && (
+              <Checkbox id={key}></Checkbox>
+              
+            ),
+          )}
+        </Box>
+      </Collapse>
     </Stack>
   );
 }

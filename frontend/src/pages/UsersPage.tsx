@@ -1,6 +1,7 @@
-import { Stack } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 
 import BasicPage from "../components/shared/BasicPage/BasicPage";
+
 import type {
   InputLayout,
   LeftPanelProps,
@@ -30,6 +31,14 @@ const userAdvancedSearchCheckboxes: UserAdvancedSearchCheckboxes = {
   lastLoginRangeChb: false,
 }
 
+const userAdvancedSearchFields: UserAdvancedSearchFields = {
+  minId: "",
+  maxId: "",
+  isActive: false,
+  lastLoginFrom: "",
+  lastLoginTo: "",
+}
+
 const userDisplayedColumns: UserDisplayedColumns = {
   userId: 1,
   userName: "",
@@ -39,13 +48,7 @@ const userDisplayedColumns: UserDisplayedColumns = {
   lastLoginAt: "",
 }
 
-const userAdvancedSearchFields: UserAdvancedSearchFields = {
-  minId: "",
-  maxId: "",
-  isActive: false,
-  lastLoginFrom: "",
-  lastLoginTo: "",
-}
+
 const leftPanelProps: LeftPanelProps<
   User,
   UserAdvancedSearchCheckboxes,
@@ -109,7 +112,10 @@ export default function UsersPage() {
         pageTitle="Users"
         leftPanelProps={leftPanelProps}
         rightPanelProps={rightPanelProps}
+        
       />
+
+      
     </Stack>
   );
 }

@@ -18,6 +18,7 @@ export default function BasicPage({pageTitle, leftPanelProps, rightPanelProps}) 
                 <LeftPanel leftPanelProps={leftPanelProps}/>
                 {/*-- Right Panel --*/}
                 <RightPanel rightPanelProps = {rightPanelProps} />
+                <Typography>{String(leftPanelProps.entityAdvancedSearchFields.isActive)}</Typography>
                 {/* <RightPanel props = rightPanelProps /> */}
             </Box>
         </Stack>

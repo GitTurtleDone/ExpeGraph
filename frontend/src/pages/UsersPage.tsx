@@ -24,6 +24,7 @@ import {
   updateUser,
   deleteUser,
 } from "../api/user";
+import type { NestedDictionary } from "../types/basic";
 
 const userAdvancedSearchCheckboxes: UserAdvancedSearchCheckboxes = {
   idRangeChb: false,
@@ -37,6 +38,12 @@ const userAdvancedSearchFields: UserAdvancedSearchFields = {
   isActive: false,
   lastLoginFrom: "",
   lastLoginTo: "",
+}
+
+const userAdvancedSearchInfo: NestedDictionary = {
+  idRangeChb: {minId: "string", maxId: "string"},
+  isActiveChb: {isActive: "boolean"},
+  lastLoginRangeChb: {lastLoginFrom: "string", lastLoginTo: "string"}
 }
 
 const userDisplayedColumns: UserDisplayedColumns = {
@@ -59,6 +66,7 @@ const leftPanelProps: LeftPanelProps<
   entityName: "user",
   entityAdvancedSearchCheckboxes: userAdvancedSearchCheckboxes,
   entityAdvancedSearchFields: userAdvancedSearchFields,
+  entityAdvancedSearchInfo: userAdvancedSearchInfo,
   entityDislayedColumns: userDisplayedColumns,
   getAllEntities: getAllUsers,
   getEntityById: getUserById,

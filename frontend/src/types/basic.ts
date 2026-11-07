@@ -7,6 +7,10 @@ export type InputLayout<TEntityInput extends FieldValues> = {
   multiline?: boolean;
 };
 
+export type NestedDictionary = {
+  [key: string]: {[key: string]: string}
+}
+
 export type LeftPanelProps<
   TEntity, 
   TEntityAdvancedSearchCheckboxes, 
@@ -16,6 +20,7 @@ export type LeftPanelProps<
   entityName: string;     
   entityAdvancedSearchCheckboxes: TEntityAdvancedSearchCheckboxes, 
   entityAdvancedSearchFields: TEntityAdvancedSearchFields, 
+  entityAdvancedSearchInfo: NestedDictionary;
   entityDislayedColums: TEntityDislayedColums ,
   getAllEntities: (q: TEntityQuery) => Promise<TEntity[]>; 
   getEntityById?: (id1?: number, id2?: number) => Promise<TEntity>;

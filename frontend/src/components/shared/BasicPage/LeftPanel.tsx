@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Icon, 
+  Icon,
 } from "@mui/material";
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
@@ -28,7 +28,24 @@ import { gridAdditionalRowGroupsSelector } from "@mui/x-data-grid/internals";
 import { Preview } from "@mui/icons-material";
 
 // <TEntity, TentitySearchChb, TEntityAdvancedSearchFields,TEntityDisplayedColumns, TEntityQuery extends FieldValues>
-export function ReturnAdvancedSearchFields({ searchFields }) {
+export function ReturnAdvancedSearchFields({
+  searchFields,
+  searchFilters,
+}) {
+  const handleAdvancedSearchFilters = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    Object.entries(entityAdvancedSearchInfo).map(
+      ([searchChbKey, searchFields]) => {
+        entitySearchChb[searchChbKey] === true &&
+          setSearchFilters((prev) => ({
+            ...prev,
+            [e.target.name]: e.target.value,
+          }));
+      },
+    );
+    console.log(searchFilters);
+  };
   return (
     <Box
       sx={{
@@ -60,7 +77,11 @@ export function ReturnAdvancedSearchFields({ searchFields }) {
             searchField.includes("From")
           ) && <Typography></Typography>}
 
-          <OutlinedInput type={searchFieldType} size="small" />
+          <OutlinedInput
+            type={searchFieldType}
+            size="small"
+            onChange={handleAdvancedSearchFilters}
+          />
         </Box>
       ))}
     </Box>
@@ -83,20 +104,31 @@ export default function LeftPanel<
     getAllEntities,
     getEntityById,
   } = { ...leftPanelProps };
-  
-  const [searchFilters, setSearchFilters] = useState<{[key: string]: string | boolean | number | undefined}>({searchTxt: ""});
-  const searchChb: {[key: string]: boolean} = {};
-  Object.entries(entityAdvancedSearchInfo).map(([searchBoxKey, _]) => searchChb[searchBoxKey] = false);
-  const [entitySearchChb, setEntitySearchChb] = useState<{[key:string]:boolean}>(searchChb);
+
+  const [searchFilters, setSearchFilters] = useState<{
+    [key: string]: string | boolean | number | undefined;
+  }>({ searchTxt: "" });
+  const searchChb: { [key: string]: boolean } = {};
+  Object.entries(entityAdvancedSearchInfo).map(
+    ([searchBoxKey, _]) => (searchChb[searchBoxKey] = false),
+  );
+  const [entitySearchChb, setEntitySearchChb] = useState<{
+    [key: string]: boolean;
+  }>(searchChb);
   console.log(entitySearchChb);
-  const handleSearchTxt= (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchFilters((prev) => ({...prev, ["searchTxt"]: e.target.value}));
-    
-  }
+  const handleSearchTxt = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchFilters((prev) => ({ ...prev, ["searchTxt"]: e.target.value }));
+  };
+  
   const handleSearchChb = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEntitySearchChb((prev) => ({...prev, [e.target.name]: e.target.checked}));
+    setEntitySearchChb((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.checked,
+    }));
     console.log(entitySearchChb);
-  }
+  };
+
+  
 
   // console.log(entitySearchChb);
   // console.log(entityName);
@@ -142,14 +174,15 @@ export default function LeftPanel<
               gap: "5px 0px",
             }}
           >
-            <Checkbox 
-              name={chb} 
+            <Checkbox
+              name={chb}
               checked={entitySearchChb[chb]}
               onChange={handleSearchChb}
             />
             <Typography>{chb}</Typography>
             <ReturnAdvancedSearchFields
               searchFields={searchFields}
+              searchFilters={searchFilters}
             ></ReturnAdvancedSearchFields>
           </Box>
         ))}

@@ -16,9 +16,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Icon,
-  keyframes,
-  minor,
+  Icon, 
 } from "@mui/material";
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
@@ -27,25 +25,26 @@ import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { userAdvancedSearchFieldSchema } from "../../../types/users";
 import { gridAdditionalRowGroupsSelector } from "@mui/x-data-grid/internals";
+import { Preview } from "@mui/icons-material";
 
-// <TEntity, TEntityAdvancedSearchCheckboxes, TEntityAdvancedSearchFields,TEntityDisplayedColumns, TEntityQuery extends FieldValues>
-export function ReturnSearchFields({ searchFields }) {
+// <TEntity, TentitySearchChb, TEntityAdvancedSearchFields,TEntityDisplayedColumns, TEntityQuery extends FieldValues>
+export function ReturnAdvancedSearchFields({ searchFields }) {
   return (
     <Box
       sx={{
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
         alignItems: "center",
-        gap: "5px 5px",
+        gap: "2px 10px",
       }}
     >
       {Object.entries(searchFields).map(([searchField, searchFieldType]) => (
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "1fr 3fr",
+            gridTemplateColumns: "2fr 8fr",
             alignItems: "center",
-            gap: "5px 5px",
+            gap: "2px 5px",
           }}
         >
           {(searchField.includes("min") || searchField.includes("From")) && (
@@ -69,23 +68,38 @@ export function ReturnSearchFields({ searchFields }) {
 }
 export default function LeftPanel<
   TEntity,
-  TEntityAdvancedSearchCheckboxes,
-  TEntityAdvancedSearchFields,
+  // TentitySearchChb,
+  // TEntityAdvancedSearchFields,
   TEntityDisplayedColumns,
   TEntityQuery extends FieldValues,
 >({ leftPanelProps }) {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState<boolean>(false);
   const {
     entityName,
-    entityAdvancedSearchCheckboxes,
-    entityAdvancedSearchFields,
+    // entitySearchChb,
+    // entityAdvancedSearchFields,
     entityAdvancedSearchInfo,
     entityDislayedColumns,
     getAllEntities,
     getEntityById,
   } = { ...leftPanelProps };
-  console.log(entityAdvancedSearchCheckboxes);
-  console.log(entityName);
+  
+  const [searchFilters, setSearchFilters] = useState<{[key: string]: string | boolean | number | undefined}>({searchTxt: ""});
+  const searchChb: {[key: string]: boolean} = {};
+  Object.entries(entityAdvancedSearchInfo).map(([searchBoxKey, _]) => searchChb[searchBoxKey] = false);
+  const [entitySearchChb, setEntitySearchChb] = useState<{[key:string]:boolean}>(searchChb);
+  console.log(entitySearchChb);
+  const handleSearchTxt= (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchFilters((prev) => ({...prev, ["searchTxt"]: e.target.value}));
+    
+  }
+  const handleSearchChb = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEntitySearchChb((prev) => ({...prev, [e.target.name]: e.target.checked}));
+    console.log(entitySearchChb);
+  }
+
+  // console.log(entitySearchChb);
+  // console.log(entityName);
   return (
     <Stack>
       <Typography>Left Panel</Typography>
@@ -95,11 +109,14 @@ export default function LeftPanel<
         }}
       >
         <OutlinedInput
+          name="searchTxt"
           type="string"
           placeholder={`Type to search for ${entityName}s`}
+          value={searchFilters.searchTxt}
+          onChange={handleSearchTxt}
           size="small"
           fullWidth
-        ></OutlinedInput>
+        />
         <IconButton>
           <SearchOutlinedIcon />
         </IconButton>
@@ -120,16 +137,20 @@ export default function LeftPanel<
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: "1fr 3fr 6fr",
+              gridTemplateColumns: "0.5fr 2.5fr 7fr",
               alignItems: "center",
-              gap: "5px 5px",
+              gap: "5px 0px",
             }}
           >
-            <Checkbox id={chb}></Checkbox>
+            <Checkbox 
+              name={chb} 
+              checked={entitySearchChb[chb]}
+              onChange={handleSearchChb}
+            />
             <Typography>{chb}</Typography>
-            <ReturnSearchFields
+            <ReturnAdvancedSearchFields
               searchFields={searchFields}
-            ></ReturnSearchFields>
+            ></ReturnAdvancedSearchFields>
           </Box>
         ))}
       </Collapse>

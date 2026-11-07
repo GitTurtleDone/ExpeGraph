@@ -58,14 +58,14 @@ const userDisplayedColumns: UserDisplayedColumns = {
 
 const leftPanelProps: LeftPanelProps<
   User,
-  UserAdvancedSearchCheckboxes,
-  UserAdvancedSearchFields,
+  // UserAdvancedSearchCheckboxes,
+  // UserAdvancedSearchFields,
   UserDisplayedColumns,
   UserQuery
 > = {
   entityName: "user",
-  entityAdvancedSearchCheckboxes: userAdvancedSearchCheckboxes,
-  entityAdvancedSearchFields: userAdvancedSearchFields,
+  // entityAdvancedSearchCheckboxes: userAdvancedSearchCheckboxes,
+  // entityAdvancedSearchFields: userAdvancedSearchFields,
   entityAdvancedSearchInfo: userAdvancedSearchInfo,
   entityDislayedColumns: userDisplayedColumns,
   getAllEntities: getAllUsers,

@@ -13,13 +13,13 @@ export type NestedDictionary = {
 
 export type LeftPanelProps<
   TEntity, 
-  TEntityAdvancedSearchCheckboxes, 
-  TEntityAdvancedSearchFields, 
+  // TEntityAdvancedSearchCheckboxes, 
+  // TEntityAdvancedSearchFields, 
   TEntityDislayedColums, 
   TEntityQuery extends FieldValues> = {
   entityName: string;     
-  entityAdvancedSearchCheckboxes: TEntityAdvancedSearchCheckboxes, 
-  entityAdvancedSearchFields: TEntityAdvancedSearchFields, 
+  // entityAdvancedSearchCheckboxes: TEntityAdvancedSearchCheckboxes, 
+  // entityAdvancedSearchFields: TEntityAdvancedSearchFields, 
   entityAdvancedSearchInfo: NestedDictionary;
   entityDislayedColums: TEntityDislayedColums ,
   getAllEntities: (q: TEntityQuery) => Promise<TEntity[]>; 

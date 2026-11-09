@@ -31,21 +31,14 @@ import { Preview } from "@mui/icons-material";
 export function ReturnAdvancedSearchFields({
   searchFields,
   searchFilters,
+  setSearchFilters,
+  searchChbKey,
+  searchChbVal,
 }) {
   const handleAdvancedSearchFilters = (
     e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    Object.entries(entityAdvancedSearchInfo).map(
-      ([searchChbKey, searchFields]) => {
-        entitySearchChb[searchChbKey] === true &&
-          setSearchFilters((prev) => ({
-            ...prev,
-            [e.target.name]: e.target.value,
-          }));
-      },
-    );
-    console.log(searchFilters);
-  };
+  ) => {};
+  console.log(`${searchChbKey}: ${searchChbVal}`);
   return (
     <Box
       sx={{
@@ -78,9 +71,20 @@ export function ReturnAdvancedSearchFields({
           ) && <Typography></Typography>}
 
           <OutlinedInput
+            name={searchField}
             type={searchFieldType}
             size="small"
-            onChange={handleAdvancedSearchFilters}
+            onChange={(e) => {
+              searchChbVal &&
+                setSearchFilters((prev) => ({
+                  ...prev,
+                  [searchField]: e.target.value,
+                }));
+              !searchChbVal &&
+                searchField in searchFilters &&
+                delete searchFilters[searchField];
+            }}
+            disabled={!searchChbVal}
           />
         </Box>
       ))}
@@ -119,7 +123,7 @@ export default function LeftPanel<
   const handleSearchTxt = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchFilters((prev) => ({ ...prev, ["searchTxt"]: e.target.value }));
   };
-  
+
   const handleSearchChb = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEntitySearchChb((prev) => ({
       ...prev,
@@ -128,7 +132,9 @@ export default function LeftPanel<
     console.log(entitySearchChb);
   };
 
-  
+  const searchEntities = () => {
+    console.log(searchFilters);
+  };
 
   // console.log(entitySearchChb);
   // console.log(entityName);
@@ -149,7 +155,7 @@ export default function LeftPanel<
           size="small"
           fullWidth
         />
-        <IconButton>
+        <IconButton onClick={searchEntities}>
           <SearchOutlinedIcon />
         </IconButton>
       </Box>
@@ -183,6 +189,9 @@ export default function LeftPanel<
             <ReturnAdvancedSearchFields
               searchFields={searchFields}
               searchFilters={searchFilters}
+              setSearchFilters={setSearchFilters}
+              searchChbKey={chb}
+              searchChbVal={entitySearchChb[chb]}
             ></ReturnAdvancedSearchFields>
           </Box>
         ))}

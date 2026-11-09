@@ -30,7 +30,7 @@ const userAdvancedSearchCheckboxes: UserAdvancedSearchCheckboxes = {
   idRangeChb: false,
   isActiveChb: false,
   lastLoginRangeChb: false,
-}
+};
 
 const userAdvancedSearchFields: UserAdvancedSearchFields = {
   minId: "",
@@ -38,13 +38,13 @@ const userAdvancedSearchFields: UserAdvancedSearchFields = {
   isActive: false,
   lastLoginFrom: "",
   lastLoginTo: "",
-}
+};
 
 const userAdvancedSearchInfo: NestedDictionary = {
-  idRangeChb: {minId: "string", maxId: "string"},
-  isActiveChb: {isActive: "boolean"},
-  lastLoginRangeChb: {lastLoginFrom: "string", lastLoginTo: "string"}
-}
+  idRangeChb: { minId: "number", maxId: "number" },
+  isActiveChb: { isActive: "boolean" },
+  lastLoginRangeChb: { lastLoginFrom: "string", lastLoginTo: "string" },
+};
 
 const userDisplayedColumns: UserDisplayedColumns = {
   userId: 1,
@@ -53,8 +53,7 @@ const userDisplayedColumns: UserDisplayedColumns = {
   firstName: "",
   lastName: "",
   lastLoginAt: "",
-}
-
+};
 
 const leftPanelProps: LeftPanelProps<
   User,
@@ -111,8 +110,6 @@ const rightPanelProps: RightPanelProps<User, UserInput> = {
   deleteEntity: deleteUser,
 };
 
-
-
 export default function UsersPage() {
   return (
     <Stack>
@@ -120,10 +117,7 @@ export default function UsersPage() {
         pageTitle="Users"
         leftPanelProps={leftPanelProps}
         rightPanelProps={rightPanelProps}
-        
       />
-
-      
     </Stack>
   );
 }

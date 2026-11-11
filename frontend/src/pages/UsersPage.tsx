@@ -78,7 +78,7 @@ const userLayout: InputLayout<UserInput>[] = [
     required: true,
   },
   { label: "Email", inputKey: "email", type: "string" },
-  { label: "Password", inputKey: "password", type: "string" },
+  { label: "Password", inputKey: "password", type: "password" },
   {
     label: "First Name",
     inputKey: "firstName",

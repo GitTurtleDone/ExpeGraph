@@ -6,7 +6,8 @@ import * as z from "zod";
 import type { User, UserInput } from "../../../types/users";
 import { userSchema, userInputSchema } from "../../../types/users";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 
 import {
   Stack,
@@ -19,12 +20,17 @@ import {
   DialogContent,
   DialogActions,
   DialogContentText,
+  TextField,
+  Icon,
+  IconButton,
 } from "@mui/material";
 
 import { createUser, deleteUser, updateUser } from "../../../api/user";
 import type { SampleInput } from "../../../types/samples";
 import type { RightPanelProps } from "../../../types/basic";
 import type { FieldValues } from "react-hook-form";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+
 export default function RightPanel<
   TEntity,
   TEntityInput extends FieldValues,
@@ -43,6 +49,7 @@ export default function RightPanel<
   const [selectedEntry, setSelectedEntry] = useState<TEntity | undefined>(
     undefined,
   );
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
   const [openDeleteWarningDialog, setOpenDeleteWarningDialog] = useState(false);
   const [openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog] =
@@ -105,7 +112,24 @@ export default function RightPanel<
         >
           <Typography>{f.label}</Typography>
           <Stack>
-            <OutlinedInput {...register(f.inputKey)} type={f.type} />
+            {f.type !== "password" && (
+              <OutlinedInput {...register(f.inputKey)} type={f.type} />
+            )}
+            {f.type === "password" && (
+              <OutlinedInput
+                {...register(f.inputKey)}
+                type={showPassword ? "text" : f.type}
+                endAdornment={
+                  <IconButton onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? (
+                      <VisibilityOffOutlinedIcon />
+                    ) : (
+                      <VisibilityOutlinedIcon />
+                    )}
+                  </IconButton>
+                }
+              />
+            )}
 
             <ErrorMessage
               errors={errors}

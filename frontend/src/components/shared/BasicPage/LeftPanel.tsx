@@ -142,13 +142,12 @@ export default function LeftPanel<
 
   const searchEntities = useQuery({
     queryKey: [entityName],
-    queryFn: () => getAllEntities(builtSearchQuery),
+    queryFn: () => {setEnableSearchEntities(false); getAllEntities(builtSearchQuery); },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: entityName})
     },
     enabled: enableSearchEntities,
-
-  })
+  });
 
   // console.log(entitySearchChb);
   // console.log(entityName);

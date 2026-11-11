@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
 
 import {
   Typography,
@@ -80,9 +80,6 @@ export function ReturnAdvancedSearchFields({
                   ...prev,
                   [searchField]: e.target.value,
                 }));
-              !searchChbVal &&
-                searchField in searchFilters &&
-                delete searchFilters[searchField];
             }}
             disabled={!searchChbVal}
           />
@@ -98,7 +95,7 @@ export default function LeftPanel<
   TEntityDisplayedColumns,
   TEntityQuery extends FieldValues,
 >({ leftPanelProps }) {
-  const [showAdvancedSearch, setShowAdvancedSearch] = useState<boolean>(false);
+  
   const {
     entityName,
     // entitySearchChb,
@@ -108,7 +105,7 @@ export default function LeftPanel<
     getAllEntities,
     getEntityById,
   } = { ...leftPanelProps };
-
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState<boolean>(false);
   const [searchFilters, setSearchFilters] = useState<{
     [key: string]: string | boolean | number | undefined;
   }>({ searchTxt: "" });
@@ -120,9 +117,8 @@ export default function LeftPanel<
     [key: string]: boolean;
   }>(searchChb);
   console.log(entitySearchChb);
-  const handleSearchTxt = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchFilters((prev) => ({ ...prev, ["searchTxt"]: e.target.value }));
-  };
+  const [searchTxt, setSearchTxt] = useState<string>("");
+  const [enableSearchEntities, setEnableSearchEntities] = useState<boolean>(false);
 
   const handleSearchChb = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEntitySearchChb((prev) => ({
@@ -131,10 +127,28 @@ export default function LeftPanel<
     }));
     console.log(entitySearchChb);
   };
-
-  const searchEntities = () => {
-    console.log(searchFilters);
+  const queryClient = new QueryClient();
+  const builtSearchQuery = () => {
+    const searchQuery = {"searchTxt": searchTxt}
+    Object.entries(entityAdvancedSearchInfo).map(([chb, searchFields]) => {
+      entitySearchChb[chb] === true && searchFields &&
+        Object.entries(searchFields).map(([searchField, searchValue]) => {
+          searchFilters[searchField] && (searchQuery[searchField] = searchFilters[searchField]) 
+        });
+    });
+    console.log(searchQuery);
+    return searchQuery
   };
+
+  const searchEntities = useQuery({
+    queryKey: [entityName],
+    queryFn: () => getAllEntities(builtSearchQuery),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: entityName})
+    },
+    enabled: enableSearchEntities,
+
+  })
 
   // console.log(entitySearchChb);
   // console.log(entityName);
@@ -150,12 +164,12 @@ export default function LeftPanel<
           name="searchTxt"
           type="string"
           placeholder={`Type to search for ${entityName}s`}
-          value={searchFilters.searchTxt}
-          onChange={handleSearchTxt}
+          value={searchTxt}
+          onChange={(e) => setSearchTxt(e.target.value)}
           size="small"
           fullWidth
         />
-        <IconButton onClick={searchEntities}>
+        <IconButton onClick={() => setEnableSearchEntities(true)}>
           <SearchOutlinedIcon />
         </IconButton>
       </Box>

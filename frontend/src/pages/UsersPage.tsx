@@ -43,7 +43,7 @@ const userAdvancedSearchFields: UserAdvancedSearchFields = {
 const userAdvancedSearchInfo: NestedDictionary = {
   idRangeChb: { minId: "number", maxId: "number" },
   isActiveChb: { isActive: "boolean" },
-  lastLoginRangeChb: { lastLoginFrom: "string", lastLoginTo: "string" },
+  lastLoginRangeChb: { lastLoginFrom: "date", lastLoginTo: "date" },
 };
 
 const userDisplayedColumns: UserDisplayedColumns = {

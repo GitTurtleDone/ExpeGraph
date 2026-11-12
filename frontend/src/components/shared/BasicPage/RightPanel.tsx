@@ -71,7 +71,7 @@ export default function RightPanel<
     onSuccess: async (newEntry) => {
       setSelectedEntry(newEntry);
       setSelectedId(newEntry.userId);
-      await queryClient.invalidateQueries({ queryKey: [entityName] });
+      await queryClient.invalidateQueries({ queryKey: [entityName+"s"] });
     },
   });
   const onUpdateEntry = useMutation({
@@ -81,7 +81,7 @@ export default function RightPanel<
       setSelectedEntry(updatedEntry);
       setSelectedId(updatedEntry.userId);
       await queryClient.invalidateQueries({
-        queryKey: [entityName],
+        queryKey: [entityName+"s"],
       });
     },
   });
@@ -89,7 +89,7 @@ export default function RightPanel<
     mutationFn: (id: number) => deleteEntity(id),
     onSuccess: async () => {
       (setOpenDeleteConfirmingDialog(true),
-        queryClient.invalidateQueries({ queryKey: [entityName] }));
+        queryClient.invalidateQueries({ queryKey: [entityName+"s"] }));
     },
   });
 

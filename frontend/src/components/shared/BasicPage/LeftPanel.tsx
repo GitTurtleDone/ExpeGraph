@@ -136,11 +136,12 @@ export default function LeftPanel<
 
   const queryClient = useQueryClient();
   const buildSearchQuery = () => {
-    const q = { "searchTxt": searchTxt.trim() ?? ""};
+    const q = { searchTxt: searchTxt.trim() ?? "" };
     Object.entries(entityAdvancedSearchInfo).map(([chb, searchFields]) => {
       entitySearchChb[chb] === true &&
         Object.entries(searchFields).map(([searchField, searchValue]) => {
-          searchFilters[searchField] && searchFilters[searchField] !== "" && 
+          searchFilters[searchField] &&
+            searchFilters[searchField] !== "" &&
             (q[searchField] = searchFilters[searchField]);
         });
     });
@@ -154,24 +155,24 @@ export default function LeftPanel<
     enabled: enableSearch,
   });
 
-  
-  const entityRows = (allEntities.data ?? []).map((ent) => ({
-    id: ent.userId,
-    username: ent.username,
-    email: ent.email,
-    firstName: ent.firstName,
-    lastName: ent.lastName,
-    lastLoginAt: ent.lastLoginAt,
-
-  }));
+  const entityRows = (allEntities.data ?? []).map((ent) => {
+    return {
+      id: ent.userId,
+      username: ent.username,
+      email: ent.email,
+      firstName: ent.firstName,
+      lastName: ent.lastName,
+      lastLoginAt: ent.lastLoginAt,
+    };
+  });
   // const entityRows2 = allEntities.map((ent) =>)
   // const columns : GridColDef[] = entityDislayedColDef
   // console.log(entitySearchChb);
   // console.log(entityName);
-  // entityDislayedColDef.map((col) => 
+  // entityDislayedColDef.map((col) =>
   //   Object.entries(col).map(([key,value]) => console.log(`${key}: ${value}`))
   // )
-  
+
   return (
     <Stack>
       <Typography>Left Panel</Typography>
@@ -190,6 +191,7 @@ export default function LeftPanel<
           fullWidth
         />
         <IconButton
+          aria-label="Search"
           onClick={() => {
             setSearchQuery(buildSearchQuery());
             setEnableSearch(true);
@@ -225,7 +227,7 @@ export default function LeftPanel<
               checked={entitySearchChb[chb]}
               onChange={handleSearchChb}
             />
-            <Typography>{camelToTitle(chb.slice(0,-3))}</Typography>
+            <Typography>{camelToTitle(chb.slice(0, -3))}</Typography>
             <ReturnAdvancedSearchFields
               searchFields={searchFields}
               searchFilters={searchFilters}
@@ -240,11 +242,7 @@ export default function LeftPanel<
         columns={entityDislayedColDef} 
         rows={rows} 
       /> */}
-      <DataGrid
-        columns={entityDisplayedColDef}
-        rows={entityRows}
-        
-      />
+      <DataGrid columns={entityDisplayedColDef} rows={entityRows} />
     </Stack>
   );
 }

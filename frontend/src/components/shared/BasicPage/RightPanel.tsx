@@ -30,6 +30,7 @@ import type { SampleInput } from "../../../types/samples";
 import type { RightPanelProps } from "../../../types/basic";
 import type { FieldValues } from "react-hook-form";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { capitalizeFirstLetter } from "../../../api/basicAPI";
 
 export default function RightPanel<
   TEntity,
@@ -37,6 +38,7 @@ export default function RightPanel<
   // TEntityQuery extends FieldValues,
 >({ rightPanelProps }) {
   const {
+    entityName,
     inputLayout,
     inputDefaultValues,
     resolver,
@@ -69,7 +71,7 @@ export default function RightPanel<
     onSuccess: async (newEntry) => {
       setSelectedEntry(newEntry);
       setSelectedId(newEntry.userId);
-      await queryClient.invalidateQueries({ queryKey: ["users"] });
+      await queryClient.invalidateQueries({ queryKey: [entityName] });
     },
   });
   const onUpdateEntry = useMutation({
@@ -79,7 +81,7 @@ export default function RightPanel<
       setSelectedEntry(updatedEntry);
       setSelectedId(updatedEntry.userId);
       await queryClient.invalidateQueries({
-        queryKey: ["users"],
+        queryKey: [entityName],
       });
     },
   });
@@ -87,7 +89,7 @@ export default function RightPanel<
     mutationFn: (id: number) => deleteEntity(id),
     onSuccess: async () => {
       (setOpenDeleteConfirmingDialog(true),
-        queryClient.invalidateQueries({ queryKey: ["users"] }));
+        queryClient.invalidateQueries({ queryKey: [entityName] }));
     },
   });
 
@@ -102,7 +104,7 @@ export default function RightPanel<
     <Stack sx={{ gap: 2 }}>
       <Typography>{`Right Panel ${typeof TEntity}`} </Typography>
       <Box sx={{ display: "grid", gridTemplateColumns: "1fr 2fr" }}>
-        <Typography>User ID</Typography>
+        <Typography>{capitalizeFirstLetter(entityName)} ID</Typography>
         <OutlinedInput type="number" disabled={true} />
       </Box>
       {inputLayout.map((f) => (
@@ -130,7 +132,6 @@ export default function RightPanel<
                 }
               />
             )}
-
             <ErrorMessage
               errors={errors}
               name={f.inputKey}

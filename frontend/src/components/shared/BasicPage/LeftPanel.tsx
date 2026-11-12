@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 
-import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
-
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+} from "@tanstack/react-query";
+import type { UserQuery } from "../../../api/user";
 import {
   Typography,
   Collapse,
@@ -27,6 +32,8 @@ import { userAdvancedSearchFieldSchema } from "../../../types/users";
 import { gridAdditionalRowGroupsSelector } from "@mui/x-data-grid/internals";
 import { Preview } from "@mui/icons-material";
 
+import { camelToTitle } from "../../../api/basicAPI";
+
 // <TEntity, TentitySearchChb, TEntityAdvancedSearchFields,TEntityDisplayedColumns, TEntityQuery extends FieldValues>
 export function ReturnAdvancedSearchFields({
   searchFields,
@@ -38,7 +45,7 @@ export function ReturnAdvancedSearchFields({
   const handleAdvancedSearchFilters = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {};
-  console.log(`${searchChbKey}: ${searchChbVal}`);
+  // console.log(`${searchChbKey}: ${searchChbVal}`);
   return (
     <Box
       sx={{
@@ -50,6 +57,7 @@ export function ReturnAdvancedSearchFields({
     >
       {Object.entries(searchFields).map(([searchField, searchFieldType]) => (
         <Box
+          key={"searchField_" + searchField}
           sx={{
             display: "grid",
             gridTemplateColumns: "2fr 8fr",
@@ -92,20 +100,18 @@ export default function LeftPanel<
   TEntity,
   // TentitySearchChb,
   // TEntityAdvancedSearchFields,
-  TEntityDisplayedColumns,
+  // TEntityDisplayedColumns,
   TEntityQuery extends FieldValues,
 >({ leftPanelProps }) {
-  
   const {
     entityName,
-    // entitySearchChb,
-    // entityAdvancedSearchFields,
     entityAdvancedSearchInfo,
-    entityDislayedColumns,
+    entityDisplayedColDef,
     getAllEntities,
     getEntityById,
   } = { ...leftPanelProps };
   const [showAdvancedSearch, setShowAdvancedSearch] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState({ searchTxt: "" });
   const [searchFilters, setSearchFilters] = useState<{
     [key: string]: string | boolean | number | undefined;
   }>({ searchTxt: "" });
@@ -116,41 +122,62 @@ export default function LeftPanel<
   const [entitySearchChb, setEntitySearchChb] = useState<{
     [key: string]: boolean;
   }>(searchChb);
-  console.log(entitySearchChb);
+  // console.log(entitySearchChb);
   const [searchTxt, setSearchTxt] = useState<string>("");
-  const [enableSearchEntities, setEnableSearchEntities] = useState<boolean>(false);
+  const [enableSearch, setEnableSearch] = useState<boolean>(false);
 
   const handleSearchChb = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEntitySearchChb((prev) => ({
       ...prev,
       [e.target.name]: e.target.checked,
     }));
-    console.log(entitySearchChb);
+    // console.log(entitySearchChb);
   };
-  const queryClient = new QueryClient();
-  const builtSearchQuery = () => {
-    const searchQuery = {"searchTxt": searchTxt}
+  const rowTests = [
+    {
+      id: 1,
+      username: "@MUI",
+      age: 20,
+    },
+  ];
+  const queryClient = useQueryClient();
+  const buildSearchQuery = () => {
+    const q = { "searchTxt": searchTxt.trim() ?? ""};
     Object.entries(entityAdvancedSearchInfo).map(([chb, searchFields]) => {
-      entitySearchChb[chb] === true && searchFields &&
+      entitySearchChb[chb] === true &&
         Object.entries(searchFields).map(([searchField, searchValue]) => {
-          searchFilters[searchField] && (searchQuery[searchField] = searchFilters[searchField]) 
+          searchFilters[searchField] && searchFilters[searchField] !== "" && 
+            (q[searchField] = searchFilters[searchField]);
         });
     });
-    console.log(searchQuery);
-    return searchQuery
+    setSearchQuery(q);
+    return q;
   };
 
-  const searchEntities = useQuery({
-    queryKey: [entityName],
-    queryFn: () => {setEnableSearchEntities(false); getAllEntities(builtSearchQuery); },
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: entityName})
-    },
-    enabled: enableSearchEntities,
+  const allEntities = useQuery({
+    queryKey: [entityName + "s", searchQuery],
+    queryFn: () => getAllEntities(searchQuery),
+    enabled: enableSearch,
   });
 
+  
+  const entityRows = (allEntities.data ?? []).map((ent) => ({
+    id: ent.userId,
+    userName: ent.userName,
+    email: ent.email,
+    firstName: ent.firstName,
+    lastName: ent.lastName,
+    lastLoginAt: ent.lastLoginAt,
+
+  }));
+  // const entityRows2 = allEntities.map((ent) =>)
+  // const columns : GridColDef[] = entityDislayedColDef
   // console.log(entitySearchChb);
   // console.log(entityName);
+  // entityDislayedColDef.map((col) => 
+  //   Object.entries(col).map(([key,value]) => console.log(`${key}: ${value}`))
+  // )
+  
   return (
     <Stack>
       <Typography>Left Panel</Typography>
@@ -168,7 +195,12 @@ export default function LeftPanel<
           size="small"
           fullWidth
         />
-        <IconButton onClick={() => setEnableSearchEntities(true)}>
+        <IconButton
+          onClick={() => {
+            setSearchQuery(buildSearchQuery());
+            setEnableSearch(true);
+          }}
+        >
           <SearchOutlinedIcon />
         </IconButton>
       </Box>
@@ -186,6 +218,7 @@ export default function LeftPanel<
       <Collapse in={showAdvancedSearch}>
         {Object.entries(entityAdvancedSearchInfo).map(([chb, searchFields]) => (
           <Box
+            key={"advancedSearchChb_" + chb}
             sx={{
               display: "grid",
               gridTemplateColumns: "0.5fr 2.5fr 7fr",
@@ -198,7 +231,7 @@ export default function LeftPanel<
               checked={entitySearchChb[chb]}
               onChange={handleSearchChb}
             />
-            <Typography>{chb}</Typography>
+            <Typography>{camelToTitle(chb.slice(0,-3))}</Typography>
             <ReturnAdvancedSearchFields
               searchFields={searchFields}
               searchFilters={searchFilters}
@@ -209,6 +242,15 @@ export default function LeftPanel<
           </Box>
         ))}
       </Collapse>
+      {/* <DataGrid 
+        columns={entityDislayedColDef} 
+        rows={rows} 
+      /> */}
+      <DataGrid
+        columns={entityDisplayedColDef}
+        rows={entityRows}
+        
+      />
     </Stack>
   );
 }

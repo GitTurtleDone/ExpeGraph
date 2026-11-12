@@ -18,8 +18,10 @@ export async function getAllSamples(q: SampleQuery = {}): Promise<Sample[]> {
       params.append(key, String(value));
   }
   const qs = params.toString();
+  console.log(`In samples.ts: ${qs}`);
   const res = await fetch(`${BASE}/Samples${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error(`Failed to fetch samples: ${res.status}`);
+  console.log(res.json().data);
   return res.json();
 }
 

@@ -2,6 +2,8 @@ import { Stack, Typography } from "@mui/material";
 
 import BasicPage from "../components/shared/BasicPage/BasicPage";
 
+import type { GridColDef } from "@mui/x-data-grid";
+
 import type {
   InputLayout,
   LeftPanelProps,
@@ -25,6 +27,7 @@ import {
   deleteUser,
 } from "../api/user";
 import type { NestedDictionary } from "../types/basic";
+import { FileDownload, WidthFull } from "@mui/icons-material";
 
 const userAdvancedSearchCheckboxes: UserAdvancedSearchCheckboxes = {
   idRangeChb: false,
@@ -46,27 +49,29 @@ const userAdvancedSearchInfo: NestedDictionary = {
   lastLoginRangeChb: { lastLoginFrom: "date", lastLoginTo: "date" },
 };
 
-const userDisplayedColumns: UserDisplayedColumns = {
-  userId: 1,
-  userName: "",
-  email: "",
-  firstName: "",
-  lastName: "",
-  lastLoginAt: "",
-};
+const userDisplayedColDef: GridColDef[] = [
+  { field: "id", headerName: "User ID", width: 75 },
+  { field: "userName", headerName: "Username", width: 100 },
+  { field: "email", headerName: "Email", width: 100 },
+  { field: "firstName", headerName: "First Name", width: 100 },
+  { field: "lastName", headerName: "Last Name", width: 100 },
+  {
+    field: "lastLoginAt",
+    headerName: "Last Login",
+    width: 100,
+    type: "date",
+    valueGetter: (value) => value ? new Date(value) : null,
+    valueFormatter: (value: Date | null) => {
+      if (!value) return '';
+      return value.toLocaleDateString()
+    }
+  },
+];
 
-const leftPanelProps: LeftPanelProps<
-  User,
-  // UserAdvancedSearchCheckboxes,
-  // UserAdvancedSearchFields,
-  UserDisplayedColumns,
-  UserQuery
-> = {
+const leftPanelProps: LeftPanelProps<User, UserQuery> = {
   entityName: "user",
-  // entityAdvancedSearchCheckboxes: userAdvancedSearchCheckboxes,
-  // entityAdvancedSearchFields: userAdvancedSearchFields,
   entityAdvancedSearchInfo: userAdvancedSearchInfo,
-  entityDislayedColumns: userDisplayedColumns,
+  entityDisplayedColDef: userDisplayedColDef,
   getAllEntities: getAllUsers,
   getEntityById: getUserById,
 };
@@ -100,6 +105,7 @@ const userDefaultValues: UserInput = {
 };
 
 const rightPanelProps: RightPanelProps<User, UserInput> = {
+  entityName: "user",
   inputLayout: userLayout,
   inputDefaultValues: userDefaultValues,
   resolver: zodResolver(userInputSchema),

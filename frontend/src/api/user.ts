@@ -12,12 +12,13 @@ export type UserQuery = {
 
 const BASE = "http://localhost:5174";
 
-export async function getAllUsers(q: UserQuery): Promise<User[]> {
+export async function getAllUsers(q:UserQuery): Promise<User[]> {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(q))
     if (value !== undefined && value !== null && value !== "")
       params.append(key, String(value));
   const qs = params.toString();
+  console.log(`In getAllUsers qs: ${qs}`);
   const res = await fetch(`${BASE}/Users${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error(`Failed to fethc users: ${res.status}`);
   return res.json();

@@ -133,13 +133,7 @@ export default function LeftPanel<
     }));
     // console.log(entitySearchChb);
   };
-  const rowTests = [
-    {
-      id: 1,
-      username: "@MUI",
-      age: 20,
-    },
-  ];
+
   const queryClient = useQueryClient();
   const buildSearchQuery = () => {
     const q = { "searchTxt": searchTxt.trim() ?? ""};
@@ -163,7 +157,7 @@ export default function LeftPanel<
   
   const entityRows = (allEntities.data ?? []).map((ent) => ({
     id: ent.userId,
-    userName: ent.userName,
+    username: ent.username,
     email: ent.email,
     firstName: ent.firstName,
     lastName: ent.lastName,

@@ -51,7 +51,7 @@ const userAdvancedSearchInfo: NestedDictionary = {
 
 const userDisplayedColDef: GridColDef[] = [
   { field: "id", headerName: "User ID", width: 75 },
-  { field: "userName", headerName: "Username", width: 100 },
+  { field: "username", headerName: "Username", width: 100 },
   { field: "email", headerName: "Email", width: 100 },
   { field: "firstName", headerName: "First Name", width: 100 },
   { field: "lastName", headerName: "Last Name", width: 100 },
@@ -77,8 +77,8 @@ const leftPanelProps: LeftPanelProps<User, UserQuery> = {
 };
 const userLayout: InputLayout<UserInput>[] = [
   {
-    label: "User Name",
-    inputKey: "userName",
+    label: "Username",
+    inputKey: "username",
     type: "string",
     required: true,
   },
@@ -97,7 +97,7 @@ const userLayout: InputLayout<UserInput>[] = [
 ];
 
 const userDefaultValues: UserInput = {
-  userName: "gtd19",
+  username: "gtd19",
   email: "giang.dang@canterbury.ac.nz",
   firstName: "Giang",
   lastName: "Dang",

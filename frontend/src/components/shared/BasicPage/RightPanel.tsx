@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,14 +29,20 @@ import { createUser, deleteUser, updateUser } from "../../../api/user";
 import type { SampleInput } from "../../../types/samples";
 import type { RightPanelProps } from "../../../types/basic";
 import type { FieldValues } from "react-hook-form";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Preview, Visibility, VisibilityOff } from "@mui/icons-material";
 import { capitalizeFirstLetter } from "../../../api/basicAPI";
 
 export default function RightPanel<
   TEntity,
   TEntityInput extends FieldValues,
   // TEntityQuery extends FieldValues,
->({ rightPanelProps }) {
+>({
+  rightPanelProps,
+  selectedId,
+  setSelectedId,
+  selectedEntry,
+  setSelectedEntry,
+}) {
   const {
     entityName,
     inputLayout,
@@ -48,11 +54,8 @@ export default function RightPanel<
     updateEntity,
     deleteEntity,
   } = { ...rightPanelProps };
-  const [selectedEntry, setSelectedEntry] = useState<TEntity | undefined>(
-    undefined,
-  );
+  console.log(`In Right Panel: ${selectedId}`);
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
   const [openDeleteWarningDialog, setOpenDeleteWarningDialog] = useState(false);
   const [openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog] =
     useState(false);
@@ -60,18 +63,26 @@ export default function RightPanel<
     register,
     handleSubmit,
     reset,
+    resetField,
     formState: { errors, isSubmitting },
   } = useForm<TEntityInput>({
     defaultValues: inputDefaultValues,
     resolver: resolver,
   });
+  useEffect(() => {
+    reset(
+      selectedEntry
+        ? { ...inputDefaultValues, ...selectedEntry }
+        : inputDefaultValues,
+    ); // for users case "password" is not returned, so password take "" from inputDefaultValues
+  }, [selectedEntry]);
   const queryClient = useQueryClient();
   const onAddEntry = useMutation({
     mutationFn: createEntity,
     onSuccess: async (newEntry) => {
       setSelectedEntry(newEntry);
       setSelectedId(newEntry.userId);
-      await queryClient.invalidateQueries({ queryKey: [entityName+"s"] });
+      await queryClient.invalidateQueries({ queryKey: [entityName + "s"] });
     },
   });
   const onUpdateEntry = useMutation({
@@ -81,7 +92,7 @@ export default function RightPanel<
       setSelectedEntry(updatedEntry);
       setSelectedId(updatedEntry.userId);
       await queryClient.invalidateQueries({
-        queryKey: [entityName+"s"],
+        queryKey: [entityName + "s"],
       });
     },
   });
@@ -89,7 +100,7 @@ export default function RightPanel<
     mutationFn: (id: number) => deleteEntity(id),
     onSuccess: async () => {
       (setOpenDeleteConfirmingDialog(true),
-        queryClient.invalidateQueries({ queryKey: [entityName+"s"] }));
+        queryClient.invalidateQueries({ queryKey: [entityName + "s"] }));
     },
   });
 
@@ -105,7 +116,7 @@ export default function RightPanel<
       <Typography>{`Right Panel ${typeof TEntity}`} </Typography>
       <Box sx={{ display: "grid", gridTemplateColumns: "1fr 2fr" }}>
         <Typography>{capitalizeFirstLetter(entityName)} ID</Typography>
-        <OutlinedInput type="number" disabled={true} />
+        <OutlinedInput type="number" disabled={true} value={selectedId ?? ""} />
       </Box>
       {inputLayout.map((f) => (
         <Box
@@ -115,7 +126,12 @@ export default function RightPanel<
           <Typography>{f.label}</Typography>
           <Stack>
             {f.type !== "password" && (
-              <OutlinedInput {...register(f.inputKey)} type={f.type} />
+              <OutlinedInput
+                {...register(f.inputKey)}
+                type={f.type}
+                // value={selectedEntry && (selectedEntry[f.inputKey] ?? "")}
+                // onChange={(e) => setSelectedEntry((prev) => ({...prev, [{f.inputKey !== "password" ? f}] : e.target.value})}
+              />
             )}
             {f.type === "password" && (
               <OutlinedInput
@@ -151,12 +167,20 @@ export default function RightPanel<
           gap: "10%",
         }}
       >
-        <Button variant="contained" onClick={() => reset(inputDefaultValues)}>
+        <Button
+          variant="contained"
+          onClick={() => {
+            setSelectedEntry();
+            setSelectedId();
+            //reset(inputDefaultValues)
+          }}
+        >
           New
         </Button>
         <Button
           variant="contained"
           onClick={handleSubmit((data) => onAddEntry.mutate(data))}
+          disabled={selectedEntry !== undefined}
         >
           Add
         </Button>
@@ -165,7 +189,7 @@ export default function RightPanel<
           onClick={handleSubmit((data) =>
             onUpdateEntry.mutate(selectedId, data),
           )}
-          disabled={true}
+          disabled={selectedEntry === undefined}
         >
           Update
         </Button>
@@ -173,7 +197,7 @@ export default function RightPanel<
           variant="contained"
           onClick={() => {}}
           color="error"
-          disabled={true}
+          disabled={selectedEntry === undefined}
         >
           Delete
         </Button>
@@ -201,7 +225,8 @@ export default function RightPanel<
         <DialogTitle>Deletion Confirmation</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            The entry {selectedEntry} was deleted.
+            The entry with Id{" "}
+            {selectedEntry && selectedEntry[entityName + "Id"]} was deleted.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

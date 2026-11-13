@@ -20,6 +20,10 @@ export type LeftPanelProps<
   TEntityQuery extends FieldValues,
 > = {
   entityName: string;
+  selectedId?: number;
+  setSelectedId?: () => void;
+  selectedEntry?: any;
+  setSelectedEntry?: () => void;
   // entityAdvancedSearchCheckboxes: TEntityAdvancedSearchCheckboxes,
   // entityAdvancedSearchFields: TEntityAdvancedSearchFields,
   entityAdvancedSearchInfo: NestedDictionary;
@@ -29,7 +33,11 @@ export type LeftPanelProps<
   getEntityById?: (id1?: number, id2?: number) => Promise<TEntity>;
 };
 export type RightPanelProps<TEntity, TEntityInput extends FieldValues> = {
-  entityName: string,
+  entityName: string;
+  selectedId?: number;
+  setSelectedId?: ()=>void;
+  selectedEntry?: any;
+  setSelectedEntry?: () => void;
   inputLayout?: InputLayout<TEntityInput>[];
   inputDefaultValues: TEntityInput;
   resolver: Resolver<TEntityInput>;
@@ -40,5 +48,6 @@ export type RightPanelProps<TEntity, TEntityInput extends FieldValues> = {
 
 export type BasicPageProps<TEntity, TEntityInput extends FieldValues> = {
   pageTitle: string;
+  leftPanelProps: LeftPanelProps<TEntity, TEntityInput>
   rightPanelProps: RightPanelProps<TEntity, TEntityInput>;
 };

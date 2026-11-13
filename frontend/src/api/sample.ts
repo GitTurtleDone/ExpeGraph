@@ -1,12 +1,12 @@
 // import { PostAdd } from "@mui/icons-material";
 import type { Sample, SampleInput } from "../types/samples";
 export type SampleQuery = {
-searchTxt?: string;
-minId?: number;
-maxId?: number;
-batchId?: number;
-// sort?: "sampleName";
-// order?: "asc" | "desc";
+  searchTxt?: string;
+  minId?: number;
+  maxId?: number;
+  batchId?: number;
+  // sort?: "sampleName";
+  // order?: "asc" | "desc";
 };
 
 const BASE = "http://localhost:5174";
@@ -21,7 +21,6 @@ export async function getAllSamples(q: SampleQuery = {}): Promise<Sample[]> {
   console.log(`In samples.ts: ${qs}`);
   const res = await fetch(`${BASE}/Samples${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error(`Failed to fetch samples: ${res.status}`);
-  console.log(res.json().data);
   return res.json();
 }
 

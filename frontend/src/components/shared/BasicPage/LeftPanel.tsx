@@ -102,9 +102,16 @@ export default function LeftPanel<
   // TEntityAdvancedSearchFields,
   // TEntityDisplayedColumns,
   TEntityQuery extends FieldValues,
->({ leftPanelProps }) {
+>({
+  leftPanelProps,
+  selectedId,
+  setSelectedId,
+  selectedEntry,
+  setSelectedEntry,
+}) {
   const {
     entityName,
+
     entityAdvancedSearchInfo,
     entityDisplayedColDef,
     getAllEntities,
@@ -156,14 +163,21 @@ export default function LeftPanel<
   });
 
   const entityRows = (allEntities.data ?? []).map((ent) => {
-    return {
-      id: ent.userId,
-      username: ent.username,
-      email: ent.email,
-      firstName: ent.firstName,
-      lastName: ent.lastName,
-      lastLoginAt: ent.lastLoginAt,
-    };
+    const col = { id: ent[entityName + "Id"] };
+    entityDisplayedColDef.map((f) => {
+      {
+        f["field"] !== "id" && (col[f.field] = ent[f.field]);
+      }
+    });
+    return col;
+    // return {
+    //   id: ent.userId,
+    //   username: ent.username,
+    //   email: ent.email,
+    //   firstName: ent.firstName,
+    //   lastName: ent.lastName,
+    //   lastLoginAt: ent.lastLoginAt,
+    // };
   });
   // const entityRows2 = allEntities.map((ent) =>)
   // const columns : GridColDef[] = entityDislayedColDef
@@ -193,6 +207,8 @@ export default function LeftPanel<
         <IconButton
           aria-label="Search"
           onClick={() => {
+            setSelectedId();
+            setSelectedEntry();
             setSearchQuery(buildSearchQuery());
             setEnableSearch(true);
           }}
@@ -242,7 +258,19 @@ export default function LeftPanel<
         columns={entityDislayedColDef} 
         rows={rows} 
       /> */}
-      <DataGrid columns={entityDisplayedColDef} rows={entityRows} />
+      <DataGrid
+        columns={entityDisplayedColDef}
+        rows={entityRows}
+        onRowClick={(row) => {
+          setSelectedId(row.id);
+          (allEntities.data ?? []).map(
+            (ent) => ent["userId"] === row.id && setSelectedEntry(ent),
+          );
+          selectedEntry &&
+            selectedEntry["userId"] &&
+            console.log(`in onRowClick: ${selectedEntry["userId"]}`);
+        }}
+      />
     </Stack>
   );
 }

@@ -36,7 +36,7 @@ export const userInputSchema = userSchema
         .string()
         .regex(
           re,
-          "Password must include at least one number, one uppercase letter, one lowercase letter, and one of special \
+          "Password must start with a letter and include at least one number, one uppercase letter, one lowercase letter, and one of special \
         characters ~!@#$%^&*",
         )
         .min(8, "Password must have at least 8 characters."),

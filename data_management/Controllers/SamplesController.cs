@@ -20,7 +20,6 @@ public class SamplesController: ControllerBase
 	[HttpGet]
 	public async Task<IActionResult> GetAll([FromQuery] SampleQuery q)
 	{
-		Console.WriteLine(q);
 		var query = _db.Samples.AsNoTracking();
 		// use search_words in SampleName, Description, Treatment
 		if (!string.IsNullOrWhiteSpace(q.SearchTxt))

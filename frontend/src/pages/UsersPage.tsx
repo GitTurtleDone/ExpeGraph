@@ -120,7 +120,7 @@ export default function UsersPage() {
   return (
     <Stack>
       <BasicPage
-        pageTitle="Users"
+        pageTitle="User"
         leftPanelProps={leftPanelProps}
         rightPanelProps={rightPanelProps}
       />

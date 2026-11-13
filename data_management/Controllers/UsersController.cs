@@ -25,7 +25,6 @@ public class UsersController : ControllerBase
     {
         // q: query from the frontend request
         // query: request from the backend to database
-        Console.WriteLine(q);
         var query = _db.Users.AsNoTracking();
         if (!string.IsNullOrWhiteSpace(q.SearchTxt))
         {

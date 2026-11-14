@@ -19,24 +19,13 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  DialogContentText,
-  TextField,
-  Icon,
   IconButton,
 } from "@mui/material";
 
-import { createUser, deleteUser, updateUser } from "../../../api/user";
-import type { SampleInput } from "../../../types/samples";
-import type { RightPanelProps, SchemaMode } from "../../../types/basic";
-import type { FieldValues } from "react-hook-form";
-import { Preview, Visibility, VisibilityOff } from "@mui/icons-material";
 import { capitalizeFirstLetter } from "../../../api/basicAPI";
+import type { SchemaMode } from "../../../types/basic";
 
-export default function RightPanel<
-  TEntity,
-  TEntityInput extends FieldValues,
-  // TEntityQuery extends FieldValues,
->({
+export default function RightPanel<TEntity, TEntityInput extends FieldValues>({
   rightPanelProps,
   selectedId,
   setSelectedId,
@@ -54,7 +43,6 @@ export default function RightPanel<
     updateEntity,
     deleteEntity,
   } = { ...rightPanelProps };
-  console.log(`In Right Panel: ${selectedId}`);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [openDeleteWarningDialog, setOpenDeleteWarningDialog] = useState(false);
   const [openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog] =
@@ -64,7 +52,6 @@ export default function RightPanel<
     register,
     handleSubmit,
     reset,
-    resetField,
     formState: { errors, isSubmitting },
   } = useForm<TEntityInput>({
     defaultValues: inputDefaultValues,
@@ -84,7 +71,7 @@ export default function RightPanel<
     onSuccess: async (newEntry) => {
       setSelectedEntry(newEntry);
       setSelectedId(newEntry.userId);
-      await queryClient.invalidateQueries({ queryKey: [entityName + "s"] });
+      await queryClient.invalidateQueries({ queryKey: [entityName] });
     },
   });
   const onUpdateEntry = useMutation({
@@ -93,7 +80,7 @@ export default function RightPanel<
     onSuccess: async (updatedEntry) => {
       setSelectedEntry(updatedEntry);
       await queryClient.invalidateQueries({
-        queryKey: [entityName + "s"],
+        queryKey: [entityName],
       });
     },
   });
@@ -102,20 +89,11 @@ export default function RightPanel<
     onSuccess: async () => {
       setOpenDeleteWarningDialog(false);
       setOpenDeleteConfirmingDialog(true);
-      queryClient.invalidateQueries({ queryKey: [entityName + "s"] });
+      queryClient.invalidateQueries({ queryKey: [entityName] });
     },
   });
-
-  const onOpenDeleteWarningDialog = () => setOpenDeleteWarningDialog(true);
-
-  const onOpenDeleteConfirmingDialog = () =>
-    setOpenDeleteConfirmingDialog(true);
-  const onCloseDeleteConfirmingDialog = () =>
-    setOpenDeleteConfirmingDialog(true);
-
   return (
     <Stack sx={{ gap: 2 }}>
-      <Typography>{`Right Panel ${typeof TEntity}`} </Typography>
       <Box sx={{ display: "grid", gridTemplateColumns: "1fr 2fr" }}>
         <Typography>{capitalizeFirstLetter(entityName)} ID</Typography>
         <OutlinedInput type="number" disabled={true} value={selectedId ?? ""} />
@@ -219,16 +197,12 @@ export default function RightPanel<
       >
         <DialogTitle>Delete {capitalizeFirstLetter(entityName)}?</DialogTitle>
         <DialogContent>
-          {/* <DialogContentText>
-            </DialogContentText> */}
           Do you really want to delete {capitalizeFirstLetter(entityName)} with
           Id {selectedId}?
         </DialogContent>
         <DialogActions>
           <Button
             onClick={() => {
-              // onCloseDeleteConfirmingDialog();
-              // setOpenDeleteWarningDialog(false);
               onDeleteEntry.mutate();
             }}
           >
@@ -240,14 +214,9 @@ export default function RightPanel<
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={openDeleteConfirmingDialog}
-        // onClose={onCloseDeleteConfirmingDialog}
-      >
+      <Dialog open={openDeleteConfirmingDialog}>
         <DialogTitle>Deletion Confirmation</DialogTitle>
         <DialogContent>
-          {/* <DialogContentText>
-            </DialogContentText> */}
           The {entityName} with Id:{" "}
           {selectedEntry && selectedEntry[entityName + "Id"]} was deleted.
         </DialogContent>

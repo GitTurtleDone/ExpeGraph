@@ -65,7 +65,6 @@ public class SamplesController: ControllerBase
 	public async Task<IActionResult> GetById(int id)
 	{
 		var sample = await _db.Samples.FindAsync(id);
-		
 		return sample is null
 		? NotFound()
 		: Ok(new SampleResponse(sample.SampleId, sample.SampleName, sample.Description, sample.Treatment, sample.Properties, sample.BatchId, sample.CreatedAt));

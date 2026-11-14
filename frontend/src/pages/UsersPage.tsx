@@ -1,11 +1,9 @@
-import { queryOptions } from "@tanstack/react-query";
-import { useContext } from "react";
-
 import { Stack, Typography } from "@mui/material";
 import type { GridColDef } from "@mui/x-data-grid";
 import { FileDownload, WidthFull } from "@mui/icons-material";
 
 import type { Resolver } from "react-hook-form";
+import type { FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type {
@@ -124,8 +122,6 @@ const rightPanelProps: RightPanelProps<User, UserInput> = {
   inputLayout: userLayout,
   inputDefaultValues: userDefaultValues,
   resolver: userResolver,
-  // getAllEntities: getAllUsers,
-  // getEntityById: getUserById,
   createEntity: createUser,
   updateEntity: updateUser,
   deleteEntity: deleteUser,

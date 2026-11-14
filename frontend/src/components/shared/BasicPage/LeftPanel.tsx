@@ -34,7 +34,7 @@ import { Preview } from "@mui/icons-material";
 
 import { camelToTitle } from "../../../api/basicAPI";
 
-// <TEntity, TentitySearchChb, TEntityAdvancedSearchFields,TEntityDisplayedColumns, TEntityQuery extends FieldValues>
+// function to return inputs in the advanced search
 export function ReturnAdvancedSearchFields({
   searchFields,
   searchFilters,
@@ -96,13 +96,7 @@ export function ReturnAdvancedSearchFields({
     </Box>
   );
 }
-export default function LeftPanel<
-  TEntity,
-  // TentitySearchChb,
-  // TEntityAdvancedSearchFields,
-  // TEntityDisplayedColumns,
-  TEntityQuery extends FieldValues,
->({
+export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
   leftPanelProps,
   selectedId,
   setSelectedId,
@@ -129,7 +123,7 @@ export default function LeftPanel<
   const [entitySearchChb, setEntitySearchChb] = useState<{
     [key: string]: boolean;
   }>(searchChb);
-  // console.log(entitySearchChb);
+
   const [searchTxt, setSearchTxt] = useState<string>("");
   const [enableSearch, setEnableSearch] = useState<boolean>(false);
 
@@ -138,7 +132,6 @@ export default function LeftPanel<
       ...prev,
       [e.target.name]: e.target.checked,
     }));
-    // console.log(entitySearchChb);
   };
 
   const queryClient = useQueryClient();
@@ -157,7 +150,7 @@ export default function LeftPanel<
   };
 
   const allEntities = useQuery({
-    queryKey: [entityName + "s", searchQuery],
+    queryKey: [entityName, searchQuery],
     queryFn: () => getAllEntities(searchQuery),
     enabled: enableSearch,
   });
@@ -170,26 +163,10 @@ export default function LeftPanel<
       }
     });
     return col;
-    // return {
-    //   id: ent.userId,
-    //   username: ent.username,
-    //   email: ent.email,
-    //   firstName: ent.firstName,
-    //   lastName: ent.lastName,
-    //   lastLoginAt: ent.lastLoginAt,
-    // };
   });
-  // const entityRows2 = allEntities.map((ent) =>)
-  // const columns : GridColDef[] = entityDislayedColDef
-  // console.log(entitySearchChb);
-  // console.log(entityName);
-  // entityDislayedColDef.map((col) =>
-  //   Object.entries(col).map(([key,value]) => console.log(`${key}: ${value}`))
-  // )
 
   return (
-    <Stack>
-      <Typography>Left Panel</Typography>
+    <Stack gap={2}>
       <Box
         sx={{
           display: "flex",
@@ -216,61 +193,73 @@ export default function LeftPanel<
           <SearchOutlinedIcon />
         </IconButton>
       </Box>
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <IconButton onClick={() => setShowAdvancedSearch((prev) => !prev)}>
-          {showAdvancedSearch ? (
-            <ExpandLessOutlinedIcon></ExpandLessOutlinedIcon>
-          ) : (
-            <ChevronRightOutlinedIcon></ChevronRightOutlinedIcon>
-          )}
-        </IconButton>
+      <Stack>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <IconButton onClick={() => setShowAdvancedSearch((prev) => !prev)}>
+            {showAdvancedSearch ? (
+              <ExpandLessOutlinedIcon></ExpandLessOutlinedIcon>
+            ) : (
+              <ChevronRightOutlinedIcon></ChevronRightOutlinedIcon>
+            )}
+          </IconButton>
 
-        <Typography>Advanced Search</Typography>
-      </Box>
-      <Collapse in={showAdvancedSearch}>
-        {Object.entries(entityAdvancedSearchInfo).map(([chb, searchFields]) => (
-          <Box
-            key={"advancedSearchChb_" + chb}
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "0.5fr 2.5fr 7fr",
-              alignItems: "center",
-              gap: "5px 0px",
-            }}
-          >
-            <Checkbox
-              name={chb}
-              checked={entitySearchChb[chb]}
-              onChange={handleSearchChb}
-            />
-            <Typography>{camelToTitle(chb.slice(0, -3))}</Typography>
-            <ReturnAdvancedSearchFields
-              searchFields={searchFields}
-              searchFilters={searchFilters}
-              setSearchFilters={setSearchFilters}
-              searchChbKey={chb}
-              searchChbVal={entitySearchChb[chb]}
-            ></ReturnAdvancedSearchFields>
-          </Box>
-        ))}
-      </Collapse>
-      {/* <DataGrid 
-        columns={entityDislayedColDef} 
-        rows={rows} 
-      /> */}
-      <DataGrid
-        columns={entityDisplayedColDef}
-        rows={entityRows}
-        onRowClick={(row) => {
-          setSelectedId(row.id);
-          (allEntities.data ?? []).map(
-            (ent) => ent["userId"] === row.id && setSelectedEntry(ent),
-          );
-          selectedEntry &&
-            selectedEntry["userId"] &&
-            console.log(`in onRowClick: ${selectedEntry["userId"]}`);
-        }}
-      />
+          <Typography>Advanced Search</Typography>
+        </Box>
+        <Collapse in={showAdvancedSearch}>
+          {Object.entries(entityAdvancedSearchInfo).map(
+            ([chb, searchFields]) => (
+              <Box
+                key={"advancedSearchChb_" + chb}
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "0.5fr 2.5fr 7fr",
+                  alignItems: "center",
+                  gap: "5px 0px",
+                }}
+              >
+                <Checkbox
+                  name={chb}
+                  checked={entitySearchChb[chb]}
+                  onChange={handleSearchChb}
+                />
+                <Typography>{camelToTitle(chb.slice(0, -3))}</Typography>
+                <ReturnAdvancedSearchFields
+                  searchFields={searchFields}
+                  searchFilters={searchFilters}
+                  setSearchFilters={setSearchFilters}
+                  searchChbKey={chb}
+                  searchChbVal={entitySearchChb[chb]}
+                ></ReturnAdvancedSearchFields>
+              </Box>
+            ),
+          )}
+        </Collapse>
+      </Stack>
+
+      <Paper sx={{ height: "80%", width: "100%" }}>
+        <DataGrid
+          columns={entityDisplayedColDef}
+          rows={entityRows}
+          loading={allEntities.isFetching}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+                page: 0,
+              },
+            },
+          }}
+          pageSizeOptions={[5, 10, 100, { value: -1, label: "All" }]}
+          showToolbar
+          label={`List of found ${entityName}s`}
+          onRowClick={(row) => {
+            setSelectedId(row.id);
+            (allEntities.data ?? []).map(
+              (ent) => ent["userId"] === row.id && setSelectedEntry(ent),
+            );
+          }}
+        />
+      </Paper>
     </Stack>
   );
 }

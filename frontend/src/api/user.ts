@@ -53,7 +53,7 @@ export async function updateUser(id: number, data: UserInput): Promise<User> {
 }
 
 export async function deleteUser(id: number) {
-  const res = await fetch(`${BASE}/${id}`, {
+  const res = await fetch(`${BASE}/Users/${id}`, {
     method: "DELETE",
   });
   if (!res.ok) throw new Error(`Failed to delete user ${id}: ${res.status}`);

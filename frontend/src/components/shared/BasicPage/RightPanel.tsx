@@ -98,15 +98,16 @@ export default function RightPanel<
     },
   });
   const onDeleteEntry = useMutation({
-    mutationFn: (id: number) => deleteEntity(id),
+    mutationFn: () => deleteEntity(Number(selectedId)),
     onSuccess: async () => {
-      (setOpenDeleteConfirmingDialog(true),
-        queryClient.invalidateQueries({ queryKey: [entityName + "s"] }));
+      setOpenDeleteWarningDialog(false);
+      setOpenDeleteConfirmingDialog(true);
+      queryClient.invalidateQueries({ queryKey: [entityName + "s"] });
     },
   });
 
-  const onOpenDeleteWarningDialog = () => setOpenDeleteConfirmingDialog(true);
-  const onCloseDeleteWarningDialog = () => setOpenDeleteConfirmingDialog(false);
+  const onOpenDeleteWarningDialog = () => setOpenDeleteWarningDialog(true);
+
   const onOpenDeleteConfirmingDialog = () =>
     setOpenDeleteConfirmingDialog(true);
   const onCloseDeleteConfirmingDialog = () =>
@@ -203,7 +204,9 @@ export default function RightPanel<
         </Button>
         <Button
           variant="contained"
-          onClick={() => {setOpenDeleteWarningDialog(true)}}
+          onClick={() => {
+            setOpenDeleteWarningDialog(true);
+          }}
           color="error"
           disabled={selectedEntry === undefined}
         >
@@ -212,33 +215,53 @@ export default function RightPanel<
       </Box>
       <Dialog
         open={openDeleteWarningDialog}
-        onClose={onCloseDeleteWarningDialog}
+        // onClose={() => setOpenDeleteWarningDialog(false)}
       >
-        <DialogTitle>Delete warning</DialogTitle>
+        <DialogTitle>Delete {capitalizeFirstLetter(entityName)}?</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Do you want to delete Entry {selectedEntry}?
-          </DialogContentText>
+          {/* <DialogContentText>
+            </DialogContentText> */}
+          Do you really want to delete {capitalizeFirstLetter(entityName)} with
+          Id {selectedId}?
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => onDeleteEntry.mutate(selectedId)}>Yes</Button>
-          <Button onClick={onCloseDeleteWarningDialog}>No</Button>
+          <Button
+            onClick={() => {
+              // onCloseDeleteConfirmingDialog();
+              // setOpenDeleteWarningDialog(false);
+              onDeleteEntry.mutate();
+            }}
+          >
+            Yes
+          </Button>
+          <Button onClick={() => setOpenDeleteWarningDialog(false)} autoFocus>
+            No
+          </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog
         open={openDeleteConfirmingDialog}
-        onClose={onCloseDeleteConfirmingDialog}
+        // onClose={onCloseDeleteConfirmingDialog}
       >
         <DialogTitle>Deletion Confirmation</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            The entry with Id{" "}
-            {selectedEntry && selectedEntry[entityName + "Id"]} was deleted.
-          </DialogContentText>
+          {/* <DialogContentText>
+            </DialogContentText> */}
+          The {entityName} with Id:{" "}
+          {selectedEntry && selectedEntry[entityName + "Id"]} was deleted.
         </DialogContent>
         <DialogActions>
-          <Button onClick={onCloseDeleteConfirmingDialog}>OK</Button>
+          <Button
+            onClick={() => {
+              setOpenDeleteConfirmingDialog(false);
+              setSelectedId();
+              setSelectedEntry();
+              reset(inputDefaultValues);
+            }}
+          >
+            OK
+          </Button>
         </DialogActions>
       </Dialog>
     </Stack>

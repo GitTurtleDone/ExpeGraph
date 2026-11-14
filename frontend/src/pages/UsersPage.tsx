@@ -1,15 +1,21 @@
+import { queryOptions } from "@tanstack/react-query";
+import { useContext } from "react";
+
 import { Stack, Typography } from "@mui/material";
-
-import BasicPage from "../components/shared/BasicPage/BasicPage";
-
 import type { GridColDef } from "@mui/x-data-grid";
+import { FileDownload, WidthFull } from "@mui/icons-material";
+
+import type { Resolver } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import type {
   InputLayout,
   LeftPanelProps,
   RightPanelProps,
+  SchemaMode,
 } from "../types/basic";
-import { userInputSchema } from "../types/users";
+import { userInputSchema, makeUserInputSchema } from "../types/users";
+import type { NestedDictionary } from "../types/basic";
 import type {
   User,
   UserAdvancedSearchCheckboxes,
@@ -18,7 +24,6 @@ import type {
   UserInput,
 } from "../types/users";
 import type { UserQuery } from "../api/user";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   getAllUsers,
   getUserById,
@@ -26,8 +31,7 @@ import {
   updateUser,
   deleteUser,
 } from "../api/user";
-import type { NestedDictionary } from "../types/basic";
-import { FileDownload, WidthFull } from "@mui/icons-material";
+import BasicPage from "../components/shared/BasicPage/BasicPage";
 
 const userAdvancedSearchCheckboxes: UserAdvancedSearchCheckboxes = {
   idRangeChb: false,
@@ -60,11 +64,11 @@ const userDisplayedColDef: GridColDef[] = [
     headerName: "Last Login",
     width: 100,
     type: "date",
-    valueGetter: (value) => value ? new Date(value) : null,
+    valueGetter: (value) => (value ? new Date(value) : null),
     valueFormatter: (value: Date | null) => {
-      if (!value) return '';
-      return value.toLocaleDateString()
-    }
+      if (!value) return "";
+      return value.toLocaleDateString();
+    },
   },
 ];
 
@@ -104,11 +108,22 @@ const userDefaultValues: UserInput = {
   password: "",
 };
 
+// resolvers are different in the case of "add" and "update"
+const userResolver: Resolver<UserInput, { mode: SchemaMode }> = (
+  values,
+  context,
+  options,
+) =>
+  zodResolver(makeUserInputSchema(context?.mode ?? "add"))(
+    values,
+    context,
+    options,
+  );
 const rightPanelProps: RightPanelProps<User, UserInput> = {
   entityName: "user",
   inputLayout: userLayout,
   inputDefaultValues: userDefaultValues,
-  resolver: zodResolver(userInputSchema),
+  resolver: userResolver,
   // getAllEntities: getAllUsers,
   // getEntityById: getUserById,
   createEntity: createUser,

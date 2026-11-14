@@ -7,6 +7,9 @@ export type InputLayout<TEntityInput extends FieldValues> = {
   type: string;
   multiline?: boolean;
 };
+// sometime schema needs to change depending on the context
+// For example: for user schema password is required when add but not when update.
+export type SchemaMode = "add" | "update";
 
 export type NestedDictionary = {
   [key: string]: { [key: string]: string };

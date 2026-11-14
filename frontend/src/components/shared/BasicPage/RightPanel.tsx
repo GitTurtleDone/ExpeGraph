@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, use, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,7 +27,7 @@ import {
 
 import { createUser, deleteUser, updateUser } from "../../../api/user";
 import type { SampleInput } from "../../../types/samples";
-import type { RightPanelProps } from "../../../types/basic";
+import type { RightPanelProps, SchemaMode } from "../../../types/basic";
 import type { FieldValues } from "react-hook-form";
 import { Preview, Visibility, VisibilityOff } from "@mui/icons-material";
 import { capitalizeFirstLetter } from "../../../api/basicAPI";
@@ -59,6 +59,7 @@ export default function RightPanel<
   const [openDeleteWarningDialog, setOpenDeleteWarningDialog] = useState(false);
   const [openDeleteConfirmingDialog, setOpenDeleteConfirmingDialog] =
     useState(false);
+  const schemaContext = useRef<{ mode: SchemaMode }>({ mode: "add" }).current;
   const {
     register,
     handleSubmit,
@@ -68,6 +69,7 @@ export default function RightPanel<
   } = useForm<TEntityInput>({
     defaultValues: inputDefaultValues,
     resolver: resolver,
+    context: schemaContext,
   });
   useEffect(() => {
     reset(
@@ -90,7 +92,6 @@ export default function RightPanel<
       updateEntity(id, data),
     onSuccess: async (updatedEntry) => {
       setSelectedEntry(updatedEntry);
-      setSelectedId(updatedEntry.userId);
       await queryClient.invalidateQueries({
         queryKey: [entityName + "s"],
       });
@@ -172,30 +173,37 @@ export default function RightPanel<
           onClick={() => {
             setSelectedEntry();
             setSelectedId();
-            //reset(inputDefaultValues)
           }}
         >
           New
         </Button>
         <Button
           variant="contained"
-          onClick={handleSubmit((data) => onAddEntry.mutate(data))}
+          onClick={() => {
+            schemaContext.mode = "add";
+            handleSubmit((data) => {
+              onAddEntry.mutate(data);
+            })();
+          }}
           disabled={selectedEntry !== undefined}
         >
-          Add
+          {onAddEntry.isPending ? "Adding ..." : "Add"}
         </Button>
         <Button
           variant="contained"
-          onClick={handleSubmit((data) =>
-            onUpdateEntry.mutate(selectedId, data),
-          )}
+          onClick={() => {
+            schemaContext.mode = "update";
+            handleSubmit((data) =>
+              onUpdateEntry.mutate({ id: Number(selectedId), data: data }),
+            )();
+          }}
           disabled={selectedEntry === undefined}
         >
-          Update
+          {onUpdateEntry.isPending ? "Updating ..." : "Update"}
         </Button>
         <Button
           variant="contained"
-          onClick={() => {}}
+          onClick={() => {setOpenDeleteWarningDialog(true)}}
           color="error"
           disabled={selectedEntry === undefined}
         >

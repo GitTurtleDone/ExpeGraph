@@ -1,4 +1,5 @@
 import * as z from "zod";
+import type { SchemaMode } from "./basic";
 
 export const userSchema = z.object({
   userId: z.number().int().positive(),
@@ -18,6 +19,7 @@ export const userRowSchema = userSchema.omit({
 })
 
 const re = /^(?=[a-zA-Z])(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/;
+
 export const userInputSchema = userSchema
   .omit({
     userId: true,
@@ -39,9 +41,15 @@ export const userInputSchema = userSchema
           "Password must start with a letter and include at least one number, one uppercase letter, one lowercase letter, and one of special \
         characters ~!@#$%^&*",
         )
-        .min(8, "Password must have at least 8 characters."),
+        .min(8, "Password must have at least 8 characters.")
+        .optional(),
     ),
   });
+
+export const makeUserInputSchema = (mode: SchemaMode) => userInputSchema.refine((data) => 
+  mode !== "add" || Boolean(data.password),
+{ message: "Password is required to add a new user", path: ["password"]} 
+);
   
 export type User = z.infer<typeof userSchema>;
 // for left panels

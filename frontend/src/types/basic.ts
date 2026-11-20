@@ -1,27 +1,53 @@
-import type { FieldValues, FieldPath, Resolver, } from "react-hook-form";
+import type { GridColDef } from "@mui/x-data-grid";
+import type { FieldValues, FieldPath, Resolver } from "react-hook-form";
 export type InputLayout<TEntityInput extends FieldValues> = {
-  label: string;
+  
   inputKey: FieldPath<TEntityInput>; // Name
-  required?: boolean; // The input that is required
   type: string;
-  multiline?: boolean;
+  required?: boolean; // The input that is required
+  multiline?: boolean; // multiline for the inputs that require text field
+};
+// sometime schema needs to change depending on the context
+// For example: for user schema password is required when add but not when update.
+export type SchemaMode = "add" | "update";
+
+export type NestedDictionary = {
+  [key: string]: { [key: string]: string };
 };
 
-export type LeftPanelProps<TEntity, TEntityQuery extends FieldValues> = {
+export type LeftPanelProps<
+  TEntity,
+  TEntityQuery extends FieldValues,
+> = {
+  entityName: string;
   
-  getAllEntities: (q: TEntityQuery) => Promise<TEntity[]>; 
+  // entityAdvancedSearchCheckboxes: TEntityAdvancedSearchCheckboxes,
+  // entityAdvancedSearchFields: TEntityAdvancedSearchFields,
+  entityAdvancedSearchInfo: NestedDictionary;
+  // entityDisplayedColDef: GridColDef[];
+  entityDisplayedColDef: GridColDef[];
+  getAllEntities: (q: TEntityQuery) => Promise<TEntity[]>;
   getEntityById?: (id1?: number, id2?: number) => Promise<TEntity>;
-}
+};
 export type RightPanelProps<TEntity, TEntityInput extends FieldValues> = {
+  entityName: string;
   inputLayout?: InputLayout<TEntityInput>[];
-  inputDefaultValues: TEntityInput; 
-  resolver: Resolver<TEntityInput>;
+  inputDefaultValues: TEntityInput;
+  resolver: Resolver<TEntityInput, {mode: SchemaMode}>;
   createEntity: (data: TEntityInput) => Promise<TEntity>;
   updateEntity: (id: number, data: TEntityInput) => Promise<TEntity>;
   deleteEntity: (id: number) => void;
 };
 
-export type BasicPageProps<TEntity, TEntityInput extends FieldValues> = {
+export type SelectionProps<TEntity> = {
+  selectedId: number | undefined;
+  setSelectedId: (id: number | undefined) => void;
+  selectedEntry: TEntity | undefined;
+  setSelectedEntry: (entry: TEntity | undefined ) => void;
+}
+
+export type BasicPageProps<TEntity, TEntityQuery extends FieldValues, TEntityInput extends FieldValues> = {
   pageTitle: string;
+  leftPanelProps: LeftPanelProps<TEntity, TEntityQuery>
   rightPanelProps: RightPanelProps<TEntity, TEntityInput>;
 };

@@ -1,8 +1,9 @@
 import * as z from "zod";
+import type { SchemaMode } from "./basic";
 
 export const userSchema = z.object({
   userId: z.number().int().positive(),
-  userName: z.string().min(1, "User name is required"),
+  username: z.string().min(1, "Username is required"),
   email: z.email(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
@@ -10,7 +11,15 @@ export const userSchema = z.object({
   createdAt: z.string(),
   lastLoginAt: z.string().optional(),
 });
+
+// to display rows in a grid
+export const userRowSchema = userSchema.omit({
+  isActive: true,
+  createdAt: true,  
+})
+
 const re = /^(?=[a-zA-Z])(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/;
+
 export const userInputSchema = userSchema
   .omit({
     userId: true,
@@ -29,12 +38,40 @@ export const userInputSchema = userSchema
         .string()
         .regex(
           re,
-          "Password must include at least one number, one uppercase letter, one lowercase letter, and one of special \
+          "Password must start with a letter and include at least one number, one uppercase letter, one lowercase letter, and one of special \
         characters ~!@#$%^&*",
         )
-        .min(8, "Password must have at least 8 characters."),
+        .min(8, "Password must have at least 8 characters.")
+        .optional(),
     ),
   });
+
+export const makeUserInputSchema = (mode: SchemaMode) => userInputSchema.refine((data) => 
+  mode !== "add" || Boolean(data.password),
+{ message: "Password is required to add a new user", path: ["password"]} 
+);
   
 export type User = z.infer<typeof userSchema>;
+// for left panels
+export type UserDisplayedColumns = z.infer<typeof userRowSchema>;
+// checkboxes in advanced search
+export type UserAdvancedSearchCheckboxes = {
+  idRangeChb: boolean,
+  isActiveChb: boolean,
+  lastLoginRangeChb: boolean,
+}
+// search fields included in advanced search
+export type UserAdvancedSearchFields = {
+  minId: string,
+  maxId: string,
+  isActive: boolean,
+  lastLoginFrom: string,
+  lastLoginTo: string,
+}
+
+export const userAdvancedSearchFieldSchema = {
+  minId: z.string,
+  maxId: z.string(),
+}
+// for right panels
 export type UserInput = z.infer<typeof userInputSchema>;

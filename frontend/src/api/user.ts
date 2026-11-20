@@ -18,9 +18,12 @@ export async function getAllUsers(q: UserQuery): Promise<User[]> {
     if (value !== undefined && value !== null && value !== "")
       params.append(key, String(value));
   const qs = params.toString();
+  console.log(`In getAllUsers qs: ${qs}`);
   const res = await fetch(`${BASE}/Users${qs ? `?${qs}` : ""}`);
-  if (!res.ok) throw new Error(`Failed to fethc users: ${res.status}`);
-  return res.json();
+  if (!res.ok) throw new Error(`Failed to fetch users: ${res.status}`);
+  const result = res.json();
+  console.log(result);
+  return result;
 }
 
 export async function getUserById(id: number): Promise<User> {
@@ -50,7 +53,7 @@ export async function updateUser(id: number, data: UserInput): Promise<User> {
 }
 
 export async function deleteUser(id: number) {
-  const res = await fetch(`${BASE}/${id}`, {
+  const res = await fetch(`${BASE}/Users/${id}`, {
     method: "DELETE",
   });
   if (!res.ok) throw new Error(`Failed to delete user ${id}: ${res.status}`);

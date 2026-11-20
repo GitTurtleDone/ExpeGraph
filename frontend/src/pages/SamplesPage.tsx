@@ -187,7 +187,7 @@ export default function SamplesPage() {
   }
   const buildSearchFilters = ():SampleQuery => {
     const f: SampleQuery = {};
-    if (searchText.trim()) f.search = searchText.trim();
+    if (searchText.trim()) f.searchTxt = searchText.trim();
     if (searchCheckboxes.idRangeChb) {
       if (searchFilters.minId !== "") f.minId = Number(searchFilters.minId);
       if (searchFilters.maxId !== "") f.maxId = Number(searchFilters.maxId);

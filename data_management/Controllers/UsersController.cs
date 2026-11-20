@@ -127,6 +127,7 @@ public class UsersController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
+        Console.WriteLine($"in controller: {id}");
         var user = await _db.Users.FindAsync(id);
         if (user is null) return NotFound($"User with id {id} is not found.");
         _db.Users.Remove(user);

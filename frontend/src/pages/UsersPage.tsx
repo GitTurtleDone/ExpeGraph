@@ -12,15 +12,9 @@ import type {
   RightPanelProps,
   SchemaMode,
 } from "../types/basic";
-import { userInputSchema, makeUserInputSchema } from "../types/users";
+import { makeUserInputSchema } from "../types/users";
 import type { NestedDictionary } from "../types/basic";
-import type {
-  User,
-  UserAdvancedSearchCheckboxes,
-  UserAdvancedSearchFields,
-  UserDisplayedColumns,
-  UserInput,
-} from "../types/users";
+import type { User, UserInput } from "../types/users";
 import type { UserQuery } from "../api/user";
 import {
   getAllUsers,
@@ -30,20 +24,6 @@ import {
   deleteUser,
 } from "../api/user";
 import BasicPage from "../components/shared/BasicPage/BasicPage";
-
-const userAdvancedSearchCheckboxes: UserAdvancedSearchCheckboxes = {
-  idRangeChb: false,
-  isActiveChb: false,
-  lastLoginRangeChb: false,
-};
-
-const userAdvancedSearchFields: UserAdvancedSearchFields = {
-  minId: "",
-  maxId: "",
-  isActive: false,
-  lastLoginFrom: "",
-  lastLoginTo: "",
-};
 
 const userAdvancedSearchInfo: NestedDictionary = {
   idRangeChb: { minId: "number", maxId: "number" },
@@ -79,20 +59,17 @@ const leftPanelProps: LeftPanelProps<User, UserQuery> = {
 };
 const userLayout: InputLayout<UserInput>[] = [
   {
-    label: "Username",
     inputKey: "username",
     type: "string",
     required: true,
   },
-  { label: "Email", inputKey: "email", type: "string" },
-  { label: "Password", inputKey: "password", type: "password" },
+  { inputKey: "email", type: "string" },
+  { inputKey: "password", type: "password" },
   {
-    label: "First Name",
     inputKey: "firstName",
     type: "string",
   },
   {
-    label: "Last Name",
     inputKey: "lastName",
     type: "string",
   },

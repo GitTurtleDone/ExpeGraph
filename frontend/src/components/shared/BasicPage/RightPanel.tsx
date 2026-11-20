@@ -1,10 +1,8 @@
-import React, { useState, useEffect, use, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import type { User, UserInput } from "../../../types/users";
-import { userSchema, userInputSchema } from "../../../types/users";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
@@ -22,10 +20,10 @@ import {
   IconButton,
 } from "@mui/material";
 
-import { capitalizeFirstLetter } from "../../../api/basicAPI";
+import { camelToTitle, capitalizeFirstLetter } from "../../../api/basicAPI";
 import type { SchemaMode } from "../../../types/basic";
 
-export default function RightPanel<TEntity, TEntityInput extends FieldValues>({
+export default function RightPanel({
   rightPanelProps,
   selectedId,
   setSelectedId,
@@ -37,8 +35,6 @@ export default function RightPanel<TEntity, TEntityInput extends FieldValues>({
     inputLayout,
     inputDefaultValues,
     resolver,
-    getAllEntities,
-    getEntityById,
     createEntity,
     updateEntity,
     deleteEntity,
@@ -53,7 +49,7 @@ export default function RightPanel<TEntity, TEntityInput extends FieldValues>({
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<TEntityInput>({
+  } = useForm({
     defaultValues: inputDefaultValues,
     resolver: resolver,
     context: schemaContext,
@@ -63,19 +59,20 @@ export default function RightPanel<TEntity, TEntityInput extends FieldValues>({
       selectedEntry
         ? { ...inputDefaultValues, ...selectedEntry }
         : inputDefaultValues,
-    ); // for users case "password" is not returned, so password take "" from inputDefaultValues
+    );
+    // for users case "password" is not returned, so password take "" from inputDefaultValues
   }, [selectedEntry]);
   const queryClient = useQueryClient();
   const onAddEntry = useMutation({
     mutationFn: createEntity,
     onSuccess: async (newEntry) => {
       setSelectedEntry(newEntry);
-      setSelectedId(newEntry.userId);
+      setSelectedId(newEntry[entityName + "Id"]);
       await queryClient.invalidateQueries({ queryKey: [entityName] });
     },
   });
   const onUpdateEntry = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: TEntityInput }) =>
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
       updateEntity(id, data),
     onSuccess: async (updatedEntry) => {
       setSelectedEntry(updatedEntry);
@@ -94,27 +91,50 @@ export default function RightPanel<TEntity, TEntityInput extends FieldValues>({
   });
   return (
     <Stack sx={{ gap: 2 }}>
-      <Box sx={{ display: "grid", gridTemplateColumns: "1fr 2fr" }}>
-        <Typography>{capitalizeFirstLetter(entityName)} ID</Typography>
-        <OutlinedInput type="number" disabled={true} value={selectedId ?? ""} />
+      <Box
+        key="sampleId"
+        display="grid"
+        gridTemplateColumns="1fr 2fr"
+        sx={{ gap: 1, alignItems: "center" }}
+      >
+        <Typography variant="h5" mb={2}>
+          {capitalizeFirstLetter(entityName)} ID
+        </Typography>
+        <OutlinedInput
+          type="number"
+          disabled={true}
+          value={selectedId ?? ""}
+          size="small"
+        />
       </Box>
       {inputLayout.map((f) => (
         <Box
-          key={f.label}
-          sx={{ display: "grid", gridTemplateColumns: "1fr 2fr" }}
+          key={f.inputKey}
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 2fr",
+            gap: 1,
+            alignItems: "center",
+          }}
         >
-          <Typography>{f.label}</Typography>
+          <Typography variant="h5" mb={2}>
+            {camelToTitle(f.inputKey)}{" "}
+            {(f.required ||
+              (f.inputKey === "password" && selectedEntry === undefined)) &&
+              "*"}{" "}
+            {}
+          </Typography>
           <Stack>
             {f.type !== "password" && (
               <OutlinedInput
                 {...register(f.inputKey)}
                 type={f.type}
-                // value={selectedEntry && (selectedEntry[f.inputKey] ?? "")}
-                // onChange={(e) => setSelectedEntry((prev) => ({...prev, [{f.inputKey !== "password" ? f}] : e.target.value})}
+                size="small"
               />
             )}
             {f.type === "password" && (
               <OutlinedInput
+                size="small"
                 {...register(f.inputKey)}
                 type={showPassword ? "text" : f.type}
                 endAdornment={
@@ -140,15 +160,21 @@ export default function RightPanel<TEntity, TEntityInput extends FieldValues>({
           </Stack>
         </Box>
       ))}
+
+      <Typography variant="h6" pt={2} mb={3}>
+        {" "}
+        * = Required
+      </Typography>
+
       <Box
         sx={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr 1fr",
-          gap: "10%",
+          display: "flex",
+          gap: 5,
         }}
       >
         <Button
           variant="contained"
+          size="large"
           onClick={() => {
             setSelectedEntry();
             setSelectedId();

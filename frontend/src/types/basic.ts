@@ -1,11 +1,11 @@
 import type { GridColDef } from "@mui/x-data-grid";
 import type { FieldValues, FieldPath, Resolver } from "react-hook-form";
 export type InputLayout<TEntityInput extends FieldValues> = {
-  label: string;
+  
   inputKey: FieldPath<TEntityInput>; // Name
-  required?: boolean; // The input that is required
   type: string;
-  multiline?: boolean;
+  required?: boolean; // The input that is required
+  multiline?: boolean; // multiline for the inputs that require text field
 };
 // sometime schema needs to change depending on the context
 // For example: for user schema password is required when add but not when update.
@@ -17,9 +17,6 @@ export type NestedDictionary = {
 
 export type LeftPanelProps<
   TEntity,
-  // TEntityAdvancedSearchCheckboxes,
-  // TEntityAdvancedSearchFields,
-  // TEntityDislayedColumnsDef,
   TEntityQuery extends FieldValues,
 > = {
   entityName: string;

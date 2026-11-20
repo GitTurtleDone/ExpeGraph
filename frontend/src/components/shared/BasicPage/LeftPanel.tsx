@@ -6,7 +6,7 @@ import {
   useQueryClient,
   QueryClient,
 } from "@tanstack/react-query";
-import type { UserQuery } from "../../../api/user";
+
 import {
   Typography,
   Collapse,
@@ -27,14 +27,11 @@ import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { DataGrid } from "@mui/x-data-grid";
-import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
-import { userAdvancedSearchFieldSchema } from "../../../types/users";
-import { gridAdditionalRowGroupsSelector } from "@mui/x-data-grid/internals";
-import { Preview } from "@mui/icons-material";
 
 import { camelToTitle } from "../../../api/basicAPI";
 
 // function to return inputs in the advanced search
+// return a search field with label "from" | "to" | ""
 export function ReturnAdvancedSearchFields({
   searchFields,
   searchFilters,
@@ -62,14 +59,14 @@ export function ReturnAdvancedSearchFields({
             display: "grid",
             gridTemplateColumns: "2fr 8fr",
             alignItems: "center",
-            gap: "2px 5px",
+            gap: "5px 5px",
           }}
         >
           {(searchField.includes("min") || searchField.includes("From")) && (
             <Typography>from</Typography>
           )}
           {(searchField.includes("max") || searchField.includes("To")) && (
-            <Typography>to</Typography>
+            <Typography sx={{ marginLeft: 1 }}>to</Typography>
           )}
           {!(
             searchField.includes("max") ||
@@ -96,7 +93,7 @@ export function ReturnAdvancedSearchFields({
     </Box>
   );
 }
-export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
+export default function LeftPanel({
   leftPanelProps,
   selectedId,
   setSelectedId,
@@ -105,7 +102,6 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
 }) {
   const {
     entityName,
-
     entityAdvancedSearchInfo,
     entityDisplayedColDef,
     getAllEntities,
@@ -123,17 +119,14 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
   const [entitySearchChb, setEntitySearchChb] = useState<{
     [key: string]: boolean;
   }>(searchChb);
-
   const [searchTxt, setSearchTxt] = useState<string>("");
   const [enableSearch, setEnableSearch] = useState<boolean>(false);
-
   const handleSearchChb = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEntitySearchChb((prev) => ({
       ...prev,
       [e.target.name]: e.target.checked,
     }));
   };
-
   const queryClient = useQueryClient();
   const buildSearchQuery = () => {
     const q = { searchTxt: searchTxt.trim() ?? "" };
@@ -154,7 +147,8 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
     queryFn: () => getAllEntities(searchQuery),
     enabled: enableSearch,
   });
-
+  // each row displays an entry of the entity
+  // column corresponds to column passed in the EntityPage, fore example: UsersPage.tsx
   const entityRows = (allEntities.data ?? []).map((ent) => {
     const col = { id: ent[entityName + "Id"] };
     entityDisplayedColDef.map((f) => {
@@ -165,11 +159,19 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
     return col;
   });
 
+  const runSearch = () => {
+    setSelectedId();
+    setSelectedEntry();
+    setSearchQuery(buildSearchQuery());
+    setEnableSearch(true);
+  };
+
   return (
     <Stack gap={2}>
       <Box
         sx={{
           display: "flex",
+          gap: 1,
         }}
       >
         <OutlinedInput
@@ -178,18 +180,13 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
           placeholder={`Type to search for ${entityName}s`}
           value={searchTxt}
           onChange={(e) => setSearchTxt(e.target.value)}
-          size="small"
-          fullWidth
-        />
-        <IconButton
-          aria-label="Search"
-          onClick={() => {
-            setSelectedId();
-            setSelectedEntry();
-            setSearchQuery(buildSearchQuery());
-            setEnableSearch(true);
+          onKeyDown={(e) => {
+            if (e.key === "Enter") runSearch();
           }}
-        >
+          size="small"
+          sx={{ width: "90%" }}
+        />
+        <IconButton aria-label="Search" onClick={runSearch}>
           <SearchOutlinedIcon />
         </IconButton>
       </Box>
@@ -202,7 +199,6 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
               <ChevronRightOutlinedIcon></ChevronRightOutlinedIcon>
             )}
           </IconButton>
-
           <Typography>Advanced Search</Typography>
         </Box>
         <Collapse in={showAdvancedSearch}>
@@ -214,7 +210,7 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
                   display: "grid",
                   gridTemplateColumns: "0.5fr 2.5fr 7fr",
                   alignItems: "center",
-                  gap: "5px 0px",
+                  gap: "5px 5px",
                 }}
               >
                 <Checkbox
@@ -222,7 +218,7 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
                   checked={entitySearchChb[chb]}
                   onChange={handleSearchChb}
                 />
-                <Typography>{camelToTitle(chb.slice(0, -3))}</Typography>
+                <Typography sx={{fontWeight: "bold"}}>{camelToTitle(chb.slice(0, -3))}</Typography>
                 <ReturnAdvancedSearchFields
                   searchFields={searchFields}
                   searchFilters={searchFilters}
@@ -236,7 +232,7 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
         </Collapse>
       </Stack>
 
-      <Paper sx={{ height: "80%", width: "100%" }}>
+      <Paper sx={{ height: "100%", width: "100%" }}>
         <DataGrid
           columns={entityDisplayedColDef}
           rows={entityRows}
@@ -255,7 +251,8 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
           onRowClick={(row) => {
             setSelectedId(row.id);
             (allEntities.data ?? []).map(
-              (ent) => ent["userId"] === row.id && setSelectedEntry(ent),
+              (ent) =>
+                ent[entityName + "Id"] === row.id && setSelectedEntry(ent),
             );
           }}
         />

@@ -31,7 +31,7 @@ The database schema can be seen [here](https://github.com/GitTurtleDone/ExpeGrap
 
 ## Implemented features:
 
-- Currently, writing a general component to apply to simple CRUD operations.
+- Have just completed Basic Page, a generic Page that will render specific pages for different Entities once the specific dicitionary-like objects are passed to the component. It can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/frontend/src/components/shared/BasicPage/BasicPage.tsx)
 - Have just completed Sample page. Added rowSelectionModel and dialogs when handling deleting.
 - All implemented features can be seen [here](https://github.com/GitTurtleDone/ExpeGraph/blob/main/docs/implemented_features/ImplementedFeatures.pdf)
 

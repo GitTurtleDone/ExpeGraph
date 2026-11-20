@@ -20,10 +20,7 @@ export type LeftPanelProps<
   TEntityQuery extends FieldValues,
 > = {
   entityName: string;
-  selectedId?: number;
-  setSelectedId?: () => void;
-  selectedEntry?: any;
-  setSelectedEntry?: () => void;
+  
   // entityAdvancedSearchCheckboxes: TEntityAdvancedSearchCheckboxes,
   // entityAdvancedSearchFields: TEntityAdvancedSearchFields,
   entityAdvancedSearchInfo: NestedDictionary;
@@ -34,20 +31,23 @@ export type LeftPanelProps<
 };
 export type RightPanelProps<TEntity, TEntityInput extends FieldValues> = {
   entityName: string;
-  selectedId?: number;
-  setSelectedId?: ()=>void;
-  selectedEntry?: any;
-  setSelectedEntry?: () => void;
   inputLayout?: InputLayout<TEntityInput>[];
   inputDefaultValues: TEntityInput;
-  resolver: Resolver<TEntityInput>;
+  resolver: Resolver<TEntityInput, {mode: SchemaMode}>;
   createEntity: (data: TEntityInput) => Promise<TEntity>;
   updateEntity: (id: number, data: TEntityInput) => Promise<TEntity>;
   deleteEntity: (id: number) => void;
 };
 
-export type BasicPageProps<TEntity, TEntityInput extends FieldValues> = {
+export type SelectionProps<TEntity> = {
+  selectedId: number | undefined;
+  setSelectedId: (id: number | undefined) => void;
+  selectedEntry: TEntity | undefined;
+  setSelectedEntry: (entry: TEntity | undefined ) => void;
+}
+
+export type BasicPageProps<TEntity, TEntityQuery extends FieldValues, TEntityInput extends FieldValues> = {
   pageTitle: string;
-  leftPanelProps: LeftPanelProps<TEntity, TEntityInput>
+  leftPanelProps: LeftPanelProps<TEntity, TEntityQuery>
   rightPanelProps: RightPanelProps<TEntity, TEntityInput>;
 };

@@ -1,17 +1,26 @@
 import { Typography, Stack, Box } from "@mui/material";
 import React, { useState } from "react";
+import type { FieldValues } from "react-hook-form";
 import LeftPanel from "./LeftPanel";
 import RightPanel from "./RightPanel";
-import type { RightPanelProps } from "../../../types/basic";
+import type { LeftPanelProps, RightPanelProps } from "../../../types/basic";
 import type { BasicPageProps } from "../../../types/basic";
 import type { GridColDef } from "@mui/x-data-grid";
-export default function BasicPage<TEntity, TEntityInput>({
+export default function BasicPage<
+  TEntity,
+  TEntityQuery extends FieldValues,
+  TEntityInput extends FieldValues,
+>({
   pageTitle,
   leftPanelProps,
   rightPanelProps,
+}: {
+  pageTitle: string;
+  leftPanelProps: LeftPanelProps<TEntity, TEntityQuery>;
+  rightPanelProps: RightPanelProps<TEntity, TEntityInput>;
 }) {
   const [selectedId, setSelectedId] = useState<number>();
-  const [selectedEntry, setSelectedEntry] = useState<any>();
+  const [selectedEntry, setSelectedEntry] = useState<TEntity>();
   return (
     <Stack>
       <Typography variant="h2" mb={4}>

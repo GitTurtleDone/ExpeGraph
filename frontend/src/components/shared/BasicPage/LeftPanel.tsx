@@ -29,6 +29,8 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { DataGrid } from "@mui/x-data-grid";
 
 import { camelToTitle } from "../../../api/basicAPI";
+import type { LeftPanelProps, SelectionProps } from "../../../types/basic";
+import type { FieldValues } from "react-hook-form";
 
 // function to return inputs in the advanced search
 // return a search field with label "from" | "to" | ""
@@ -93,13 +95,15 @@ export function ReturnAdvancedSearchFields({
     </Box>
   );
 }
-export default function LeftPanel({
+export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
   leftPanelProps,
   selectedId,
   setSelectedId,
   selectedEntry,
   setSelectedEntry,
-}) {
+}: {
+  leftPanelProps: LeftPanelProps<TEntity, TEntityQuery>;
+} & SelectionProps<TEntity>) {
   const {
     entityName,
     entityAdvancedSearchInfo,
@@ -108,7 +112,9 @@ export default function LeftPanel({
     getEntityById,
   } = { ...leftPanelProps };
   const [showAdvancedSearch, setShowAdvancedSearch] = useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = useState({ searchTxt: "" });
+  const [searchQuery, setSearchQuery] = useState<TEntityQuery>({
+    searchTxt: "",
+  });
   const [searchFilters, setSearchFilters] = useState<{
     [key: string]: string | boolean | number | undefined;
   }>({ searchTxt: "" });
@@ -160,8 +166,8 @@ export default function LeftPanel({
   });
 
   const runSearch = () => {
-    setSelectedId();
-    setSelectedEntry();
+    setSelectedId(undefined);
+    setSelectedEntry(undefined);
     setSearchQuery(buildSearchQuery());
     setEnableSearch(true);
   };
@@ -218,7 +224,9 @@ export default function LeftPanel({
                   checked={entitySearchChb[chb]}
                   onChange={handleSearchChb}
                 />
-                <Typography sx={{fontWeight: "bold"}}>{camelToTitle(chb.slice(0, -3))}</Typography>
+                <Typography sx={{ fontWeight: "bold" }}>
+                  {camelToTitle(chb.slice(0, -3))}
+                </Typography>
                 <ReturnAdvancedSearchFields
                   searchFields={searchFields}
                   searchFilters={searchFilters}

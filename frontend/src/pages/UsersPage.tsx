@@ -107,7 +107,7 @@ const rightPanelProps: RightPanelProps<User, UserInput> = {
 export default function UsersPage() {
   return (
     <Stack>
-      <BasicPage
+      <BasicPage<User, UserQuery, UserInput>
         pageTitle="User"
         leftPanelProps={leftPanelProps}
         rightPanelProps={rightPanelProps}

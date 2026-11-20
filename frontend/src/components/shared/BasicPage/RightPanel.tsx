@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useEffect, useRef } from "react";
+import { useForm, type FieldValues } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 
@@ -21,15 +20,21 @@ import {
 } from "@mui/material";
 
 import { camelToTitle, capitalizeFirstLetter } from "../../../api/basicAPI";
-import type { SchemaMode } from "../../../types/basic";
+import type {
+  RightPanelProps,
+  SelectionProps,
+  SchemaMode,
+} from "../../../types/basic";
 
-export default function RightPanel({
+export default function RightPanel<TEntity, TEntityInput extends FieldValues>({
   rightPanelProps,
   selectedId,
   setSelectedId,
   selectedEntry,
   setSelectedEntry,
-}) {
+}: {
+  rightPanelProps: RightPanelProps<TEntity, TEntityInput>;
+} & SelectionProps<TEntity>) {
   const {
     entityName,
     inputLayout,
@@ -48,8 +53,8 @@ export default function RightPanel({
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
-  } = useForm({
+    formState: { errors },
+  } = useForm<TEntityInput>({
     defaultValues: inputDefaultValues,
     resolver: resolver,
     context: schemaContext,
@@ -176,8 +181,8 @@ export default function RightPanel({
           variant="contained"
           size="large"
           onClick={() => {
-            setSelectedEntry();
-            setSelectedId();
+            setSelectedEntry(undefined);
+            setSelectedId(undefined);
           }}
         >
           New
@@ -250,8 +255,8 @@ export default function RightPanel({
           <Button
             onClick={() => {
               setOpenDeleteConfirmingDialog(false);
-              setSelectedId();
-              setSelectedEntry();
+              setSelectedId(undefined);
+              setSelectedEntry(undefined);
               reset(inputDefaultValues);
             }}
           >

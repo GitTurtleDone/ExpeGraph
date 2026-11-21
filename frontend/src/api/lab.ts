@@ -28,6 +28,7 @@ export async function getLabById(id: number): Promise<Lab> {
 }
 
 export async function createLab(data: LabInput): Promise<Lab> {
+  console.log(`${data}`);
   const res = await fetch(`${BASE}/Labs`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

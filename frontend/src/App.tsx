@@ -10,6 +10,7 @@ import GraphsPage from './pages/GraphsPage'
 import ExportPage from './pages/ExportPage'
 import DatabaseSettingsPage from './pages/DatabaseSettingsPage'
 import UsersPage from './pages/UsersPage'
+import LabsPage from './pages/LabsPage'
 
 const router = createBrowserRouter([
   {
@@ -24,8 +25,9 @@ const router = createBrowserRouter([
       { path: 'files', element: <FilesPage /> },
       { path: 'graphs', element: <GraphsPage /> },
       { path: 'export', element: <ExportPage /> },
-      { path: 'settings/database', element: <DatabaseSettingsPage /> },
-      { path: 'settings/users', element: <UsersPage /> },
+      { path: 'database', element: <DatabaseSettingsPage /> },
+      { path: 'users', element: <UsersPage /> },
+      { path: 'labs', element: <LabsPage />},
     ],
   },
 ])

@@ -159,7 +159,7 @@ export default function LeftPanel<TEntity, TEntityQuery extends FieldValues>({
     const col = { id: ent[entityName + "Id"] };
     entityDisplayedColDef.map((f) => {
       {
-        f["field"] !== "id" && (col[f.field] = ent[f.field]);
+        (f["field"] !== "id") && (col[f.field] = ent[f.field])
       }
     });
     return col;

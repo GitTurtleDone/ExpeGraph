@@ -27,12 +27,12 @@ import BasicPage from "../components/shared/BasicPage/BasicPage";
 
 const labAdvancedSearchInfo: NestedDictionary = {
   idRangeChb: { minId: "number", maxId: "number" },
-  labLeaderIdChb: { labLeaderId: "number"},
+  labLeaderIdChb: { labLeaderId: "number" },
 };
 
 const labDisplayedColDef: GridColDef[] = [
   { field: "id", headerName: "Lab ID", width: 75 },
-  { field: "labname", headerName: "Lab Name", width: 100 },
+  { field: "labName", headerName: "Lab Name", width: 100 },
   { field: "description", headerName: "Description", width: 100 },
   { field: "labLeaderId", headerName: "Lab Leader ID", width: 100 },
 ];

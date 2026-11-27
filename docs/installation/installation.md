@@ -361,6 +361,28 @@ psql -U expegraph -d expegraph -c "DROP SCHEMA expegraph CASCADE; CREATE SCHEMA 
 dotnet ef database update
 ```
 
+#### OAuth
+
+Instsalling auth0:
+
+```bash
+curl -sSfL https://raw.githubusercontent.com/auth0/auth0cli/main/install.sh | sh -s -- -b .
+```
+
+Move auth0 to /local/usr/bin so it can be called from anywhere:
+
+```bash
+rm ./auth0 /local/usr/bin
+```
+
+Setting up:
+
+```bash
+AUTH0_API_NAME="<Your API Name>" // for example, "ASP.NET core API"
+AUTH0_API_IDENTIFIER="<Your API url>" // for example, "https://my-web-api"
+
+```
+
 ---
 
 ## Part C — Connecting Windows FastAPI to WSL2 Frontend

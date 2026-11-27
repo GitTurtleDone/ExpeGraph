@@ -63,7 +63,7 @@ const labDefaultValues: LabInput = {
 // resolvers are different in the case of "add" and "update"
 const labResolver = zodResolver(labInputSchema);
 const rightPanelProps: RightPanelProps<Lab, LabInput> = {
-  entityName: "user",
+  entityName: "lab",
   inputLayout: labLayout,
   inputDefaultValues: labDefaultValues,
   resolver: labResolver,

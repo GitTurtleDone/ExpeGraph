@@ -10,7 +10,7 @@ import {
   IconButton,
 } from "@mui/material";
 
-import type { SvgIconComponent } from "@mui/icons-material";
+import { WorkOutlineOutlined, type SvgIconComponent } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlined";
@@ -25,6 +25,7 @@ import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import ChatBubbleOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import BiotechOutlinedIcon from "@mui/icons-material/BiotechOutlined";
+import WorkOutlineOutlinedIcon  from "@mui/icons-material/WorkOutlineOutlined";
 
 import "./AppShell.css";
 
@@ -81,6 +82,7 @@ const NAV: NavGroup[] = [
     items: [
       { label: "Users", path: "/users", icon: PeopleOutlinedIcon },
       { label: "Labs", path: "/labs", icon: BiotechOutlinedIcon },
+      { label: "Projects", path: "/projects", icon: WorkOutlineOutlinedIcon },
     ],
   },
   {

@@ -11,6 +11,7 @@ import ExportPage from './pages/ExportPage'
 import DatabaseSettingsPage from './pages/DatabaseSettingsPage'
 import UsersPage from './pages/UsersPage'
 import LabsPage from './pages/LabsPage'
+import ProjectsPage from './pages/ProjectsPage'
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
       { path: 'database', element: <DatabaseSettingsPage /> },
       { path: 'users', element: <UsersPage /> },
       { path: 'labs', element: <LabsPage />},
+      { path: 'projects', element: <ProjectsPage />},
     ],
   },
 ])

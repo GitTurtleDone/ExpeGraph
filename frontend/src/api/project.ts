@@ -15,7 +15,7 @@ const BASE = "http://localhost:5174";
 export async function getAllProjects(q: ProjectQuery = {}): Promise<Project[]> {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(q)) {
-    if (value !== undefined && value !== nule && value != "")
+    if (value !== undefined && value !== null && value != "")
       params.append(key, String(value));
   }
   const qs = params.toString();
